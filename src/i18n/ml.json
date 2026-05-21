@@ -1,0 +1,64 @@
+{
+  "auth": {
+    "welcome": "ഹോമി ഹോൾഡിംഗ്‌സിലേക്ക് സ്വാഗതം",
+    "tagline": "മലബാറിൽ നിങ്ങളുടെ സ്വപ്ന ഭൂമി കണ്ടെത്തൂ",
+    "phone_label": "മൊബൈൽ നമ്പർ",
+    "phone_placeholder": "10 അക്ക നമ്പർ നൽകൂ",
+    "phone_hint": "OTP അയക്കാൻ ഈ നമ്പർ ഉപയോഗിക്കും",
+    "send_otp": "OTP അയക്കുക",
+    "otp_title": "സ്ഥിരീകരിക്കുക",
+    "otp_subtitle": "{{phone}} ലേക്ക് അയച്ച കോഡ് നൽകൂ",
+    "otp_whatsapp": "WhatsApp വഴി കോഡ് അയച്ചു",
+    "otp_sms": "SMS വഴി കോഡ് അയച്ചു",
+    "resend": "വീണ്ടും അയക്കുക",
+    "resend_in": "{{seconds}} സെക്കൻഡ് കാത്തിരിക്കൂ",
+    "change_number": "← നമ്പർ മാറ്റുക",
+    "name_title": "നിങ്ങളുടെ പേര് എന്താണ്?",
+    "name_subtitle": "ബയർമാർക്കും സെല്ലർമാർക്കും നിങ്ങളെ അറിയാൻ സഹായിക്കൂ.",
+    "name_label": "നിങ്ങളുടെ പേര്",
+    "name_placeholder": "പൂർണ്ണ പേര് നൽകൂ",
+    "continue": "തുടരുക",
+    "skip": "ഇപ്പോൾ ഒഴിവാക്കുക",
+    "phone_title": "നമസ്കാരം",
+    "brand_word": "ഹോമി",
+    "brand_tag": "ഹോൾഡിംഗ്സ്",
+    "terms": "തുടരുന്നതിലൂടെ നിങ്ങൾ ഞങ്ങളുടെ നിബന്ധനകളും സ്വകാര്യതാ നയവും അംഗീകരിക്കുന്നു",
+    "verify_cta": "OTP സ്ഥിരീകരിക്കുക",
+    "profile_saved_title": "പ്രൊഫൈൽ സേവ് ചെയ്തു",
+    "profile_saved_body": "പിന്നീട് പ്രൊഫൈലിൽ നിന്ന് പേര് അപ്ഡേറ്റ് ചെയ്യാം."
+  },
+  "common": {
+    "loading": "ലോഡ് ചെയ്യുന്നു...",
+    "error_generic": "എന്തോ തകരാർ. ദയവായി വീണ്ടും ശ്രമിക്കൂ.",
+    "retry": "വീണ്ടും ശ്രമിക്കൂ",
+    "save": "സേവ് ചെയ്യുക",
+    "cancel": "റദ്ദാക്കുക"
+  },
+  "property": {
+    "for_sale": "വിൽക്കാൻ",
+    "for_rent": "വാടകക്ക്",
+    "for_lease": "പാട്ടത്തിന്",
+    "featured": "ഫീച്ചേർഡ്",
+    "contact_owner": "ഉടമയെ ബന്ധപ്പെടുക",
+    "view_number": "നമ്പർ കാണുക",
+    "chat": "ചാറ്റ്"
+  },
+  "tabs": {
+    "home": "ഹോം",
+    "search": "തിരയൽ",
+    "post": "പോസ്റ്റ്",
+    "saved": "സേവ്",
+    "profile": "പ്രൊഫൈൽ"
+  },
+  "profile": {
+    "logout": "ലോഗൗട്ട്"
+  },
+  "stub": {
+    "home": "ഹോം — SCREENS_INIT.md കാണുക",
+    "search": "തിരയൽ — SCREENS_INIT.md കാണുക",
+    "post": "പോസ്റ്റ് — അഡ്മിൻ ലിസ്റ്റിംഗ്",
+    "saved": "സേവ് — SCREENS_INIT.md കാണുക",
+    "profile": "പ്രൊഫൈൽ — SCREENS_INIT.md കാണുക",
+    "property_detail": "വിശദാംശങ്ങൾ — SCREENS_INIT.md കാണുക"
+  }
+}

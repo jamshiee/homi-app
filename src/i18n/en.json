@@ -1,0 +1,64 @@
+{
+  "auth": {
+    "welcome": "Welcome to Homi Holdings",
+    "tagline": "Find your perfect property in Malabar",
+    "phone_label": "MOBILE NUMBER",
+    "phone_placeholder": "Enter your 10-digit number",
+    "phone_hint": "We'll send a 6-digit OTP to verify",
+    "send_otp": "Send OTP",
+    "otp_title": "Verify",
+    "otp_subtitle": "Enter the code sent to {{phone}}",
+    "otp_whatsapp": "Code sent via WhatsApp",
+    "otp_sms": "Code sent via SMS",
+    "resend": "Resend OTP",
+    "resend_in": "Resend in {{seconds}}s",
+    "change_number": "← Change Number",
+    "name_title": "What's your name?",
+    "name_subtitle": "Help buyers and sellers know who they're talking to.",
+    "name_label": "YOUR NAME",
+    "name_placeholder": "Enter your full name",
+    "continue": "Continue",
+    "skip": "Skip for now",
+    "phone_title": "Hi, there",
+    "brand_word": "HOMI",
+    "brand_tag": "HOLDINGS",
+    "terms": "By continuing you agree to our Terms & Privacy Policy",
+    "verify_cta": "Verify OTP",
+    "profile_saved_title": "Profile saved",
+    "profile_saved_body": "You can update your name later from Profile."
+  },
+  "common": {
+    "loading": "Loading...",
+    "error_generic": "Something went wrong. Please try again.",
+    "retry": "Try again",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "property": {
+    "for_sale": "For Sale",
+    "for_rent": "For Rent",
+    "for_lease": "For Lease",
+    "featured": "Featured",
+    "contact_owner": "Contact Owner",
+    "view_number": "View Number",
+    "chat": "Chat"
+  },
+  "tabs": {
+    "home": "Home",
+    "search": "Search",
+    "post": "Post",
+    "saved": "Saved",
+    "profile": "Profile"
+  },
+  "profile": {
+    "logout": "Logout"
+  },
+  "stub": {
+    "home": "Home — see SCREENS_INIT.md",
+    "search": "Search — see SCREENS_INIT.md",
+    "post": "Post — admin listing flow",
+    "saved": "Saved — see SCREENS_INIT.md",
+    "profile": "Profile — see SCREENS_INIT.md",
+    "property_detail": "Property detail — see SCREENS_INIT.md"
+  }
+}
