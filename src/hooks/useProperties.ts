@@ -79,14 +79,19 @@ export function useToggleSave() {
       queryClient.setQueryData(
         QUERY_KEYS.saved(),
         (old: ApiResponse<PropertyDto[]> | undefined) => {
-          if (!old) return old;
-          const items = (old.data as PropertyDto[]) ?? [];
-          const alreadySaved = items.some((p) => p.id === propertyId);
+          if (!old || !Array.isArray(old.data)) return old;
+
+          const items = old.data;
+
+          const alreadySaved = items.some(
+            (p) => p.id === propertyId
+          );
+
           return {
             ...old,
             data: alreadySaved
               ? items.filter((p) => p.id !== propertyId)
-              : items, // new saves appear after refetch
+              : items,
           };
         },
       );

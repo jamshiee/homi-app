@@ -1,11 +1,12 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { usePostStore, PropertyTypeKey } from '@store/postStore';
+import { usePostStore } from '@store/postStore';
 import { Colors } from '@constants/colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { PropertyTypeEnum } from '@/common/enums/property-enums/property-type.enum';
 
 interface TypeOption {
-  key: PropertyTypeKey;
+  key: PropertyTypeEnum;
   label: string;
   description: string;
   icon: keyof typeof MaterialCommunityIcons.glyphMap;
@@ -14,29 +15,29 @@ interface TypeOption {
 
 const OPTIONS: TypeOption[] = [
   {
-    key: 'house',
+    key: PropertyTypeEnum.HOUSE,
     label: 'House',
-    description: 'Independent homes, villas, and residential units',
+    description: 'Independent homes, and residential units',
     icon: 'home-city-outline',
     color: '#3B82F6',
   },
   {
-    key: 'land',
+    key: PropertyTypeEnum.LAND,
     label: 'Land / Cent',
     description: 'Residential plots, commercial acres, agricultural land, and cents',
     icon: 'image-filter-hdr',
     color: '#10B981',
   },
   {
-    key: 'building',
+    key: PropertyTypeEnum.BUILDING,
     label: 'Commercial Building',
-    description: 'Shops, office spaces, warehouses, and full complexes',
+    description: 'Rooms, office spaces, warehouses',
     icon: 'office-building-outline',
     color: '#8B5CF6',
   },
   {
-    key: 'hotel',
-    label: 'Hotel / PG / Lodge',
+    key: PropertyTypeEnum.HOTEL,
+    label: 'Hotel / PG / Resort / Lodge',
     description: 'Paying guest accommodations, rooms, short-stays, and lodges',
     icon: 'bed-outline',
     color: '#EC4899',
@@ -46,7 +47,7 @@ const OPTIONS: TypeOption[] = [
 export default function Step1Type() {
   const { type, setField } = usePostStore();
 
-  const handleSelect = (key: PropertyTypeKey) => {
+  const handleSelect = (key: PropertyTypeEnum) => {
     setField({ type: key });
   };
 

@@ -225,15 +225,11 @@ export default function Step7Review() {
         return (
           <View style={styles.specGrid}>
             <View style={styles.specBox}>
-              <Text style={styles.specVal}>{hotelDetail?.roomsAvailable || '0'}</Text>
-              <Text style={styles.specLabel}>ROOMS</Text>
-            </View>
-            <View style={styles.specBox}>
               <Text style={styles.specVal}>{hotelDetail?.roomType?.toUpperCase()}</Text>
               <Text style={styles.specLabel}>ROOM TYPE</Text>
             </View>
             <View style={styles.specBox}>
-              <Text style={styles.specVal}>{hotelDetail?.occupancy?.toUpperCase()}</Text>
+              <Text style={styles.specVal}>{hotelDetail?.occupancy}</Text>
               <Text style={styles.specLabel}>OCCUPANCY</Text>
             </View>
           </View>

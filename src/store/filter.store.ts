@@ -1,4 +1,4 @@
-import { FurnishingStatusEnum } from '@/common/enums/furnishing-status.enum';
+import { FurnishingStatusEnum } from '@/common/enums/property-enums/furnishing-status.enum';
 import { SortOptionEnum } from '@/common/enums/sort-option-filter.enum';
 import { TransactionTypeFilter as TransactionType } from '@/common/enums/transaction-type-filter.enum';
 import { create } from 'zustand';
@@ -8,7 +8,7 @@ export type PropertyType = 'land' | 'house' | 'building' | 'hotel' | 'all';
 export interface FilterState {
   type: PropertyType;
   transactionType: TransactionType;
-  district?: string;  
+  district?: string;
   locality?: string;
   minPrice?: number;
   maxPrice?: number;
@@ -49,7 +49,7 @@ const defaultState: FilterState = {
 
   minArea: undefined,
   maxArea: undefined,
-  areaUnit: 'cents', 
+  areaUnit: 'cents',
 
   bedrooms: undefined,
   bathrooms: undefined,

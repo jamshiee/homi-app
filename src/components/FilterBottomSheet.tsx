@@ -5,7 +5,7 @@ import { Colors } from '@constants/colors';
 import { useFilterStore, PropertyType, FilterState } from '@store/filter.store';
 import { Ionicons } from '@expo/vector-icons';
 import { TransactionTypeFilter } from '@/common/enums/transaction-type-filter.enum';
-import { FurnishingStatusEnum } from '@/common/enums/furnishing-status.enum';
+import { FurnishingStatusEnum } from '@/common/enums/property-enums/furnishing-status.enum';
 import { SortOptionEnum } from '@/common/enums/sort-option-filter.enum';
 import { propertiesApi } from '@/api/properties.api';
 
@@ -16,7 +16,7 @@ interface FilterBottomSheetProps {
 
 export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, onClose }) => {
   const { t } = useTranslation();
-  
+
   const filterState = useFilterStore();
   const { setFilter, resetFilters } = filterState;
 
@@ -48,7 +48,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
         setLoadingDistricts(true);
         propertiesApi.getDistricts()
           .then((res) => { setDistricts(res.data?.data ?? []); })
-          .catch(() => {})
+          .catch(() => { })
           .finally(() => setLoadingDistricts(false));
       }
     }
@@ -106,14 +106,14 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={{ flex: 1, backgroundColor: Colors.overlay, justifyContent: 'flex-end' }}>
         <Pressable style={{ flex: 1 }} onPress={onClose} />
-        
+
         <View style={{ backgroundColor: Colors.white, borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '85%' }}>
           <View style={{ alignItems: 'center', marginTop: 12 }}>
             <View style={{ width: 40, height: 4, backgroundColor: '#D1D1D1', borderRadius: 2 }} />
           </View>
 
           <ScrollView style={{ paddingHorizontal: 20 }} showsVerticalScrollIndicator={false}>
-            
+
             {/* SORT */}
             {renderSectionHeader(t('filter.sort_by', 'Sort By'))}
             <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>

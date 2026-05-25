@@ -1,13 +1,21 @@
 import { create } from 'zustand';
 import { localStorage } from '../utils/storage';
+import { BuildingSubTypeEnum } from '@/common/enums/property-enums/building-subtype.enum';
+import { AreaUnitEnum } from '@/common/enums/property-enums/area-unit.enum';
+import { BuildingStatusEnum } from '@/common/enums/property-enums/building-status.enum';
+import { HotelSubTypeEnum } from '@/common/enums/property-enums/hotel-subtype.enum';
+import { RoomTypeEnum } from '@/common/enums/property-enums/room-type.enum';
+import { FurnishingStatusEnum } from '@/common/enums/property-enums/furnishing-status.enum';
+import { PriceUnitEnum } from '@/common/enums/property-enums/price-unit.enum';
+import { PropertyTypeEnum } from '@/common/enums/property-enums/property-type.enum';
+import { TransactionTypeFilter } from '@/common/enums/transaction-type-filter.enum';
 
-export type PropertyTypeKey = 'land' | 'house' | 'building' | 'hotel' | '';
 
 export interface PostState {
   step: number;
-  type: PropertyTypeKey;
+  type: PropertyTypeEnum;
   title: string;
-  transactionType: 'buy' | 'rent' | 'lease' | '';
+  transactionType: TransactionTypeFilter;
   district: string;
   locality: string;
   address: string;
@@ -16,7 +24,7 @@ export interface PostState {
   price: number;
   isNegotiable: boolean;
   advanceAmount?: number;
-  priceUnit: string;
+  priceUnit: PriceUnitEnum;
   description: string;
   contactPhone: string;
   alternatePhone?: string;
@@ -24,7 +32,7 @@ export interface PostState {
   // Sub-details
   landDetail?: {
     totalArea: number;
-    areaUnit: string;
+    areaUnit: AreaUnitEnum;
   };
   houseDetail?: {
     bedrooms: number;
@@ -32,22 +40,20 @@ export interface PostState {
     balconies: number;
     floors: number;
     hasKitchen: boolean;
-    furnishingStatus: string;
+    furnishingStatus: FurnishingStatusEnum;
   };
   buildingDetail?: {
-    subType: string;
+    subType: BuildingSubTypeEnum;
     totalArea: number;
-    areaUnit: string;
+    areaUnit: AreaUnitEnum;
     floorNumber: number;
-    currentStatus: string;
+    currentStatus: BuildingStatusEnum;
   };
   hotelDetail?: {
-    subType: string;
-    roomsAvailable: number;
-    roomType: string;
-    occupancy: string;
+    subType: HotelSubTypeEnum;
+    roomType: RoomTypeEnum;
+    occupancy: number;
     mealsIncluded: boolean;
-    pricePerNight?: number;
   };
 
   // Amenities and Photos
@@ -58,10 +64,10 @@ export interface PostState {
 
 const defaultPostState: PostState = {
   step: 1,
-  type: '',
+  type: PropertyTypeEnum.HOUSE,
   scrollEnabled: true,
   title: '',
-  transactionType: '',
+  transactionType: TransactionTypeFilter.RENT,
   district: '',
   locality: '',
   address: '',
@@ -70,7 +76,7 @@ const defaultPostState: PostState = {
   price: 0,
   isNegotiable: false,
   advanceAmount: undefined,
-  priceUnit: 'total',
+  priceUnit: PriceUnitEnum.TOTAL,
   description: '',
   contactPhone: '',
   alternatePhone: '',

@@ -1,4 +1,5 @@
-import { PropertyTypeEnum } from "@/common/enums/property-type.enum";
+import { PriceUnitEnum } from "@/common/enums/property-enums/price-unit.enum";
+import { PropertyTypeEnum } from "@/common/enums/property-enums/property-type.enum";
 import { TransactionTypeFilter } from "@/common/enums/transaction-type-filter.enum";
 
 export interface ApiResponse<T = unknown> {
@@ -35,8 +36,8 @@ export interface PropertyMediaDto {
 export interface MediaDto {
   id: string;
   url: string
-  mimeType:string
-  originalFileName:string
+  mimeType: string
+  originalFileName: string
 }
 
 export interface AmenityDto {
@@ -56,10 +57,10 @@ export interface PropertyDto {
   address?: string | null;
   latitude?: number | null;
   longitude?: number | null;
-  price: number;
+  price: string;
   isNegotiable?: boolean;
   advanceAmount?: number | null;
-  priceUnit?: string | null;
+  priceUnit: PriceUnitEnum;
   isFeatured: boolean;
   status?: string;
   moderationStatus?: string;
@@ -71,6 +72,7 @@ export interface PropertyDto {
   whatsappTapCount?: number;
   phoneRevealCount?: number;
   isSaved?: boolean;
+  listedByUserId: string
   listedByUser?: {
     id: string;
     name: string | null;
@@ -84,7 +86,7 @@ export interface PropertyDto {
 
   // Type-specific details
   landDetail?: {
-    totalArea: string | number;
+    totalArea: string ;
     areaUnit: string;
     hasRoadAccess?: boolean;
   };
@@ -99,7 +101,7 @@ export interface PropertyDto {
   };
   buildingDetail?: {
     subType: string;
-    totalArea: string | number;
+    totalArea: string ;
     areaUnit: string;
     floorNumber: number;
     currentStatus: string;
@@ -110,11 +112,9 @@ export interface PropertyDto {
     roomType: string;
     occupancy: string;
     mealsIncluded: boolean;
-    pricePerNight?: string | number | null;
-    pricePerMonth?: string | number | null;
   };
 }
 
 export interface isSavedDto {
-  saved : boolean
+  saved: boolean
 }

@@ -11,7 +11,13 @@ import {
 import { usePostStore } from '../../store/postStore';
 import { Colors } from '../../constants/colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { FurnishingStatusEnum } from '@/common/enums/furnishing-status.enum';
+import { FurnishingStatusEnum } from '@/common/enums/property-enums/furnishing-status.enum';
+import { BuildingSubTypeEnum } from '@/common/enums/property-enums/building-subtype.enum';
+import { HotelSubTypeEnum } from '@/common/enums/property-enums/hotel-subtype.enum';
+import { RoomTypeEnum } from '@/common/enums/property-enums/room-type.enum';
+import { PropertyTypeEnum } from '@/common/enums/property-enums/property-type.enum';
+import { AreaUnitEnum } from '@/common/enums/property-enums/area-unit.enum';
+import { BuildingStatusEnum } from '@/common/enums/property-enums/building-status.enum';
 
 interface StepperProps {
   label: string;
@@ -50,7 +56,7 @@ export default function Step3Details() {
   const { type, landDetail, houseDetail, buildingDetail, hotelDetail, setField } = usePostStore();
 
   const handleUpdateLand = (updates: any) => {
-    setField({ landDetail: { ...(landDetail || { totalArea: 0, areaUnit: 'cents' }), ...updates } });
+    setField({ landDetail: { ...(landDetail || { totalArea: 0, areaUnit: AreaUnitEnum.CENT }), ...updates } });
   };
 
   const handleUpdateHouse = (updates: any) => {
@@ -73,9 +79,9 @@ export default function Step3Details() {
     setField({
       buildingDetail: {
         ...(buildingDetail || {
-          subType: 'office',
+          subType: BuildingSubTypeEnum.OFFICE,
           totalArea: 0,
-          areaUnit: 'cents',
+          areaUnit: AreaUnitEnum.CENT,
           floorNumber: 0,
           currentStatus: 'ready_to_move',
         }),
@@ -88,10 +94,9 @@ export default function Step3Details() {
     setField({
       hotelDetail: {
         ...(hotelDetail || {
-          subType: 'hotel',
-          roomsAvailable: 5,
-          roomType: 'double',
-          occupancy: 'any',
+          subType: HotelSubTypeEnum.HOTEL,
+          roomType: RoomTypeEnum.DOUBLE,
+          occupancy: 1,
           mealsIncluded: false,
         }),
         ...updates,
@@ -100,8 +105,8 @@ export default function Step3Details() {
   };
 
   // 1. LAND DETAILS FORM
-  if (type === 'land') {
-    const details = landDetail || { totalArea: 0, areaUnit: 'cents' };
+  if (type === PropertyTypeEnum.LAND) {
+    const details = landDetail || { totalArea: 0, areaUnit: AreaUnitEnum.CENT };
     return (
       <View style={styles.container}>
         <Text style={styles.title}>Land Metrics</Text>
@@ -121,17 +126,17 @@ export default function Step3Details() {
 
         <Text style={styles.label}>Area Unit *</Text>
         <View style={styles.pillContainer}>
-          {['cents', 'sqft', 'acres'].map((unit) => {
-            const isSelected = details.areaUnit === unit;
+          {Object.entries(AreaUnitEnum).map(([key,value]) => {
+            const isSelected = details.areaUnit === value;
             return (
               <TouchableOpacity
-                key={unit}
+                key={key}
                 activeOpacity={0.7}
-                onPress={() => handleUpdateLand({ areaUnit: unit })}
+                onPress={() => handleUpdateLand({ areaUnit: value })}
                 style={[styles.pill, isSelected && styles.pillSelected]}
               >
                 <Text style={[styles.pillText, isSelected && styles.pillTextSelected]}>
-                  {unit.toUpperCase()}
+                  {key}
                 </Text>
               </TouchableOpacity>
             );
@@ -142,7 +147,7 @@ export default function Step3Details() {
   }
 
   // 2. HOUSE DETAILS FORM
-  if (type === 'house') {
+  if (type === PropertyTypeEnum.HOUSE) {
     const details = houseDetail || {
       bedrooms: 2,
       bathrooms: 2,
@@ -213,11 +218,11 @@ export default function Step3Details() {
   }
 
   // 3. COMMERCIAL BUILDING DETAILS FORM
-  if (type === 'building') {
+  if (type === PropertyTypeEnum.BUILDING) {
     const details = buildingDetail || {
-      subType: 'office',
+      subType: BuildingSubTypeEnum.ROOM,
       totalArea: 0,
-      areaUnit: 'cents',
+      areaUnit: AreaUnitEnum.CENT,
       floorNumber: 0,
       currentStatus: 'ready_to_move',
     };
@@ -228,7 +233,7 @@ export default function Step3Details() {
 
         <Text style={styles.label}>Commercial Subtype *</Text>
         <View style={styles.pillContainer}>
-          {['office', 'retail', 'warehouse', 'shop', 'other'].map((sub) => {
+          {Object.values(BuildingSubTypeEnum).map((sub) => {
             const isSelected = details.subType === sub;
             return (
               <TouchableOpacity
@@ -259,17 +264,17 @@ export default function Step3Details() {
 
         <Text style={styles.label}>Area Unit *</Text>
         <View style={styles.pillContainer}>
-          {['cents', 'sqft', 'acres'].map((unit) => {
-            const isSelected = details.areaUnit === unit;
+          {Object.entries(AreaUnitEnum).map(([key,value]) => {
+            const isSelected = details.areaUnit === value;
             return (
               <TouchableOpacity
-                key={unit}
+                key={key}
                 activeOpacity={0.7}
-                onPress={() => handleUpdateBuilding({ areaUnit: unit })}
+                onPress={() => handleUpdateBuilding({ areaUnit: value })}
                 style={[styles.pill, isSelected && styles.pillSelected]}
               >
                 <Text style={[styles.pillText, isSelected && styles.pillTextSelected]}>
-                  {unit.toUpperCase()}
+                  {key}
                 </Text>
               </TouchableOpacity>
             );
@@ -284,17 +289,17 @@ export default function Step3Details() {
 
         <Text style={styles.label}>Current Status *</Text>
         <View style={styles.pillContainer}>
-          {['ready_to_move', 'under_construction'].map((status) => {
-            const isSelected = details.currentStatus === status;
+          {Object.entries(BuildingStatusEnum).map(([key,value]) => {
+            const isSelected = details.currentStatus === value;
             return (
               <TouchableOpacity
-                key={status}
+                key={key}
                 activeOpacity={0.7}
-                onPress={() => handleUpdateBuilding({ currentStatus: status })}
+                onPress={() => handleUpdateBuilding({ currentStatus: value })}
                 style={[styles.pill, isSelected && styles.pillSelected]}
               >
                 <Text style={[styles.pillText, isSelected && styles.pillTextSelected]}>
-                  {status.replace('_', ' ').toUpperCase()}
+                  {key.replaceAll('_', ' ')}
                 </Text>
               </TouchableOpacity>
             );
@@ -305,12 +310,11 @@ export default function Step3Details() {
   }
 
   // 4. HOTEL / PG DETAILS FORM
-  if (type === 'hotel') {
+  if (type === PropertyTypeEnum.HOTEL) {
     const details = hotelDetail || {
-      subType: 'hotel',
-      roomsAvailable: 5,
-      roomType: 'double',
-      occupancy: 'any',
+      subType: HotelSubTypeEnum.HOTEL,
+      roomType: RoomTypeEnum.SINGLE,
+      occupancy: 1,
       mealsIncluded: false,
     };
     return (
@@ -320,67 +324,49 @@ export default function Step3Details() {
 
         <Text style={styles.label}>Hotel Subtype *</Text>
         <View style={styles.pillContainer}>
-          {['hotel', 'pg', 'lodge', 'resort'].map((sub) => {
-            const isSelected = details.subType === sub;
+          {Object.entries(HotelSubTypeEnum).map(([key,value]) => {
+            const isSelected = details.subType === value;
             return (
               <TouchableOpacity
-                key={sub}
+                key={key}
                 activeOpacity={0.7}
-                onPress={() => handleUpdateHotel({ subType: sub })}
+                onPress={() => handleUpdateHotel({ subType: value })}
                 style={[styles.pill, isSelected && styles.pillSelected]}
               >
                 <Text style={[styles.pillText, isSelected && styles.pillTextSelected]}>
-                  {sub.toUpperCase()}
+                  {key.replace('_', ' ')}
                 </Text>
               </TouchableOpacity>
             );
           })}
         </View>
-
-        <Stepper
-          label="Rooms / Units Available"
-          value={details.roomsAvailable}
-          onChange={(val) => handleUpdateHotel({ roomsAvailable: val })}
-          min={1}
-        />
 
         <Text style={styles.label}>Room Type *</Text>
         <View style={styles.pillContainer}>
-          {['single', 'double', 'suite', 'dormitory'].map((room) => {
-            const isSelected = details.roomType === room;
+          {Object.entries(RoomTypeEnum).map(([key,value]) => {
+            const isSelected = details.roomType === value;
             return (
               <TouchableOpacity
-                key={room}
+                key={key}
                 activeOpacity={0.7}
-                onPress={() => handleUpdateHotel({ roomType: room })}
+                onPress={() => handleUpdateHotel({ roomType: value })}
                 style={[styles.pill, isSelected && styles.pillSelected]}
               >
                 <Text style={[styles.pillText, isSelected && styles.pillTextSelected]}>
-                  {room.toUpperCase()}
+                  {key.replace('_', ' ')}
                 </Text>
               </TouchableOpacity>
             );
           })}
         </View>
 
-        <Text style={styles.label}>Allowed Occupancy *</Text>
-        <View style={styles.pillContainer}>
-          {['single', 'sharing', 'any'].map((occ) => {
-            const isSelected = details.occupancy === occ;
-            return (
-              <TouchableOpacity
-                key={occ}
-                activeOpacity={0.7}
-                onPress={() => handleUpdateHotel({ occupancy: occ })}
-                style={[styles.pill, isSelected && styles.pillSelected]}
-              >
-                <Text style={[styles.pillText, isSelected && styles.pillTextSelected]}>
-                  {occ.toUpperCase()}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+          <Stepper
+          label="Allowed Occupancy"
+          
+          value={details.occupancy}
+          onChange={(val) => handleUpdateHotel({ occupancy: val })}
+          min={1}
+        />
 
         <View style={styles.switchRow}>
           <Text style={styles.switchLabel}>Meals / Food Included?</Text>

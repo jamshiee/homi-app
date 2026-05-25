@@ -12,6 +12,9 @@ import { usePostStore } from '../../store/postStore';
 import { useAuthStore } from '../../store/auth.store';
 import { Colors } from '../../constants/colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { PropertyTypeEnum } from '@/common/enums/property-enums/property-type.enum';
+import { TransactionTypeFilter } from '@/common/enums/transaction-type-filter.enum';
+import { PriceUnitEnum } from '@/common/enums/property-enums/price-unit.enum';
 
 export default function Step4Pricing() {
   const { user } = useAuthStore();
@@ -37,23 +40,31 @@ export default function Step4Pricing() {
   }, [user]);
 
   const getPriceUnitOptions = () => {
-    if (type === 'land') {
-      return ['total', 'per_cent', 'per_sqft', 'per_acre'];
+    if (type === PropertyTypeEnum.LAND) {
+      return [PriceUnitEnum.TOTAL, PriceUnitEnum.PER_CENT, PriceUnitEnum.PER_SQFT, PriceUnitEnum.PER_ACRE];
     }
-    if (type === 'hotel') {
-      return ['per_night', 'per_month'];
+    if (type === PropertyTypeEnum.HOTEL) {
+      return [PriceUnitEnum.PER_NIGHT, PriceUnitEnum.PER_MONTH];
     }
     // house, building
-    if (transactionType === 'rent' || transactionType === 'lease') {
-      return ['per_month', 'total'];
+    if (transactionType === TransactionTypeFilter.RENT || transactionType === TransactionTypeFilter.LEASE) {
+      return [PriceUnitEnum.PER_MONTH];
     }
-    return ['total'];
+    return [PriceUnitEnum.TOTAL];
   };
 
-  const handleTransactionSelect = (tx: 'buy' | 'rent' | 'lease') => {
+  const getTransactionTypeOptions = () => {
+
+    if (type === PropertyTypeEnum.HOTEL) {
+      return [TransactionTypeFilter.RENT];
+    }
+    return [TransactionTypeFilter.BUY, TransactionTypeFilter.RENT, TransactionTypeFilter.LEASE];
+  }
+
+  const handleTransactionSelect = (tx: TransactionTypeFilter) => {
     setField({
       transactionType: tx,
-      priceUnit: tx === 'rent' || tx === 'lease' ? 'per_month' : 'total',
+      priceUnit: tx === TransactionTypeFilter.RENT || tx === TransactionTypeFilter.LEASE ? PriceUnitEnum.PER_MONTH : PriceUnitEnum.TOTAL,
     });
   };
 
@@ -77,21 +88,17 @@ export default function Step4Pricing() {
       {/* Transaction Type Selection */}
       <Text style={styles.label}>Transaction Type *</Text>
       <View style={styles.pillContainer}>
-        {[
-          { key: 'buy', label: 'BUY' },
-          { key: 'rent', label: 'RENT' },
-          { key: 'lease', label: 'LEASE' },
-        ].map((opt) => {
-          const isSelected = transactionType === opt.key;
+        {getTransactionTypeOptions().map((value) => {
+          const isSelected = transactionType === value;
           return (
             <TouchableOpacity
-              key={opt.key}
+              key={value}
               activeOpacity={0.7}
-              onPress={() => handleTransactionSelect(opt.key as any)}
+              onPress={() => handleTransactionSelect(value)}
               style={[styles.pill, isSelected && styles.pillSelected]}
             >
-              <Text style={[styles.pillText, isSelected && styles.pillTextSelected]}>
-                {opt.label}
+              <Text style={[styles.pillText, isSelected && styles.pillTextSelected]} >
+                {value}
               </Text>
             </TouchableOpacity>
           );
@@ -113,7 +120,7 @@ export default function Step4Pricing() {
       </View>
 
       {/* Advance Deposit (conditional on rent/lease) */}
-      {(transactionType === 'rent' || transactionType === 'lease') && (
+      {((transactionType === TransactionTypeFilter.RENT || transactionType === TransactionTypeFilter.LEASE) && type !== PropertyTypeEnum.HOTEL) && (
         <>
           <Text style={styles.label}>Advance Deposit Amount (₹)</Text>
           <View style={styles.priceInputRow}>
@@ -290,6 +297,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: Colors.lightMuted,
+    textTransform: 'capitalize'
   },
   pillTextSelected: {
     color: Colors.yellow,
