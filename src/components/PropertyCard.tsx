@@ -1,15 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
-import { PropertyDto } from '@api/types';
-import { Colors } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
+import { PropertyDto } from '@api/types';
+import { Colors } from '@constants/colors';
+import { formatPrice } from '@utils/price';
+import { PropertyTypeEnum } from '@/common/enums/property-type.enum';
 
-interface PropertyCardProps {
+export interface PropertyCardProps {
   property: PropertyDto;
   onPress?: (id: string) => void;
   onSaveToggle?: (id: string) => void;
   isSaved?: boolean;
+  onWhatsAppPress?: (property: PropertyDto) => void;
+  onCallPress?: (property: PropertyDto) => void;
+  onViewNumberPress?: (property: PropertyDto) => void;
 }
 
 export const PropertyCard: React.FC<PropertyCardProps> = ({
@@ -17,204 +22,245 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   onPress,
   onSaveToggle,
   isSaved = false,
+  onWhatsAppPress,
+  onCallPress,
+  onViewNumberPress,
 }) => {
   const { t } = useTranslation();
 
-  const coverImage = property.propertyMedia?.find((m) => m.isCover)?.url || property.propertyMedia?.[0]?.url;
 
-  // Format price
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
 
-  const renderModuleConditionalRow = () => {
-    switch (property.type) {
-      case 'land':
-        return `${property.landDetail?.totalArea || 0} ${property.landDetail?.areaUnit || 'Cents'} · ${
-          property.landDetail?.hasRoadAccess ? t('property.road_access_yes', 'Road access ✓') : t('property.road_access_no', 'No road access')
-        }`;
-      case 'house':
-        return `${property.houseDetail?.bedrooms || 0} BHK · ${property.houseDetail?.bathrooms || 0} Bath · ${
-          property.houseDetail?.floors || 1
-        } Floors`;
-      case 'building':
-        return `${property.buildingDetail?.totalArea || 0} sqft · Floor ${property.buildingDetail?.floorNumber || 0} · ${
-          property.buildingDetail?.currentStatus || 'Vacant'
-        }`;
-      case 'hotel':
-        return `${property.hotelDetail?.roomType || 'Single Room'} · ${property.hotelDetail?.propertySubtype || 'Lodge'} · ₹${
-          property.hotelDetail?.pricePerNight || 0
-        }/night`;
-      default:
-        return '';
+
+  const coverImage = 
+    property.propertyMedia?.find((m) => m.isCover)?.media?.url ??
+    "cover"
+
+  const ownerName =
+    property.listedByUser?.name ?? property.lister?.name ?? 'Owner';
+
+type PropertyPill = {
+  iconName: keyof typeof Ionicons.glyphMap;
+  value: string | number;
+};
+
+const pills = (): PropertyPill[] => {
+  const pills: PropertyPill[] = [];
+
+  switch (property.type) {
+    case PropertyTypeEnum.LAND: {
+      if (property.landDetail?.totalArea) {
+        pills.push({
+          iconName: 'resize',
+          value: `${property.landDetail.totalArea} ${
+            property.landDetail.areaUnit ?? 'Cents'
+          }`,
+        });
+      }
+
+      if(property.landDetail?.hasRoadAccess){
+   pills.push({
+        iconName: 'trail-sign',
+        value: 'Road Access',
+      });
+      }
+   
+
+      return pills;
     }
-  };
+
+    case PropertyTypeEnum.HOUSE: {
+      if (property.houseDetail?.bedrooms) {
+        pills.push({
+          iconName: 'bed',
+          value: `${property.houseDetail.bedrooms} Beds`,
+        });
+      }
+
+      if (property.houseDetail?.bathrooms) {
+        pills.push({
+          iconName: 'water',
+          value: `${property.houseDetail.bathrooms} Bathrooms`,
+        });
+      }
+
+      if (property.houseDetail?.floors) {
+        pills.push({
+          iconName: 'business',
+          value: `${property.houseDetail.floors} ${
+  property.houseDetail.floors === 1
+    ? 'Floor'
+    : 'Floors'
+}`,
+        });
+      }
+
+      return pills;
+    }
+
+    case PropertyTypeEnum.BUILDING: {
+      if (property.buildingDetail?.totalArea) {
+        pills.push({
+          iconName: 'resize',
+          value: `${property.buildingDetail.totalArea} sqft`,
+        });
+      }
+
+      if (property.buildingDetail?.floorNumber) {
+        pills.push({
+          iconName: 'layers',
+value: `${property.buildingDetail.floorNumber} ${
+  property.buildingDetail.floorNumber === 1
+    ? 'Floor'
+    : 'Floors'
+}`,        });
+      }
+
+      if (property.buildingDetail?.currentStatus) {
+        pills.push({
+          iconName: 'home',
+          value: property.buildingDetail.currentStatus,
+        });
+      }
+
+      return pills;
+    }
+
+    case PropertyTypeEnum.HOTEL: {
+      if (property.hotelDetail?.roomType) {
+        pills.push({
+          iconName: 'bed',
+          value: property.hotelDetail.roomType,
+        });
+      }
+
+      if (property.hotelDetail?.subType) {
+        pills.push({
+          iconName: 'business',
+          value: property.hotelDetail.subType,
+        });
+      }
+
+      if (property.hotelDetail?.pricePerNight) {
+        pills.push({
+          iconName: 'cash',
+          value: `₹${property.hotelDetail.pricePerNight} /Night`,
+        });
+      }
+
+      return pills;
+    }
+
+    default:
+      return [];
+  }
+};
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.9}
-      onPress={() => onPress?.(property.id)}
-      style={{
-        backgroundColor: Colors.white,
-        borderRadius: 12,
-        borderWidth: 0.5,
-        borderColor: Colors.border,
-        marginHorizontal: 12,
-        marginVertical: 6,
-        overflow: 'hidden',
-      }}
-    >
-      {/* Image Area */}
-      <View style={{ height: 200, backgroundColor: Colors.surface, position: 'relative' }}>
-        {coverImage ? (
-          <Image source={{ uri: coverImage }} style={{ width: '100%', height: '100%' }} />
-        ) : (
-          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <Ionicons name="camera-outline" size={32} color={Colors.lightMuted} />
-            <Text style={{ color: Colors.lightMuted, marginTop: 8, fontSize: 13 }}>
-              {t('property.no_photos', 'No photos')}
-            </Text>
-          </View>
-        )}
+   <TouchableOpacity
+  activeOpacity={0.9}
+  onPress={() => onPress?.(property.id)}
+  className="mx-3 my-1.5 overflow-hidden rounded-xl border border-gray-200 bg-white"
+>
+  {/* Image */}
+  <View className="relative h-[220px]  p-2">
+    {coverImage ? (
+      <Image
+        source={{ uri: coverImage }}
+        className="h-full w-full rounded-xl"
+        resizeMode="cover"
+      />
+    ) : (
+      <View className="flex-1 items-center justify-center rounded-xl">
+        <Ionicons
+          name="camera-outline"
+          size={32}
+          color={Colors.lightMuted}
+        />
 
-        {/* Overlays */}
-        {/* Owner Name Pill */}
+        <Text className="mt-2 text-[13px] text-gray-400">
+          {t('property.no_photos', 'No photos')}
+        </Text>
+      </View>
+    )}
+
+    {/* Owner pill */}
+    <View className="absolute left-4 top-4 rounded-full bg-black/50 px-2 py-1">
+      <Text className="text-[11px] font-medium text-white">
+        {ownerName}
+      </Text>
+    </View>
+
+    {/* Featured badge */}
+    {/* {property.isFeatured && (
+      <View className="absolute bottom-3 left-3 rounded-full bg-yellow-400 px-2 py-1">
+        <Text className="text-[11px] font-bold text-black">
+          {t('property.featured', 'Featured')}
+        </Text>
+      </View>
+    )} */}
+  </View>
+
+  {/* Content */}
+  <View className="p-4">
+    <View className="flex-row items-start justify-between">
+      <Text
+        numberOfLines={1}
+        className="flex-1  text-[22px] font-bold text-black"
+      >
+        {property.title ||
+          `${property.type} for ${property.transactionType}`}
+      </Text>
+
+      <Text className="text-[22px] font-bold text-black">
+        {formatPrice(property.price)}
+      </Text>
+    </View>
+
+    {/* Location */}
+    <View className="mb-5 mt-1 flex-row items-center">
+      <Ionicons
+        name="location-outline"
+        size={14}
+        color={Colors.muted}
+      />
+
+      <Text className="ml-1 text-xs text-gray-500">
+        {property.locality}, {property.district}
+      </Text>
+    </View>
+
+    {/* Pills */}
+    <View className="mb-2 flex-row flex-wrap w-full gap-2 ">
+      {pills().map((item, idx) => (
         <View
-          style={{
-            position: 'absolute',
-            top: 12,
-            left: 12,
-            backgroundColor: Colors.overlay,
-            paddingHorizontal: 8,
-            paddingVertical: 4,
-            borderRadius: 12,
-          }}
-        >
-          <Text style={{ color: Colors.white, fontSize: 11, fontWeight: '500' }}>
-            {property.listedByUser?.name || 'Owner'}
-          </Text>
-        </View>
-
-        {/* Save Icon */}
-        <TouchableOpacity
-          onPress={() => onSaveToggle?.(property.id)}
-          style={{
-            position: 'absolute',
-            top: 12,
-            right: 12,
-            width: 32,
-            height: 32,
-            borderRadius: 16,
-            backgroundColor: Colors.overlay,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+          key={idx}
+          className="mb-2 flex-row items-center gap-1  rounded-md bg-gray-100 px-3 py-2"
         >
           <Ionicons
-            name={isSaved ? 'heart' : 'heart-outline'}
-            size={18}
-            color={isSaved ? Colors.yellow : Colors.white}
+            name={item.iconName as any}
+            size={14}
+            color={Colors.muted}
           />
-        </TouchableOpacity>
 
-        {/* Featured Badge */}
-        {property.isFeatured && (
-          <View
-            style={{
-              position: 'absolute',
-              bottom: 12,
-              left: 12,
-              backgroundColor: Colors.yellow,
-              paddingHorizontal: 8,
-              paddingVertical: 4,
-              borderRadius: 12,
-            }}
-          >
-            <Text style={{ color: Colors.dark, fontSize: 11, fontWeight: 'bold' }}>
-              {t('property.featured', 'Featured')}
-            </Text>
-          </View>
-        )}
-      </View>
-
-      {/* Content Area */}
-      <View style={{ padding: 16 }}>
-        <Text style={{ fontSize: 12, color: Colors.muted, marginBottom: 4 }}>
-          {renderModuleConditionalRow()}
-        </Text>
-        <Text style={{ fontSize: 17, fontWeight: 'bold', color: Colors.dark, marginBottom: 4 }} numberOfLines={1}>
-          {property.title || `${property.type} for ${property.transactionType}`}
-        </Text>
-        <Text style={{ fontSize: 22, fontWeight: 'bold', color: Colors.dark, marginBottom: 8 }}>
-          {formatPrice(property.price)}
-        </Text>
-        
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-          <Ionicons name="location-outline" size={14} color={Colors.muted} style={{ marginRight: 4 }} />
-          <Text style={{ fontSize: 13, color: Colors.muted }}>
-            {property.locality}, {property.district}
+          <Text className=" capitalize text-xs text-gray-600">
+            {item.value}
           </Text>
         </View>
-        
-        <Text style={{ fontSize: 11, color: Colors.muted, marginBottom: 16 }}>
-          {/* Mocking updated time for now */}
-          {t('property.updated_days_ago', { days: 15, defaultValue: 'Updated 15d ago' })}
+      ))}
+    </View>
+
+    {/* Actions */}
+    <View className="flex-row gap-2">
+      <TouchableOpacity
+        onPress={() => onPress?.(property.id)}
+        className="h-10 flex-1 items-center justify-center rounded-full bg-black"
+      >
+        <Text className="text-[13px] font-bold text-white">
+          {t('property.call', 'View Detail')}
         </Text>
-
-        {/* Action Buttons Row */}
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          <TouchableOpacity
-            style={{
-              flex: 1,
-              height: 40,
-              borderRadius: 20,
-              borderWidth: 1.5,
-              borderColor: '#25D366',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Text style={{ color: '#25D366', fontWeight: 'bold', fontSize: 13 }}>
-              WhatsApp
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={{
-              flex: 1,
-              height: 40,
-              borderRadius: 20,
-              borderWidth: 1.5,
-              borderColor: Colors.dark,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Text style={{ color: Colors.dark, fontWeight: 'bold', fontSize: 13 }}>
-              {t('property.view_number', 'View Number')}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={{
-              flex: 1,
-              height: 40,
-              borderRadius: 20,
-              backgroundColor: Colors.dark,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Text style={{ color: Colors.white, fontWeight: 'bold', fontSize: 13 }}>
-              {t('property.call', 'Call')}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </View>
+  </View>
+</TouchableOpacity>
   );
 };

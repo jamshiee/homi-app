@@ -1,6 +1,6 @@
 import { TransactionTypeFilter } from '@/common/enums/transaction-type-filter.enum';
 import { apiClient } from './client';
-import { ApiResponse } from './types';
+import { ApiResponse, isSavedDto } from './types';
 import { SortOptionEnum } from '@/common/enums/sort-option-filter.enum';
 
 export interface PropertyFilter {
@@ -33,6 +33,9 @@ export const propertiesApi = {
   getById: (id: string) =>
     apiClient.get<ApiResponse<unknown>>(`/properties/${id}`),
 
+  getRelated: (id: string) =>
+    apiClient.get<ApiResponse<unknown[]>>(`/properties/${id}/related`),
+
   logEnquiry: (
     propertyId: string,
     enquiryType: 'view' | 'whatsapp' | 'phone_reveal',
@@ -42,6 +45,8 @@ export const propertiesApi = {
     apiClient.post<ApiResponse<{ saved: boolean }>>('/saved-properties/toggle', {
       propertyId,
     }),
+
+  isSaved: (propertyId: string) => apiClient.get<ApiResponse<isSavedDto>>(`/saved-properties/${propertyId}/saved`),
 
   getSaved: () =>
     apiClient.get<ApiResponse<unknown[]>>('/saved-properties/me'),

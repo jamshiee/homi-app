@@ -1,3 +1,6 @@
+import { PropertyTypeEnum } from "@/common/enums/property-type.enum";
+import { TransactionTypeFilter } from "@/common/enums/transaction-type-filter.enum";
+
 export interface ApiResponse<T = unknown> {
   success: boolean;
   data: T;
@@ -22,50 +25,96 @@ export interface AuthUser {
 
 export interface PropertyMediaDto {
   id: string;
-  url: string;
+  propertyId: string
+  mediaId: string;
+  media: MediaDto;
   isCover: boolean;
-  order: number;
+  sortOrder: number;
+}
+
+export interface MediaDto {
+  id: string;
+  url: string
+  mimeType:string
+  originalFileName:string
+}
+
+export interface AmenityDto {
+  id: string;
+  nameEn: string;
+  nameMl: string;
+  iconName: string;
 }
 
 export interface PropertyDto {
   id: string;
   title: string;
-  type: 'land' | 'house' | 'building' | 'hotel';
-  transactionType: 'buy' | 'rent' | 'lease';
+  type: PropertyTypeEnum;
+  transactionType: TransactionTypeFilter;
   district: string;
   locality: string;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   price: number;
+  isNegotiable?: boolean;
+  advanceAmount?: number | null;
+  priceUnit?: string | null;
   isFeatured: boolean;
+  status?: string;
+  moderationStatus?: string;
   contactPhone: string;
   alternatePhone: string | null;
   publishedAt: string | null;
   description: string | null;
-  listedByUser: {
+  viewCount?: number;
+  whatsappTapCount?: number;
+  phoneRevealCount?: number;
+  isSaved?: boolean;
+  listedByUser?: {
+    id: string;
     name: string | null;
-    id: number;
+  };
+  lister?: {
+    id: string;
+    name: string | null;
   };
   propertyMedia: PropertyMediaDto[];
-  savedBy: unknown[]; // used to check if saved
-  
-  // Specific details
+  propertyAmenities?: Array<{ amenity: AmenityDto }>;
+
+  // Type-specific details
   landDetail?: {
-    totalArea: number;
+    totalArea: string | number;
     areaUnit: string;
-    hasRoadAccess: boolean;
+    hasRoadAccess?: boolean;
   };
   houseDetail?: {
     bedrooms: number;
     bathrooms: number;
+    balconies: number;
     floors: number;
+    hasKitchen: boolean;
+    furnishingStatus: string;
+    houseType?: string;
   };
   buildingDetail?: {
-    totalArea: number;
+    subType: string;
+    totalArea: string | number;
+    areaUnit: string;
     floorNumber: number;
     currentStatus: string;
   };
   hotelDetail?: {
+    subType: string;
+    roomsAvailable: number;
     roomType: string;
-    propertySubtype: string;
-    pricePerNight: number;
+    occupancy: string;
+    mealsIncluded: boolean;
+    pricePerNight?: string | number | null;
+    pricePerMonth?: string | number | null;
   };
+}
+
+export interface isSavedDto {
+  saved : boolean
 }
