@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -8,12 +8,12 @@ import {
   Image,
   Animated,
   PanResponder,
-} from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import * as Haptics from 'expo-haptics';
-import { usePostStore } from '../../store/postStore';
-import { Colors } from '../../constants/colors';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+} from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import * as Haptics from "expo-haptics";
+import { usePostStore } from "../../store/postStore";
+import { Colors } from "../../constants/colors";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const GAP = 8;
 const COVER_HEIGHT = 180;
@@ -49,25 +49,27 @@ const getContainerHeight = (count: number, containerWidth: number) => {
 
 interface DraggableTileProps {
   uri: string;
-  index: number;
   visualIndex: number;
   containerWidth: number;
+  isCover: boolean;
   onDragStart: (uri: string, visualIndex: number) => void;
   onDragMove: (uri: string, dx: number, dy: number) => void;
   onDragEnd: (uri: string) => void;
   onRemove: () => void;
+  onSetCover: () => void;
   animatedPos: Animated.ValueXY;
 }
 
 function DraggableTile({
   uri,
-  index,
   visualIndex,
   containerWidth,
+  isCover,
   onDragStart,
   onDragMove,
   onDragEnd,
   onRemove,
+  onSetCover,
   animatedPos,
 }: DraggableTileProps) {
   const scale = useRef(new Animated.Value(1)).current;
@@ -124,7 +126,10 @@ function DraggableTile({
           propsRef.current.onDragMove(uri, gestureState.dx, gestureState.dy);
         } else {
           // Cancel drag lift if user starts scrolling or moving too much
-          if (Math.abs(gestureState.dx) > 10 || Math.abs(gestureState.dy) > 10) {
+          if (
+            Math.abs(gestureState.dx) > 10 ||
+            Math.abs(gestureState.dy) > 10
+          ) {
             if (longPressTimeout.current) {
               clearTimeout(longPressTimeout.current);
             }
@@ -157,10 +162,8 @@ function DraggableTile({
           propsRef.current.onDragEnd(uri);
         }
       },
-    })
+    }),
   ).current;
-
-  const isCover = visualIndex === 0;
 
   return (
     <Animated.View
@@ -181,15 +184,15 @@ function DraggableTile({
       {...panResponder.panHandlers}
     >
       <Image source={{ uri }} style={styles.image} />
-      
-      {/* Cover / Order Badge */}
-      <View style={[styles.badge, isCover ? styles.coverBadge : styles.orderBadge]}>
+
+      <View
+        style={[styles.badge, isCover ? styles.coverBadge : styles.orderBadge]}
+      >
         <Text style={[styles.badgeText, isCover && styles.coverBadgeText]}>
-          {isCover ? 'COVER IMAGE' : `${visualIndex + 1}`}
+          {isCover ? "COVER IMAGE" : `${visualIndex + 1}`}
         </Text>
       </View>
 
-      {/* Remove Close Button */}
       <TouchableOpacity
         activeOpacity={0.7}
         onPress={onRemove}
@@ -198,10 +201,24 @@ function DraggableTile({
         <MaterialCommunityIcons name="close" size={14} color={Colors.white} />
       </TouchableOpacity>
 
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={onSetCover}
+        style={styles.coverActionBtn}
+      >
+        <MaterialCommunityIcons
+          name={isCover ? "star" : "star-outline"}
+          size={16}
+          color={Colors.yellow}
+        />
+      </TouchableOpacity>
+
       {isCover && (
         <View style={styles.coverLabelRow}>
           <MaterialCommunityIcons name="star" size={12} color={Colors.yellow} />
-          <Text style={styles.coverLabelText}>Primary photo shown in feed search</Text>
+          <Text style={styles.coverLabelText}>
+            Primary photo shown in feed search
+          </Text>
         </View>
       )}
     </Animated.View>
@@ -210,11 +227,11 @@ function DraggableTile({
 
 export default function Step6Photos() {
   const { photos, setField } = usePostStore();
-  
+
   const [containerWidth, setContainerWidth] = useState(
-    Dimensions.get('window').width - 32
+    Dimensions.get("window").width - 32,
   );
-  
+
   // order is the array of photo URIs reflecting the visual sequence
   const [order, setOrder] = useState<string[]>([]);
   const orderRef = useRef<string[]>([]);
@@ -236,10 +253,17 @@ export default function Step6Photos() {
 
   // Track dragging state
   const draggingUri = useRef<string | null>(null);
-  const draggedStartPos = useRef<{ x: number; y: number; width: number; height: number } | null>(null);
-  
+  const draggedStartPos = useRef<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null>(null);
+
   // Animated value cache keyed by image URIs
-  const animatedPositions = useRef<Record<string, Animated.ValueXY>>({}).current;
+  const animatedPositions = useRef<Record<string, Animated.ValueXY>>(
+    {},
+  ).current;
 
   // Initialize and keep order in sync with incoming store updates (e.g. initial load or new pickers)
   useEffect(() => {
@@ -254,7 +278,10 @@ export default function Step6Photos() {
   order.forEach((uri, idx) => {
     if (!animatedPositions[uri]) {
       const slotPos = getSlotPosition(idx, containerWidth);
-      animatedPositions[uri] = new Animated.ValueXY({ x: slotPos.x, y: slotPos.y });
+      animatedPositions[uri] = new Animated.ValueXY({
+        x: slotPos.x,
+        y: slotPos.y,
+      });
     }
   });
 
@@ -275,13 +302,13 @@ export default function Step6Photos() {
 
   const handlePickImages = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      alert('Sorry, we need camera roll permissions to upload photos.');
+    if (status !== "granted") {
+      alert("Sorry, we need camera roll permissions to upload photos.");
       return;
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
+      mediaTypes: ["images"],
       allowsMultipleSelection: true,
       quality: 0.8,
     });
@@ -289,31 +316,44 @@ export default function Step6Photos() {
     if (!result.canceled && result.assets) {
       const selected = result.assets.map((asset) => ({
         uri: asset.uri,
-        isCover: false, // Let updater determine cover based on sequence
+        isCover: false,
       }));
 
-      // Cap at maximum 10 photos
       const combined = [...photos, ...selected].slice(0, 10);
+      const hasCover = combined.some((p) => p.isCover);
       const updated = combined.map((p, idx) => ({
         ...p,
-        isCover: idx === 0,
+        isCover: hasCover ? p.isCover : idx === 0,
       }));
-      
+
       setField({ photos: updated });
     }
   };
 
   const handleRemovePhoto = (uriToRemove: string) => {
+    const removedPhoto = photos.find((p) => p.uri === uriToRemove);
     const nextPhotos = photos.filter((p) => p.uri !== uriToRemove);
-    const updated = nextPhotos.map((p, idx) => ({
-      ...p,
-      isCover: idx === 0,
-    }));
-    
-    // Clean up cache
+
+    if (removedPhoto?.isCover && nextPhotos.length > 0) {
+      nextPhotos[0] = { ...nextPhotos[0], isCover: true };
+    }
+
     delete animatedPositions[uriToRemove];
-    
-    setField({ photos: updated });
+    setField({
+      photos: nextPhotos.map((p, idx) => ({
+        ...p,
+        isCover: idx === 0,
+      })),
+    });
+  };
+
+  const handleSetCover = (uriToCover: string) => {
+    setField({
+      photos: photos.map((p) => ({
+        ...p,
+        isCover: p.uri === uriToCover,
+      })),
+    });
   };
 
   const onDragStart = (uri: string, visualIndex: number) => {
@@ -347,9 +387,9 @@ export default function Step6Photos() {
       const slotPos = getSlotPosition(i, containerWidth);
       const slotCenterX = slotPos.x + slotPos.width / 2;
       const slotCenterY = slotPos.y + slotPos.height / 2;
-      
+
       const distance = Math.sqrt(
-        Math.pow(centerX - slotCenterX, 2) + Math.pow(centerY - slotCenterY, 2)
+        Math.pow(centerX - slotCenterX, 2) + Math.pow(centerY - slotCenterY, 2),
       );
 
       if (distance < minDistance) {
@@ -363,7 +403,7 @@ export default function Step6Photos() {
       const newOrder = [...currentOrder];
       newOrder.splice(currentIndex, 1);
       newOrder.splice(targetIndex, 0, uri);
-      
+
       // Update local order, which triggers layout animations for the other items
       updateOrder(newOrder);
     }
@@ -372,7 +412,7 @@ export default function Step6Photos() {
   const onDragEnd = (uri: string) => {
     draggingUri.current = null;
     draggedStartPos.current = null;
-    
+
     // Unlock parent ScrollView scrolling
     setField({ scrollEnabled: true });
 
@@ -380,7 +420,7 @@ export default function Step6Photos() {
     const currentOrder = orderRef.current;
     const finalIndex = currentOrder.indexOf(uri);
     const slotPos = getSlotPosition(finalIndex, containerWidth);
-    
+
     Animated.spring(animatedPositions[uri], {
       toValue: { x: slotPos.x, y: slotPos.y },
       useNativeDriver: false,
@@ -388,14 +428,14 @@ export default function Step6Photos() {
       tension: 40,
     }).start();
 
-    // Map visual order back to the store photos state
     const sortedPhotos = currentOrder
       .map((u) => photosRef.current.find((p) => p.uri === u))
       .filter(Boolean) as typeof photos;
-      
+
+    const hasCover = sortedPhotos.some((p) => p.isCover);
     const updated = sortedPhotos.map((p, idx) => ({
       ...p,
-      isCover: idx === 0,
+      isCover: hasCover ? p.isCover : idx === 0,
     }));
 
     setField({ photos: updated });
@@ -407,13 +447,16 @@ export default function Step6Photos() {
   const gridHeight = getContainerHeight(totalCount, containerWidth);
 
   // Get coordinates for compact add button
-  const compactAddPos = showCompactAdd ? getSlotPosition(order.length, containerWidth) : null;
+  const compactAddPos = showCompactAdd
+    ? getSlotPosition(order.length, containerWidth)
+    : null;
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Property Photos</Text>
       <Text style={styles.subtitle}>
-        Drag and drop photos to reorder. The first photo is automatically set as the cover image.
+        Drag and drop photos to reorder. Tap the star to choose the primary
+        cover image.
       </Text>
 
       {/* Large Upload Button shown only if no photos are selected */}
@@ -423,9 +466,17 @@ export default function Step6Photos() {
           onPress={handlePickImages}
           style={styles.largeUploadButton}
         >
-          <MaterialCommunityIcons name="cloud-upload" size={48} color={Colors.yellow} />
-          <Text style={styles.uploadButtonText}>Select Photos from Gallery</Text>
-          <Text style={styles.uploadSubtext}>Upload up to 10 high-quality photos</Text>
+          <MaterialCommunityIcons
+            name="cloud-upload"
+            size={48}
+            color={Colors.yellow}
+          />
+          <Text style={styles.uploadButtonText}>
+            Select Photos from Gallery
+          </Text>
+          <Text style={styles.uploadSubtext}>
+            Upload up to 10 high-quality photos
+          </Text>
         </TouchableOpacity>
       )}
 
@@ -442,13 +493,14 @@ export default function Step6Photos() {
             <DraggableTile
               key={uri}
               uri={uri}
-              index={idx}
               visualIndex={idx}
               containerWidth={containerWidth}
+              isCover={photos.find((p) => p.uri === uri)?.isCover ?? false}
               onDragStart={onDragStart}
               onDragMove={onDragMove}
               onDragEnd={onDragEnd}
               onRemove={() => handleRemovePhoto(uri)}
+              onSetCover={() => handleSetCover(uri)}
               animatedPos={animatedPositions[uri]}
             />
           ))}
@@ -461,7 +513,7 @@ export default function Step6Photos() {
               style={[
                 styles.compactAddTile,
                 {
-                  position: 'absolute',
+                  position: "absolute",
                   left: compactAddPos.x,
                   top: compactAddPos.y,
                   width: compactAddPos.width,
@@ -469,7 +521,11 @@ export default function Step6Photos() {
                 },
               ]}
             >
-              <MaterialCommunityIcons name="plus" size={32} color={Colors.yellow} />
+              <MaterialCommunityIcons
+                name="plus"
+                size={32}
+                color={Colors.yellow}
+              />
               <Text style={styles.compactAddText}>Add More</Text>
               <Text style={styles.compactAddCount}>({order.length}/10)</Text>
             </TouchableOpacity>
@@ -479,8 +535,14 @@ export default function Step6Photos() {
 
       {hasPhotos && (
         <View style={styles.tipRow}>
-          <MaterialCommunityIcons name="gesture-tap-hold" size={16} color={Colors.lightMuted} />
-          <Text style={styles.tipText}>Press and hold a photo to drag & reorder</Text>
+          <MaterialCommunityIcons
+            name="gesture-tap-hold"
+            size={16}
+            color={Colors.lightMuted}
+          />
+          <Text style={styles.tipText}>
+            Press and hold a photo to drag & reorder
+          </Text>
         </View>
       )}
     </View>
@@ -493,7 +555,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 22,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: Colors.dark,
     marginBottom: 6,
   },
@@ -507,16 +569,16 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     borderWidth: 2,
     borderColor: Colors.yellow,
-    borderStyle: 'dashed',
+    borderStyle: "dashed",
     borderRadius: 16,
     padding: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 24,
   },
   uploadButtonText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: Colors.dark,
     marginTop: 12,
   },
@@ -526,34 +588,34 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   gridContainer: {
-    position: 'relative',
-    width: '100%',
+    position: "relative",
+    width: "100%",
   },
   tile: {
     backgroundColor: Colors.white,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: Colors.border,
-    overflow: 'hidden',
-    position: 'absolute',
-    shadowColor: '#000',
+    overflow: "hidden",
+    position: "absolute",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 4,
   },
   image: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
     backgroundColor: Colors.surface,
   },
   badge: {
-    position: 'absolute',
+    position: "absolute",
     top: 8,
     left: 8,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.15,
     shadowRadius: 2,
@@ -563,59 +625,71 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.yellow,
   },
   orderBadge: {
-    backgroundColor: 'rgba(0,0,0,0.8)',
+    backgroundColor: "rgba(0,0,0,0.8)",
   },
   badgeText: {
     fontSize: 10,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: Colors.white,
   },
   coverBadgeText: {
     color: Colors.dark,
-    fontWeight: '900',
+    fontWeight: "900",
   },
   removeBtn: {
-    position: 'absolute',
+    position: "absolute",
     top: 8,
     right: 8,
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "rgba(0,0,0,0.5)",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 10,
+  },
+  coverActionBtn: {
+    position: "absolute",
+    top: 8,
+    left: 8,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "rgba(255,255,255,0.9)",
+    alignItems: "center",
+    justifyContent: "center",
     zIndex: 10,
   },
   coverLabelRow: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 6,
     gap: 4,
   },
   coverLabelText: {
     color: Colors.white,
     fontSize: 10,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   compactAddTile: {
     backgroundColor: Colors.surface,
     borderWidth: 1.5,
     borderColor: Colors.border,
-    borderStyle: 'dashed',
+    borderStyle: "dashed",
     borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     padding: 8,
   },
   compactAddText: {
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: Colors.dark,
     marginTop: 4,
   },
@@ -625,15 +699,15 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   tipRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: 20,
     gap: 6,
   },
   tipText: {
     fontSize: 12,
     color: Colors.lightMuted,
-    fontWeight: '500',
+    fontWeight: "500",
   },
 });

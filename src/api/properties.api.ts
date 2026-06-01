@@ -1,7 +1,7 @@
-import { TransactionTypeFilter } from '@/common/enums/transaction-type-filter.enum';
-import { apiClient } from './client';
-import { ApiResponse, isSavedDto } from './types';
-import { SortOptionEnum } from '@/common/enums/sort-option-filter.enum';
+import { TransactionTypeFilter } from "@/common/enums/transaction-type-filter.enum";
+import { apiClient } from "./client";
+import { ApiResponse, isSavedDto } from "./types";
+import { SortOptionEnum } from "@/common/enums/sort-option-filter.enum";
 
 export interface PropertyFilter {
   type?: string;
@@ -25,32 +25,40 @@ export interface PropertyFilter {
 
 export const propertiesApi = {
   getFeed: (filters: PropertyFilter) =>
-    apiClient.get<ApiResponse<unknown[]>>('/properties', { params: filters }),
+    apiClient.get<ApiResponse<unknown[]>>("/properties", { params: filters }),
 
   getFeatured: () =>
-    apiClient.get<ApiResponse<unknown[]>>('/properties/featured'),
+    apiClient.get<ApiResponse<unknown[]>>("/properties/featured"),
 
   getById: (id: string) =>
     apiClient.get<ApiResponse<unknown>>(`/properties/${id}`),
+
+  update: (id: string, payload: Record<string, unknown>) =>
+    apiClient.patch<ApiResponse<unknown>>(`/properties/${id}`, payload),
 
   getRelated: (id: string) =>
     apiClient.get<ApiResponse<unknown[]>>(`/properties/${id}/related`),
 
   logEnquiry: (
     propertyId: string,
-    enquiryType: 'view' | 'whatsapp' | 'phone_reveal',
+    enquiryType: "view" | "whatsapp" | "phone_reveal",
   ) => apiClient.post(`/properties/${propertyId}/enquiry`, { enquiryType }),
 
   toggleSave: (propertyId: string) =>
-    apiClient.post<ApiResponse<{ saved: boolean }>>('/saved-properties/toggle', {
-      propertyId,
-    }),
+    apiClient.post<ApiResponse<{ saved: boolean }>>(
+      "/saved-properties/toggle",
+      {
+        propertyId,
+      },
+    ),
 
-  isSaved: (propertyId: string) => apiClient.get<ApiResponse<isSavedDto>>(`/saved-properties/${propertyId}/saved`),
+  isSaved: (propertyId: string) =>
+    apiClient.get<ApiResponse<isSavedDto>>(
+      `/saved-properties/${propertyId}/saved`,
+    ),
 
-  getSaved: () =>
-    apiClient.get<ApiResponse<unknown[]>>('/saved-properties/me'),
+  getSaved: () => apiClient.get<ApiResponse<unknown[]>>("/saved-properties/me"),
 
   getDistricts: () =>
-    apiClient.get<ApiResponse<string[]>>('/properties/locations/districts'),
+    apiClient.get<ApiResponse<string[]>>("/properties/locations/districts"),
 };

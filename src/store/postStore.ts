@@ -1,15 +1,21 @@
-import { create } from 'zustand';
-import { localStorage } from '../utils/storage';
-import { BuildingSubTypeEnum } from '@/common/enums/property-enums/building-subtype.enum';
-import { AreaUnitEnum } from '@/common/enums/property-enums/area-unit.enum';
-import { BuildingStatusEnum } from '@/common/enums/property-enums/building-status.enum';
-import { HotelSubTypeEnum } from '@/common/enums/property-enums/hotel-subtype.enum';
-import { RoomTypeEnum } from '@/common/enums/property-enums/room-type.enum';
-import { FurnishingStatusEnum } from '@/common/enums/property-enums/furnishing-status.enum';
-import { PriceUnitEnum } from '@/common/enums/property-enums/price-unit.enum';
-import { PropertyTypeEnum } from '@/common/enums/property-enums/property-type.enum';
-import { TransactionTypeFilter } from '@/common/enums/transaction-type-filter.enum';
+import { create } from "zustand";
+import { localStorage } from "../utils/storage";
+import { BuildingSubTypeEnum } from "@/common/enums/property-enums/building-subtype.enum";
+import { AreaUnitEnum } from "@/common/enums/property-enums/area-unit.enum";
+import { BuildingStatusEnum } from "@/common/enums/property-enums/building-status.enum";
+import { HotelSubTypeEnum } from "@/common/enums/property-enums/hotel-subtype.enum";
+import { RoomTypeEnum } from "@/common/enums/property-enums/room-type.enum";
+import { FurnishingStatusEnum } from "@/common/enums/property-enums/furnishing-status.enum";
+import { PriceUnitEnum } from "@/common/enums/property-enums/price-unit.enum";
+import { PropertyTypeEnum } from "@/common/enums/property-enums/property-type.enum";
+import { TransactionTypeFilter } from "@/common/enums/transaction-type-filter.enum";
 
+export interface PostPhoto {
+  uri: string;
+  isCover: boolean;
+  file?: any;
+  propertyMediaId?: string;
+}
 
 export interface PostState {
   step: number;
@@ -28,8 +34,6 @@ export interface PostState {
   description: string;
   contactPhone: string;
   alternatePhone?: string;
-
-  // Sub-details
   landDetail?: {
     totalArea: number;
     areaUnit: AreaUnitEnum;
@@ -55,40 +59,75 @@ export interface PostState {
     occupancy: number;
     mealsIncluded: boolean;
   };
-
-  // Amenities and Photos
   amenityIds: string[];
-  photos: { uri: string; isCover: boolean; file?: any }[];
+  photos: PostPhoto[];
   scrollEnabled?: boolean;
+  isEditMode: boolean;
+  editingPropertyId?: string;
+  isDirty: boolean;
+  editSnapshot?: Record<string, unknown>;
 }
 
 const defaultPostState: PostState = {
   step: 1,
   type: PropertyTypeEnum.HOUSE,
   scrollEnabled: true,
-  title: '',
+  title: "",
   transactionType: TransactionTypeFilter.RENT,
-  district: '',
-  locality: '',
-  address: '',
-  latitude: '',
-  longitude: '',
+  district: "",
+  locality: "",
+  address: "",
+  latitude: "",
+  longitude: "",
   price: 0,
   isNegotiable: false,
   advanceAmount: undefined,
   priceUnit: PriceUnitEnum.TOTAL,
-  description: '',
-  contactPhone: '',
-  alternatePhone: '',
+  description: "",
+  contactPhone: "",
+  alternatePhone: "",
   landDetail: undefined,
   houseDetail: undefined,
   buildingDetail: undefined,
   hotelDetail: undefined,
   amenityIds: [],
   photos: [],
+  isEditMode: false,
+  editingPropertyId: undefined,
+  isDirty: false,
+  editSnapshot: undefined,
 };
 
-const DRAFT_STORAGE_KEY = 'homi_post_listing_draft';
+const DRAFT_STORAGE_KEY = "homi_post_listing_draft";
+
+const serializeDraft = (state: PostState) => ({
+  step: state.step,
+  type: state.type,
+  title: state.title,
+  transactionType: state.transactionType,
+  district: state.district,
+  locality: state.locality,
+  address: state.address,
+  latitude: state.latitude,
+  longitude: state.longitude,
+  price: state.price,
+  isNegotiable: state.isNegotiable,
+  advanceAmount: state.advanceAmount,
+  priceUnit: state.priceUnit,
+  description: state.description,
+  contactPhone: state.contactPhone,
+  alternatePhone: state.alternatePhone,
+  landDetail: state.landDetail,
+  houseDetail: state.houseDetail,
+  buildingDetail: state.buildingDetail,
+  hotelDetail: state.hotelDetail,
+  amenityIds: state.amenityIds,
+  photos: state.photos.map((p) => ({
+    uri: p.uri,
+    isCover: p.isCover,
+    propertyMediaId: p.propertyMediaId,
+  })),
+});
 
 interface PostStore extends PostState {
   setField: (updates: Partial<PostState>) => void;
@@ -97,6 +136,7 @@ interface PostStore extends PostState {
   resetForm: () => Promise<void>;
   saveDraft: () => Promise<void>;
   loadDraft: () => Promise<void>;
+  hydrateForEdit: (property: any) => void;
 }
 
 export const usePostStore = create<PostStore>((set, get) => ({
@@ -105,32 +145,19 @@ export const usePostStore = create<PostStore>((set, get) => ({
   setField: (updates) => {
     set((state) => {
       const nextState = { ...state, ...updates };
-      // Auto-save draft on every modification
-      void localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify({
-        step: nextState.step,
-        type: nextState.type,
-        title: nextState.title,
-        transactionType: nextState.transactionType,
-        district: nextState.district,
-        locality: nextState.locality,
-        address: nextState.address,
-        latitude: nextState.latitude,
-        longitude: nextState.longitude,
-        price: nextState.price,
-        isNegotiable: nextState.isNegotiable,
-        advanceAmount: nextState.advanceAmount,
-        priceUnit: nextState.priceUnit,
-        description: nextState.description,
-        contactPhone: nextState.contactPhone,
-        alternatePhone: nextState.alternatePhone,
-        landDetail: nextState.landDetail,
-        houseDetail: nextState.houseDetail,
-        buildingDetail: nextState.buildingDetail,
-        hotelDetail: nextState.hotelDetail,
-        amenityIds: nextState.amenityIds,
-        photos: nextState.photos.map(p => ({ uri: p.uri, isCover: p.isCover })),
-      }));
-      return nextState;
+      const isDirty = state.isEditMode
+        ? JSON.stringify(serializeDraft(nextState)) !==
+          JSON.stringify(state.editSnapshot)
+        : false;
+
+      if (!nextState.isEditMode) {
+        void localStorage.setItem(
+          DRAFT_STORAGE_KEY,
+          JSON.stringify(serializeDraft(nextState)),
+        );
+      }
+
+      return { ...nextState, isDirty };
     });
   },
 
@@ -151,30 +178,12 @@ export const usePostStore = create<PostStore>((set, get) => ({
 
   saveDraft: async () => {
     const state = get();
-    await localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify({
-      step: state.step,
-      type: state.type,
-      title: state.title,
-      transactionType: state.transactionType,
-      district: state.district,
-      locality: state.locality,
-      address: state.address,
-      latitude: state.latitude,
-      longitude: state.longitude,
-      price: state.price,
-      isNegotiable: state.isNegotiable,
-      advanceAmount: state.advanceAmount,
-      priceUnit: state.priceUnit,
-      description: state.description,
-      contactPhone: state.contactPhone,
-      alternatePhone: state.alternatePhone,
-      landDetail: state.landDetail,
-      houseDetail: state.houseDetail,
-      buildingDetail: state.buildingDetail,
-      hotelDetail: state.hotelDetail,
-      amenityIds: state.amenityIds,
-      photos: state.photos.map(p => ({ uri: p.uri, isCover: p.isCover })),
-    }));
+    if (!state.isEditMode) {
+      await localStorage.setItem(
+        DRAFT_STORAGE_KEY,
+        JSON.stringify(serializeDraft(state)),
+      );
+    }
   },
 
   loadDraft: async () => {
@@ -182,10 +191,157 @@ export const usePostStore = create<PostStore>((set, get) => ({
       const draftStr = await localStorage.getItem(DRAFT_STORAGE_KEY);
       if (draftStr) {
         const draft = JSON.parse(draftStr);
-        set({ ...draft });
+        set({
+          ...defaultPostState,
+          ...draft,
+          isEditMode: false,
+          editingPropertyId: undefined,
+          isDirty: false,
+        });
       }
     } catch (err) {
-      console.warn('Failed to load listing draft', err);
+      console.warn("Failed to load listing draft", err);
     }
+  },
+
+  hydrateForEdit: (property) => {
+    const photos = (property?.propertyMedia ?? [])
+      .slice()
+      .sort((a: any, b: any) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+      .map((item: any) => ({
+        uri: item?.media?.url ?? item?.url,
+        isCover: Boolean(item?.isCover),
+        propertyMediaId: item?.id,
+      }));
+
+    const nextState = {
+      ...defaultPostState,
+      step: 1,
+      type: property?.type ?? PropertyTypeEnum.HOUSE,
+      title: property?.title ?? "",
+      transactionType: property?.transactionType ?? TransactionTypeFilter.RENT,
+      district: property?.district ?? "",
+      locality: property?.locality ?? "",
+      address: property?.address ?? "",
+      latitude: property?.latitude?.toString() ?? "",
+      longitude: property?.longitude?.toString() ?? "",
+      price: Number(property?.price) || 0,
+      isNegotiable: Boolean(property?.isNegotiable),
+      advanceAmount: property?.advanceAmount ?? undefined,
+      priceUnit: property?.priceUnit ?? PriceUnitEnum.TOTAL,
+      description: property?.description ?? "",
+      contactPhone: property?.contactPhone ?? "",
+      alternatePhone: property?.alternatePhone ?? "",
+      landDetail: property?.landDetail
+        ? {
+            totalArea: Number(property.landDetail.totalArea) || 0,
+            areaUnit: property.landDetail.areaUnit ?? AreaUnitEnum.SQFT,
+          }
+        : undefined,
+      houseDetail: property?.houseDetail
+        ? {
+            bedrooms: Number(property.houseDetail.bedrooms) || 0,
+            bathrooms: Number(property.houseDetail.bathrooms) || 0,
+            balconies: Number(property.houseDetail.balconies) || 0,
+            floors: Number(property.houseDetail.floors) || 0,
+            hasKitchen: Boolean(property.houseDetail.hasKitchen),
+            furnishingStatus:
+              property.houseDetail.furnishingStatus ??
+              FurnishingStatusEnum.UN_FURNISHED,
+          }
+        : undefined,
+      buildingDetail: property?.buildingDetail
+        ? {
+            subType:
+              property.buildingDetail.subType ?? BuildingSubTypeEnum.OFFICE,
+            totalArea: Number(property.buildingDetail.totalArea) || 0,
+            areaUnit: property.buildingDetail.areaUnit ?? AreaUnitEnum.SQFT,
+            floorNumber: Number(property.buildingDetail.floorNumber) || 0,
+            currentStatus:
+              property.buildingDetail.currentStatus ??
+              BuildingStatusEnum.READY_TO_MOVE,
+          }
+        : undefined,
+      hotelDetail: property?.hotelDetail
+        ? {
+            subType: property.hotelDetail.subType ?? HotelSubTypeEnum.HOTEL,
+            roomType: property.hotelDetail.roomType ?? RoomTypeEnum.SINGLE,
+            occupancy: Number(property.hotelDetail.occupancy) || 1,
+            mealsIncluded: Boolean(property.hotelDetail.mealsIncluded),
+          }
+        : undefined,
+      amenityIds: (property?.propertyAmenities ?? [])
+        .map((item: any) => item.amenity?.id ?? item.amenityId)
+        .filter(Boolean),
+      photos,
+      scrollEnabled: true,
+      isEditMode: true,
+      editingPropertyId: property?.id,
+      isDirty: false,
+      editSnapshot: serializeDraft({
+        ...defaultPostState,
+        step: 1,
+        type: property?.type ?? PropertyTypeEnum.HOUSE,
+        title: property?.title ?? "",
+        transactionType:
+          property?.transactionType ?? TransactionTypeFilter.RENT,
+        district: property?.district ?? "",
+        locality: property?.locality ?? "",
+        address: property?.address ?? "",
+        latitude: property?.latitude?.toString() ?? "",
+        longitude: property?.longitude?.toString() ?? "",
+        price: Number(property?.price) || 0,
+        isNegotiable: Boolean(property?.isNegotiable),
+        advanceAmount: property?.advanceAmount ?? undefined,
+        priceUnit: property?.priceUnit ?? PriceUnitEnum.TOTAL,
+        description: property?.description ?? "",
+        contactPhone: property?.contactPhone ?? "",
+        alternatePhone: property?.alternatePhone ?? "",
+        landDetail: property?.landDetail
+          ? {
+              totalArea: Number(property.landDetail.totalArea) || 0,
+              areaUnit: property.landDetail.areaUnit ?? AreaUnitEnum.SQFT,
+            }
+          : undefined,
+        houseDetail: property?.houseDetail
+          ? {
+              bedrooms: Number(property.houseDetail.bedrooms) || 0,
+              bathrooms: Number(property.houseDetail.bathrooms) || 0,
+              balconies: Number(property.houseDetail.balconies) || 0,
+              floors: Number(property.houseDetail.floors) || 0,
+              hasKitchen: Boolean(property.houseDetail.hasKitchen),
+              furnishingStatus:
+                property.houseDetail.furnishingStatus ??
+                FurnishingStatusEnum.UN_FURNISHED,
+            }
+          : undefined,
+        buildingDetail: property?.buildingDetail
+          ? {
+              subType:
+                property.buildingDetail.subType ?? BuildingSubTypeEnum.OFFICE,
+              totalArea: Number(property.buildingDetail.totalArea) || 0,
+              areaUnit: property.buildingDetail.areaUnit ?? AreaUnitEnum.SQFT,
+              floorNumber: Number(property.buildingDetail.floorNumber) || 0,
+              currentStatus:
+                property.buildingDetail.currentStatus ??
+                BuildingStatusEnum.READY_TO_MOVE,
+            }
+          : undefined,
+        hotelDetail: property?.hotelDetail
+          ? {
+              subType: property.hotelDetail.subType ?? HotelSubTypeEnum.HOTEL,
+              roomType: property.hotelDetail.roomType ?? RoomTypeEnum.SINGLE,
+              occupancy: Number(property.hotelDetail.occupancy) || 1,
+              mealsIncluded: Boolean(property.hotelDetail.mealsIncluded),
+            }
+          : undefined,
+        amenityIds: (property?.propertyAmenities ?? [])
+          .map((item: any) => item.amenity?.id ?? item.amenityId)
+          .filter(Boolean),
+        photos,
+      }),
+    };
+
+    set(nextState);
   },
 }));
