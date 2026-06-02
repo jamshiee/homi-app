@@ -19,14 +19,15 @@ export interface AuthUser {
   id: string;
   phone: string;
   name: string | null;
-  preferredLanguage: 'en' | 'ml';
+  preferredLanguage: "en" | "ml";
   profileMediaId: string | null;
+  profileMediaUrl?: string | null;
   isAdmin: boolean;
 }
 
 export interface PropertyMediaDto {
   id: string;
-  propertyId: string
+  propertyId: string;
   mediaId: string;
   media: MediaDto;
   isCover: boolean;
@@ -35,9 +36,9 @@ export interface PropertyMediaDto {
 
 export interface MediaDto {
   id: string;
-  url: string
-  mimeType: string
-  originalFileName: string
+  url: string;
+  mimeType: string;
+  originalFileName: string;
 }
 
 export interface AmenityDto {
@@ -72,7 +73,7 @@ export interface PropertyDto {
   whatsappTapCount?: number;
   phoneRevealCount?: number;
   isSaved?: boolean;
-  listedByUserId: string
+  listedByUserId: string;
   listedByUser?: {
     id: string;
     name: string | null;
@@ -86,7 +87,7 @@ export interface PropertyDto {
 
   // Type-specific details
   landDetail?: {
-    totalArea: string ;
+    totalArea: string;
     areaUnit: string;
     hasRoadAccess?: boolean;
   };
@@ -101,7 +102,7 @@ export interface PropertyDto {
   };
   buildingDetail?: {
     subType: string;
-    totalArea: string ;
+    totalArea: string;
     areaUnit: string;
     floorNumber: number;
     currentStatus: string;
@@ -116,5 +117,5 @@ export interface PropertyDto {
 }
 
 export interface isSavedDto {
-  saved: boolean
+  saved: boolean;
 }

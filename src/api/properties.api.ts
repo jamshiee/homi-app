@@ -59,6 +59,11 @@ export const propertiesApi = {
 
   getSaved: () => apiClient.get<ApiResponse<unknown[]>>("/saved-properties/me"),
 
+  getMine: (params?: Partial<PropertyFilter>) =>
+    apiClient.get<ApiResponse<unknown[]>>("/properties/me", { params }),
+
+  delete: (id: string) => apiClient.delete(`/properties/${id}`),
+
   getDistricts: () =>
     apiClient.get<ApiResponse<string[]>>("/properties/locations/districts"),
 };

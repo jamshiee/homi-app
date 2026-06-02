@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useTranslation } from 'react-i18next';
-import { PropertyDto } from '@api/types';
-import { Colors } from '@constants/colors';
-import { formatPrice } from '@utils/price';
-import { PropertyTypeEnum } from '@/common/enums/property-enums/property-type.enum';
-import { PriceUnitEnum } from '@/common/enums/property-enums/price-unit.enum';
+import React, { useEffect } from "react";
+import { View, Text, TouchableOpacity, Image } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
+import { PropertyDto } from "@api/types";
+import { Colors } from "@constants/colors";
+import { formatPrice } from "@utils/price";
+import { PropertyTypeEnum } from "@/common/enums/property-enums/property-type.enum";
+import { PriceUnitEnum } from "@/common/enums/property-enums/price-unit.enum";
 
 export interface PropertyCardProps {
   property: PropertyDto;
@@ -16,6 +16,9 @@ export interface PropertyCardProps {
   onWhatsAppPress?: (property: PropertyDto) => void;
   onCallPress?: (property: PropertyDto) => void;
   onViewNumberPress?: (property: PropertyDto) => void;
+  showActions?: boolean;
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
 export const PropertyCard: React.FC<PropertyCardProps> = ({
@@ -26,33 +29,31 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   onWhatsAppPress,
   onCallPress,
   onViewNumberPress,
+  showActions = false,
+  onEdit,
+  onDelete,
 }) => {
   const { t } = useTranslation();
 
-
   const formatPriceUnit = (priceUnit: PriceUnitEnum) => {
     const data = {
-      [PriceUnitEnum.PER_MONTH]: '/Month',
-      [PriceUnitEnum.PER_NIGHT]: '/Night',
-      [PriceUnitEnum.PER_ACRE]: '/Acre',
-      [PriceUnitEnum.PER_CENT]: '/Cent',
-      [PriceUnitEnum.PER_SQFT]: '/Sqft',
-      [PriceUnitEnum.PER_SQM]: '/Sqm',
-      [PriceUnitEnum.TOTAL]: ''
+      [PriceUnitEnum.PER_MONTH]: "/Month",
+      [PriceUnitEnum.PER_NIGHT]: "/Night",
+      [PriceUnitEnum.PER_ACRE]: "/Acre",
+      [PriceUnitEnum.PER_CENT]: "/Cent",
+      [PriceUnitEnum.PER_SQFT]: "/Sqft",
+      [PriceUnitEnum.PER_SQM]: "/Sqm",
+      [PriceUnitEnum.TOTAL]: "",
     };
 
     return data[priceUnit];
-  }
-
-
-
+  };
 
   const coverImage =
-    property.propertyMedia?.find((m) => m.isCover)?.media?.url ??
-    "cover"
+    property.propertyMedia?.find((m) => m.isCover)?.media?.url ?? "cover";
 
   const ownerName =
-    property.listedByUser?.name ?? property.lister?.name ?? 'Owner';
+    property.listedByUser?.name ?? property.lister?.name ?? "Owner";
 
   type PropertyPill = {
     iconName: keyof typeof Ionicons.glyphMap;
@@ -66,12 +67,12 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
       case PropertyTypeEnum.LAND: {
         if (property.landDetail?.totalArea) {
           pills.push({
-            iconName: 'resize',
-            value: `${parseFloat(property.landDetail.totalArea)} ${property.landDetail.areaUnit ?? 'Unit'
-              }`,
+            iconName: "resize",
+            value: `${parseFloat(property.landDetail.totalArea)} ${
+              property.landDetail.areaUnit ?? "Unit"
+            }`,
           });
         }
-
 
         return pills;
       }
@@ -79,25 +80,24 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
       case PropertyTypeEnum.HOUSE: {
         if (property.houseDetail?.bedrooms) {
           pills.push({
-            iconName: 'bed',
+            iconName: "bed",
             value: `${property.houseDetail.bedrooms} Beds`,
           });
         }
 
         if (property.houseDetail?.bathrooms) {
           pills.push({
-            iconName: 'water',
+            iconName: "water",
             value: `${property.houseDetail.bathrooms} Bathrooms`,
           });
         }
 
         if (property.houseDetail?.floors) {
           pills.push({
-            iconName: 'business',
-            value: `${property.houseDetail.floors} ${property.houseDetail.floors === 1
-              ? 'Floor'
-              : 'Floors'
-              }`,
+            iconName: "business",
+            value: `${property.houseDetail.floors} ${
+              property.houseDetail.floors === 1 ? "Floor" : "Floors"
+            }`,
           });
         }
 
@@ -107,25 +107,25 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
       case PropertyTypeEnum.BUILDING: {
         if (property.buildingDetail?.totalArea) {
           pills.push({
-            iconName: 'resize',
-            value: `${Number(property.buildingDetail.totalArea)} ${property.buildingDetail.areaUnit ?? 'Unit'
-              }`,
+            iconName: "resize",
+            value: `${Number(property.buildingDetail.totalArea)} ${
+              property.buildingDetail.areaUnit ?? "Unit"
+            }`,
           });
         }
 
         if (property.buildingDetail?.floorNumber) {
           pills.push({
-            iconName: 'layers',
-            value: `${property.buildingDetail.floorNumber} ${property.buildingDetail.floorNumber === 1
-              ? 'Floor'
-              : 'Floors'
-              }`,
+            iconName: "layers",
+            value: `${property.buildingDetail.floorNumber} ${
+              property.buildingDetail.floorNumber === 1 ? "Floor" : "Floors"
+            }`,
           });
         }
 
         if (property.buildingDetail?.currentStatus) {
           pills.push({
-            iconName: 'home',
+            iconName: "home",
             value: property.buildingDetail.currentStatus.replaceAll("_", " "),
           });
         }
@@ -136,18 +136,17 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
       case PropertyTypeEnum.HOTEL: {
         if (property.hotelDetail?.roomType) {
           pills.push({
-            iconName: 'bed',
+            iconName: "bed",
             value: property.hotelDetail.roomType,
           });
         }
 
         if (property.hotelDetail?.subType) {
           pills.push({
-            iconName: 'business',
+            iconName: "business",
             value: property.hotelDetail.subType,
           });
         }
-
 
         return pills;
       }
@@ -180,7 +179,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             />
 
             <Text className="mt-2 text-[13px] text-gray-400">
-              {t('property.no_photos', 'No photos')}
+              {t("property.no_photos", "No photos")}
             </Text>
           </View>
         )}
@@ -191,6 +190,25 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             {ownerName}
           </Text>
         </View>
+
+        {/* Edit/Delete actions (only when requested) */}
+        {showActions && (
+          <View className="absolute right-4 top-4 flex-row items-center gap-2">
+            <TouchableOpacity
+              onPress={() => onEdit?.(property.id)}
+              className="h-9 w-9 items-center justify-center rounded-full bg-white shadow"
+            >
+              <Ionicons name="pencil" size={18} color={Colors.dark} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => onDelete?.(property.id)}
+              className="h-9 w-9 items-center justify-center rounded-full bg-white shadow"
+            >
+              <Ionicons name="trash" size={18} color="#e11d48" />
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Featured badge */}
         {/* {property.isFeatured && (
@@ -205,7 +223,6 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
       {/* Content */}
       <View className="p-4">
         <View className="flex-row items-end justify-between">
-
           {/* Title & Location */}
           <View className="flex items-start justify-between">
             <Text
@@ -228,22 +245,21 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
                 {property.locality}, {property.district}
               </Text>
             </View>
-
           </View>
 
           {/* Price */}
-          <View className='flex-col items-end '>
+          <View className="flex-col items-end ">
             <Text className="text-[22px] font-bold text-black ">
               {formatPrice(property.price)}
             </Text>
-            <Text className="text-[12px] font-medium text-gray-500 " style={{ alignSelf: 'flex-end' }}>
+            <Text
+              className="text-[12px] font-medium text-gray-500 "
+              style={{ alignSelf: "flex-end" }}
+            >
               {formatPriceUnit(property.priceUnit)}
             </Text>
           </View>
-
         </View>
-
-
 
         {/* Pills */}
         <View className="mb-2 flex-row flex-wrap w-full gap-2 ">
@@ -272,7 +288,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             className="h-10 flex-1 items-center justify-center rounded-full bg-black"
           >
             <Text className="text-[13px] font-bold text-white">
-              {t('property.call', 'View Detail')}
+              {t("property.call", "View Detail")}
             </Text>
           </TouchableOpacity>
         </View>

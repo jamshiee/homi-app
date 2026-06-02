@@ -4,20 +4,20 @@ import {
   useMutation,
   useQueryClient,
   InfiniteData,
-} from '@tanstack/react-query';
-import Toast from 'react-native-toast-message';
-import { propertiesApi, PropertyFilter } from '@api/properties.api';
-import { ApiResponse, PropertyDto } from '@api/types';
+} from "@tanstack/react-query";
+import Toast from "react-native-toast-message";
+import { propertiesApi, PropertyFilter } from "@api/properties.api";
+import { ApiResponse, PropertyDto } from "@api/types";
 
 export const QUERY_KEYS = {
-  feed: (filters: PropertyFilter) => ['properties', 'feed', filters] as const,
-  featured: () => ['properties', 'featured'] as const,
-  detail: (id: string) => ['properties', id] as const,
-  related: (id: string) => ['properties', id, 'related'] as const,
-  saved: () => ['properties', 'saved'] as const,
+  feed: (filters: PropertyFilter) => ["properties", "feed", filters] as const,
+  featured: () => ["properties", "featured"] as const,
+  detail: (id: string) => ["properties", id] as const,
+  related: (id: string) => ["properties", id, "related"] as const,
+  saved: () => ["properties", "saved"] as const,
 };
 
-export function usePropertyFeed(filters: Omit<PropertyFilter, 'page'>) {
+export function usePropertyFeed(filters: Omit<PropertyFilter, "page">) {
   return useInfiniteQuery({
     queryKey: QUERY_KEYS.feed(filters),
     queryFn: ({ pageParam = 1 }) =>
@@ -62,6 +62,21 @@ export function useSavedProperties() {
   });
 }
 
+export function useMyListings(filters: Omit<PropertyFilter, "page">) {
+  return useInfiniteQuery({
+    queryKey: ["properties", "mine", filters],
+    queryFn: ({ pageParam = 1 }) =>
+      propertiesApi.getMine({ ...filters, page: pageParam, limit: 20 }),
+    getNextPageParam: (lastPage) => {
+      const meta = (lastPage.data as ApiResponse<any>).meta;
+      if (!meta) return undefined;
+      const { page, totalPages } = meta;
+      return page < totalPages ? page + 1 : undefined;
+    },
+    initialPageParam: 1,
+  });
+}
+
 export function useToggleSave() {
   const queryClient = useQueryClient();
 
@@ -83,9 +98,7 @@ export function useToggleSave() {
 
           const items = old.data;
 
-          const alreadySaved = items.some(
-            (p) => p.id === propertyId
-          );
+          const alreadySaved = items.some((p) => p.id === propertyId);
 
           return {
             ...old,
@@ -105,15 +118,32 @@ export function useToggleSave() {
         queryClient.setQueryData(QUERY_KEYS.saved(), context.previousSaved);
       }
       Toast.show({
-        type: 'error',
-        text1: 'Could not update saved status',
-        text2: 'Please try again',
+        type: "error",
+        text1: "Could not update saved status",
+        text2: "Please try again",
       });
     },
 
     onSuccess: (_data, _propertyId) => {
       // Refetch to get accurate server state
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.saved() });
+    },
+  });
+}
+
+export function useDeleteProperty() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (propertyId: string) => propertiesApi.delete(propertyId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["properties", "mine"] });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.featured() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.feed({}) });
+      Toast.show({ type: "success", text1: "Listing deleted" });
+    },
+    onError: () => {
+      Toast.show({ type: "error", text1: "Could not delete listing" });
     },
   });
 }
