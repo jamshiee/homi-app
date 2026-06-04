@@ -5,6 +5,7 @@ import {
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -36,11 +37,17 @@ export default function HomeScreen() {
   const [locationSheetVisible, setLocationSheetVisible] = useState(false);
   const [filterSheetVisible, setFilterSheetVisible] = useState(false);
 
-  const { data: featuredData, isLoading: featuredLoading } = useFeaturedProperties();
-  const { data: feedData, isLoading: feedLoading } = usePropertyFeed({
+  const { data: featuredData, isLoading: featuredLoading, refetch: refetchFeatured, isRefetching: isRefetchingFeatured } = useFeaturedProperties();
+  const { data: feedData, isLoading: feedLoading, refetch: refetchFeed, isRefetching: isRefetchingFeed } = usePropertyFeed({
     type: filterType !== 'all' ? filterType : undefined,
     district: filterDistrict,
   });
+
+  const onRefresh = async () => {
+    await Promise.all([refetchFeatured(), refetchFeed()]);
+  };
+
+  const isRefreshing = isRefetchingFeatured || isRefetchingFeed;
 
   const featuredProperties = (featuredData?.data?.data as PropertyDto[]) ?? [];
   const feedProperties =
@@ -145,6 +152,9 @@ export default function HomeScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 24 }}
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} colors={[Colors.yellow]} tintColor={Colors.yellow} />
+        }
       >
         {/* Quick filter pills */}
         <ScrollView
@@ -214,9 +224,6 @@ export default function HomeScreen() {
                   key={prop.id}
                   property={prop}
                   onPress={navToProperty}
-                  onWhatsAppPress={handleWhatsApp}
-                  onCallPress={handleCall}
-                  onViewNumberPress={handleViewNumber}
                 />
               ))}
             </ScrollView>
@@ -254,9 +261,6 @@ export default function HomeScreen() {
                 key={prop.id}
                 property={prop}
                 onPress={navToProperty}
-                onWhatsAppPress={handleWhatsApp}
-                onCallPress={handleCall}
-                onViewNumberPress={handleViewNumber}
               />
             ))
           ) : (

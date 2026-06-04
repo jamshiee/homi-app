@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
@@ -7,15 +7,13 @@ import { Colors } from "@constants/colors";
 import { formatPrice } from "@utils/price";
 import { PropertyTypeEnum } from "@/common/enums/property-enums/property-type.enum";
 import { PriceUnitEnum } from "@/common/enums/property-enums/price-unit.enum";
+import { LinearGradient } from "expo-linear-gradient";
 
 export interface PropertyCardProps {
   property: PropertyDto;
   onPress?: (id: string) => void;
   onSaveToggle?: (id: string) => void;
   isSaved?: boolean;
-  onWhatsAppPress?: (property: PropertyDto) => void;
-  onCallPress?: (property: PropertyDto) => void;
-  onViewNumberPress?: (property: PropertyDto) => void;
   showActions?: boolean;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
@@ -26,131 +24,130 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   onPress,
   onSaveToggle,
   isSaved = false,
-  onWhatsAppPress,
-  onCallPress,
-  onViewNumberPress,
   showActions = false,
   onEdit,
   onDelete,
 }) => {
   const { t } = useTranslation();
 
-  const formatPriceUnit = (priceUnit: PriceUnitEnum) => {
-    const data = {
-      [PriceUnitEnum.PER_MONTH]: "/Month",
-      [PriceUnitEnum.PER_NIGHT]: "/Night",
-      [PriceUnitEnum.PER_ACRE]: "/Acre",
-      [PriceUnitEnum.PER_CENT]: "/Cent",
-      [PriceUnitEnum.PER_SQFT]: "/Sqft",
-      [PriceUnitEnum.PER_SQM]: "/Sqm",
-      [PriceUnitEnum.TOTAL]: "",
+  const formatPriceUnit = (unit: PriceUnitEnum) => {
+    const map: Record<PriceUnitEnum, string> = {
+      [PriceUnitEnum.PER_MONTH]: "per month",
+      [PriceUnitEnum.PER_NIGHT]: "per night",
+      [PriceUnitEnum.PER_ACRE]: "per acre",
+      [PriceUnitEnum.PER_CENT]: "per cent",
+      [PriceUnitEnum.PER_SQFT]: "per sqft",
+      [PriceUnitEnum.PER_SQM]: "per sqm",
+      [PriceUnitEnum.TOTAL]: "total price",
     };
-
-    return data[priceUnit];
+    return map[unit] ?? "";
   };
 
   const coverImage =
-    property.propertyMedia?.find((m) => m.isCover)?.media?.url ?? "cover";
+    property.propertyMedia?.find((m) => m.isCover)?.media?.url ??
+    property.propertyMedia?.[0]?.media?.url;
 
   const ownerName =
     property.listedByUser?.name ?? property.lister?.name ?? "Owner";
 
-  type PropertyPill = {
-    iconName: keyof typeof Ionicons.glyphMap;
-    value: string | number;
-  };
+  const ownerInitials = ownerName
+    .split(" ")
+    .slice(0, 2)
+    .map((w: string) => w[0])
+    .join("")
+    .toUpperCase();
 
-  const pills = (): PropertyPill[] => {
-    const pills: PropertyPill[] = [];
+  type Pill = { icon: keyof typeof Ionicons.glyphMap; label: string };
 
+  const pills = (): Pill[] => {
     switch (property.type) {
-      case PropertyTypeEnum.LAND: {
-        if (property.landDetail?.totalArea) {
-          pills.push({
-            iconName: "resize",
-            value: `${parseFloat(property.landDetail.totalArea)} ${
-              property.landDetail.areaUnit ?? "Unit"
-            }`,
-          });
-        }
-
-        return pills;
-      }
-
-      case PropertyTypeEnum.HOUSE: {
-        if (property.houseDetail?.bedrooms) {
-          pills.push({
-            iconName: "bed",
-            value: `${property.houseDetail.bedrooms} Beds`,
-          });
-        }
-
-        if (property.houseDetail?.bathrooms) {
-          pills.push({
-            iconName: "water",
-            value: `${property.houseDetail.bathrooms} Bathrooms`,
-          });
-        }
-
-        if (property.houseDetail?.floors) {
-          pills.push({
-            iconName: "business",
-            value: `${property.houseDetail.floors} ${
-              property.houseDetail.floors === 1 ? "Floor" : "Floors"
-            }`,
-          });
-        }
-
-        return pills;
-      }
-
-      case PropertyTypeEnum.BUILDING: {
-        if (property.buildingDetail?.totalArea) {
-          pills.push({
-            iconName: "resize",
-            value: `${Number(property.buildingDetail.totalArea)} ${
-              property.buildingDetail.areaUnit ?? "Unit"
-            }`,
-          });
-        }
-
-        if (property.buildingDetail?.floorNumber) {
-          pills.push({
-            iconName: "layers",
-            value: `${property.buildingDetail.floorNumber} ${
-              property.buildingDetail.floorNumber === 1 ? "Floor" : "Floors"
-            }`,
-          });
-        }
-
-        if (property.buildingDetail?.currentStatus) {
-          pills.push({
-            iconName: "home",
-            value: property.buildingDetail.currentStatus.replaceAll("_", " "),
-          });
-        }
-
-        return pills;
-      }
-
-      case PropertyTypeEnum.HOTEL: {
-        if (property.hotelDetail?.roomType) {
-          pills.push({
-            iconName: "bed",
-            value: property.hotelDetail.roomType,
-          });
-        }
-
-        if (property.hotelDetail?.subType) {
-          pills.push({
-            iconName: "business",
-            value: property.hotelDetail.subType,
-          });
-        }
-
-        return pills;
-      }
-
+      case PropertyTypeEnum.LAND:
+        return [
+          ...(property.landDetail?.totalArea
+            ? [
+                {
+                  icon: "resize-outline" as const,
+                  label: `${parseFloat(property.landDetail.totalArea)} ${property.landDetail.areaUnit ?? "Unit"}`,
+                },
+              ]
+            : []),
+        ];
+      case PropertyTypeEnum.HOUSE:
+        return [
+          ...(property.houseDetail?.bedrooms
+            ? [
+                {
+                  icon: "bed-outline" as const,
+                  label: `${property.houseDetail.bedrooms} Beds`,
+                },
+              ]
+            : []),
+          ...(property.houseDetail?.bathrooms
+            ? [
+                {
+                  icon: "water-outline" as const,
+                  label: `${property.houseDetail.bathrooms} Baths`,
+                },
+              ]
+            : []),
+          ...(property.houseDetail?.floors
+            ? [
+                {
+                  icon: "business-outline" as const,
+                  label: `${property.houseDetail.floors} ${property.houseDetail.floors === 1 ? "Floor" : "Floors"}`,
+                },
+              ]
+            : []),
+        ];
+      case PropertyTypeEnum.BUILDING:
+        return [
+          ...(property.buildingDetail?.totalArea
+            ? [
+                {
+                  icon: "resize-outline" as const,
+                  label: `${Number(property.buildingDetail.totalArea)} ${property.buildingDetail.areaUnit ?? "Unit"}`,
+                },
+              ]
+            : []),
+          ...(property.buildingDetail?.floorNumber
+            ? [
+                {
+                  icon: "layers-outline" as const,
+                  label: `${property.buildingDetail.floorNumber} ${property.buildingDetail.floorNumber === 1 ? "Floor" : "Floors"}`,
+                },
+              ]
+            : []),
+          ...(property.buildingDetail?.currentStatus
+            ? [
+                {
+                  icon: "home-outline" as const,
+                  label: property.buildingDetail.currentStatus.replaceAll(
+                    "_",
+                    " ",
+                  ),
+                },
+              ]
+            : []),
+        ];
+      case PropertyTypeEnum.HOTEL:
+        return [
+          ...(property.hotelDetail?.roomType
+            ? [
+                {
+                  icon: "bed-outline" as const,
+                  label: property.hotelDetail.roomType,
+                },
+              ]
+            : []),
+          ...(property.hotelDetail?.subType
+            ? [
+                {
+                  icon: "business-outline" as const,
+                  label: property.hotelDetail.subType,
+                },
+              ]
+            : []),
+        ];
       default:
         return [];
     }
@@ -158,140 +155,307 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
 
   return (
     <TouchableOpacity
-      activeOpacity={0.9}
+      activeOpacity={0.92}
       onPress={() => onPress?.(property.id)}
-      className="mx-3 my-1.5 overflow-hidden rounded-xl border border-gray-200 bg-white"
+      style={{
+        marginHorizontal: 16,
+        marginVertical: 6,
+        borderRadius: 18,
+        overflow: "hidden",
+        borderWidth: 0.5,
+        borderColor: Colors.border,
+        backgroundColor: Colors.white,
+      }}
     >
-      {/* Image */}
-      <View className="relative h-[220px]  p-2">
-        {coverImage ? (
-          <Image
-            source={{ uri: coverImage }}
-            className="h-full w-full rounded-xl"
-            resizeMode="cover"
-          />
-        ) : (
-          <View className="flex-1 items-center justify-center rounded-xl">
-            <Ionicons
-              name="camera-outline"
-              size={32}
-              color={Colors.lightMuted}
+      {/* ── Hero image ── */}
+
+      <View style={{ height: 240, backgroundColor: Colors.white, padding: 10 }}>
+        <View
+          style={{
+            flex: 1,
+            borderRadius: 14,
+            overflow: "hidden",
+            backgroundColor: "#1a1a2e",
+          }}
+        >
+          {coverImage ? (
+            <Image
+              source={{ uri: coverImage }}
+              style={{ width: "100%", height: "100%" }}
+              resizeMode="cover"
             />
-
-            <Text className="mt-2 text-[13px] text-gray-400">
-              {t("property.no_photos", "No photos")}
-            </Text>
-          </View>
-        )}
-
-        {/* Owner pill */}
-        <View className="absolute left-4 top-4 rounded-full bg-black/50 px-2 py-1">
-          <Text className="text-[11px] font-medium text-white">
-            {ownerName}
-          </Text>
-        </View>
-
-        {/* Edit/Delete actions (only when requested) */}
-        {showActions && (
-          <View className="absolute right-4 top-4 flex-row items-center gap-2">
-            <TouchableOpacity
-              onPress={() => onEdit?.(property.id)}
-              className="h-9 w-9 items-center justify-center rounded-full bg-white shadow"
+          ) : (
+            <View
+              style={{
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 6,
+              }}
             >
-              <Ionicons name="pencil" size={18} color={Colors.dark} />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => onDelete?.(property.id)}
-              className="h-9 w-9 items-center justify-center rounded-full bg-white shadow"
-            >
-              <Ionicons name="trash" size={18} color="#e11d48" />
-            </TouchableOpacity>
-          </View>
-        )}
-
-        {/* Featured badge */}
-        {/* {property.isFeatured && (
-      <View className="absolute bottom-3 left-3 rounded-full bg-yellow-400 px-2 py-1">
-        <Text className="text-[11px] font-bold text-black">
-          {t('property.featured', 'Featured')}
-        </Text>
-      </View>
-    )} */}
-      </View>
-
-      {/* Content */}
-      <View className="p-4">
-        <View className="flex-row items-end justify-between">
-          {/* Title & Location */}
-          <View className="flex items-start justify-between">
-            <Text
-              numberOfLines={1}
-              className="flex-1  text-[22px] font-bold text-black"
-            >
-              {property.title ||
-                `${property.type} for ${property.transactionType}`}
-            </Text>
-
-            {/* Location */}
-            <View className="mb-5 mt-1 flex-row items-center">
               <Ionicons
-                name="location-outline"
-                size={14}
-                color={Colors.muted}
+                name="camera-outline"
+                size={32}
+                color={Colors.lightMuted}
               />
-
-              <Text className="ml-1 text-xs text-gray-500">
-                {property.locality}, {property.district}
+              <Text style={{ fontSize: 13, color: Colors.lightMuted }}>
+                {t("property.no_photos", "No photos")}
               </Text>
             </View>
+          )}
+
+          {/* Gradient overlay (bottom-up) */}
+          <LinearGradient
+            colors={["transparent", "rgba(0,0,0,0.72)"]}
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 120,
+            }}
+          />
+
+          {/* Transaction type badge — top left */}
+          <View
+            style={{
+              position: "absolute",
+              top: 10,
+              left: 10,
+              backgroundColor:
+                property.transactionType === "rent" ? "#0F6E56" : "#1a1a2e",
+              paddingHorizontal: 10,
+              paddingVertical: 4,
+              borderRadius: 20,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 10,
+                fontWeight: "700",
+                color: "#fff",
+                letterSpacing: 0.6,
+                textTransform: "uppercase",
+              }}
+            >
+              For {property.transactionType}
+            </Text>
           </View>
 
-          {/* Price */}
-          <View className="flex-col items-end ">
-            <Text className="text-[22px] font-bold text-black ">
+          {/* Top-right actions */}
+          {/* <View style={{ position: "absolute", top: 8, right: 10, flexDirection: "row", gap: 6 }}>
+            {showActions ? (
+              <>
+                <TouchableOpacity
+                  onPress={() => onEdit?.(property.id)}
+                  style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: "#fff", alignItems: "center", justifyContent: "center" }}
+                >
+                  <Ionicons name="pencil-outline" size={15} color={Colors.dark} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => onDelete?.(property.id)}
+                  style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: "#fff2f2", alignItems: "center", justifyContent: "center" }}
+                >
+                  <Ionicons name="trash-outline" size={15} color="#e11d48" />
+                </TouchableOpacity>
+              </>
+            ) : (
+              <TouchableOpacity
+                onPress={() => onSaveToggle?.(property.id)}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: "rgba(0,0,0,0.45)", alignItems: "center", justifyContent: "center" }}
+              >
+                <Ionicons
+                  name={isSaved ? "heart" : "heart-outline"}
+                  size={16}
+                  color={isSaved ? "#F5C249" : "#fff"}
+                />
+              </TouchableOpacity>
+            )}
+          </View> */}
+
+          {/* Price — anchored to bottom of image */}
+          <View
+            style={{ position: "absolute", bottom: 12, left: 12, right: 12 }}
+          >
+            <Text
+              style={{
+                fontSize: 24,
+                fontWeight: "700",
+                color: "#fff",
+                lineHeight: 28,
+              }}
+            >
               {formatPrice(property.price)}
             </Text>
             <Text
-              className="text-[12px] font-medium text-gray-500 "
-              style={{ alignSelf: "flex-end" }}
+              style={{
+                fontSize: 11,
+                color: "rgba(255,255,255,0.6)",
+                marginTop: 1,
+              }}
             >
               {formatPriceUnit(property.priceUnit)}
             </Text>
           </View>
         </View>
+      </View>
 
-        {/* Pills */}
-        <View className="mb-2 flex-row flex-wrap w-full gap-2 ">
-          {pills().map((item, idx) => (
-            <View
-              key={idx}
-              className="mb-2 flex-row items-center gap-1  rounded-md bg-gray-100 px-3 py-2"
+      {/* ── Body ── */}
+      <View style={{ padding: 14 }}>
+        {/* Title */}
+        <Text
+          numberOfLines={1}
+          style={{
+            fontSize: 21,
+            fontWeight: "700",
+            color: Colors.dark,
+            marginBottom: 4,
+          }}
+        >
+          {property.title || `${property.type} for ${property.transactionType}`}
+        </Text>
+
+        {/* Location + Owner row */}
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 12,
+          }}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 4,
+              flex: 1,
+              minWidth: 0,
+            }}
+          >
+            <Ionicons name="location-outline" size={13} color={Colors.muted} />
+            <Text
+              numberOfLines={1}
+              style={{ fontSize: 12, color: Colors.muted, flex: 1 }}
             >
-              <Ionicons
-                name={item.iconName as any}
-                size={14}
-                color={Colors.muted}
-              />
+              {property.locality}, {property.district}
+            </Text>
+          </View>
 
-              <Text className=" capitalize text-xs text-gray-600">
-                {item.value}
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 5,
+              marginLeft: 8,
+              flexShrink: 0,
+            }}
+          >
+            <View
+              style={{
+                width: 22,
+                height: 22,
+                borderRadius: 11,
+                backgroundColor: "#1a1a2e",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Text style={{ fontSize: 8, fontWeight: "700", color: "#fff" }}>
+                {ownerInitials}
               </Text>
             </View>
-          ))}
+            <Text
+              style={{ fontSize: 11, color: Colors.muted, fontWeight: "500" }}
+            >
+              {ownerName}
+            </Text>
+          </View>
         </View>
 
-        {/* Actions */}
-        <View className="flex-row">
-          <TouchableOpacity
-            onPress={() => onPress?.(property.id)}
-            className="h-10 flex-1 items-center justify-center rounded-full bg-black"
+        {/* Divider */}
+        <View
+          style={{
+            height: 0.5,
+            backgroundColor: Colors.border,
+            marginBottom: 12,
+          }}
+        />
+
+        {/* Pills */}
+        {pills().length > 0 && (
+          <View
+            style={{
+              flexDirection: "row",
+              flexWrap: "wrap",
+              gap: 6,
+              marginBottom: 12,
+            }}
           >
-            <Text className="text-[13px] font-bold text-white">
-              {t("property.call", "View Detail")}
-            </Text>
-          </TouchableOpacity>
-        </View>
+            {pills().map((p, i) => (
+              <View
+                key={i}
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 5,
+                  backgroundColor: Colors.surface,
+                  borderWidth: 0.5,
+                  borderColor: Colors.border,
+                  borderRadius: 8,
+                  paddingHorizontal: 10,
+                  paddingVertical: 5,
+                }}
+              >
+                <Ionicons name={p.icon} size={12} color={Colors.muted} />
+                <Text
+                  style={{
+                    fontSize: 11,
+                    color: Colors.muted,
+                    fontWeight: "500",
+                  }}
+                  className="capitalize"
+                >
+                  {p.label}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Footer buttons */}
+        {showActions && (
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            <TouchableOpacity
+              onPress={() => onEdit?.(property.id)}
+              style={{
+                flex: 1,
+                paddingVertical: 9,
+                borderRadius: 10,
+                borderWidth: 0.5,
+                borderColor: Colors.border,
+                alignItems: "center",
+              }}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="pencil" size={18} color={Colors.dark} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => onDelete?.(property.id)}
+              style={{
+                flex: 1,
+                paddingVertical: 9,
+                borderRadius: 10,
+                backgroundColor: Colors.error,
+                alignItems: "center",
+              }}
+              activeOpacity={0.85}
+            >
+              <Ionicons name="trash" size={18} color={"#fff"} />
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </TouchableOpacity>
   );

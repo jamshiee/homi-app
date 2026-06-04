@@ -63,6 +63,8 @@ export interface PropertyDto {
   advanceAmount?: number | null;
   priceUnit: PriceUnitEnum;
   isFeatured: boolean;
+  featuredOrder?: number;
+  featuredUntil?: string;
   status?: string;
   moderationStatus?: string;
   contactPhone: string;

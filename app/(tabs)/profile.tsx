@@ -22,6 +22,7 @@ import Toast from "react-native-toast-message";
 import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { uploadClient } from "@api/client";
+import { userApi } from "@/api/user.api";
 
 export default function ProfileScreen() {
   const { t } = useTranslation();
@@ -58,9 +59,15 @@ export default function ProfileScreen() {
 
     setIsSaving(true);
     try {
-      await apiClient.patch("/users/me", {
-        name: name.trim(),
-      });
+      const res = await userApi.updateProfile(name.trim())
+      if(!res.status){
+        Toast.show({
+          type: "error",
+          text1: t("profile.saved_title"),
+          text2: t("profile.saved_body"),
+        });
+        return;
+      }
       updateUser({ name: name.trim() });
       setIsEditing(false);
       Toast.show({
@@ -70,6 +77,39 @@ export default function ProfileScreen() {
       });
     } catch (err: any) {
       console.error("Profile save error:", err);
+      Alert.alert(
+        t("common.error_generic"),
+        err.response?.data?.message || t("common.error_generic"),
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+    const handleLanguageToggle = async () => {
+    if (!user) return;
+
+    let updatedLanguage : "en" | "ml" = language == 'en' ? 'ml' : 'en';
+
+    try {
+      const res = await userApi.updateProfile(undefined, updatedLanguage)
+      if(!res.status){
+        Toast.show({
+          type: "error",
+          text1: t("profile.saved_title"),
+          text2: t("profile.saved_body"),
+        });
+        return;
+      }
+      setLanguage(updatedLanguage);
+      updateUser({ preferredLanguage: updatedLanguage });;
+      Toast.show({
+        type: "success",
+        text1: t("profile.saved_title","Updated Language"),
+        text2: t("profile.saved_body","Language Updated Successfully"),
+      });
+    } catch (err: any) {
+      console.error("Language Toggle Error :", err);
       Alert.alert(
         t("common.error_generic"),
         err.response?.data?.message || t("common.error_generic"),
@@ -225,17 +265,14 @@ export default function ProfileScreen() {
 
         {/* Language Section */}
         <View style={styles.section}>
-          <View style={styles.sectionHeader}>
+          <TouchableOpacity onPress={()=> handleLanguageToggle()}  style={styles.sectionHeader}>
             <View style={styles.sectionTitleContainer}>
               <Ionicons name="globe-outline" size={20} color={Colors.muted} />
               <Text style={styles.sectionTitle}>{t("profile.language")}</Text>
             </View>
             <View style={styles.languagePill}>
               <TouchableOpacity
-                onPress={() => {
-                  setLanguage("en");
-                  updateUser({ preferredLanguage: "en" });
-                }}
+  
                 style={[
                   styles.pillButton,
                   user.preferredLanguage === "en" && styles.pillButtonActive,
@@ -270,20 +307,31 @@ export default function ProfileScreen() {
                 </Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </TouchableOpacity>
         </View>
 
         {/* Actions Section */}
         <View style={styles.section}>
           {user.isAdmin && (
-            <TouchableOpacity
-              style={styles.actionRow}
-              onPress={() => router.push("/my-listings")}
-            >
-              <Ionicons name="home-outline" size={20} color={Colors.dark} />
-              <Text style={styles.actionText}>{t("profile.my_listings")}</Text>
-              <Ionicons name="chevron-forward" size={20} color={Colors.muted} />
-            </TouchableOpacity>
+            <>
+              <TouchableOpacity
+                style={styles.actionRow}
+                onPress={() => router.push("/my-listings")}
+              >
+                <Ionicons name="home-outline" size={20} color={Colors.dark} />
+                <Text style={styles.actionText}>{t("profile.my_listings")}</Text>
+                <Ionicons name="chevron-forward" size={20} color={Colors.muted} />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.actionRow}
+                onPress={() => router.push("/(admin)/featured" as any)}
+              >
+                <Ionicons name="star-outline" size={20} color={Colors.dark} />
+                <Text style={styles.actionText}>{t("profile.featured_properties", "Featured Properties")}</Text>
+                <Ionicons name="chevron-forward" size={20} color={Colors.muted} />
+              </TouchableOpacity>
+            </>
           )}
 
           <TouchableOpacity

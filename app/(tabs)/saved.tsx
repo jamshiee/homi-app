@@ -22,7 +22,7 @@ export default function SavedScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const { user } = useAuthStore();
-  const { data, isLoading, refetch } = useSavedProperties();
+  const { data, isLoading, refetch, isRefetching } = useSavedProperties();
   const toggleSave = useToggleSave();
 
   const savedProperties = (data?.data?.data as PropertyDto[]) ?? [];
@@ -184,15 +184,12 @@ export default function SavedScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 24 }}
           onRefresh={refetch}
-          refreshing={isLoading}
+          refreshing={isRefetching}
           renderItem={({ item }) => (
             <PropertyCard
               property={item}
               onPress={(id) => router.push(`/property/${id}`)}
               onSaveToggle={(id) => toggleSave.mutate(id)}
-              onWhatsAppPress={handleWhatsApp}
-              onCallPress={handleCall}
-              onViewNumberPress={(p) => router.push(`/property/${p.id}`)}
             />
           )}
         />

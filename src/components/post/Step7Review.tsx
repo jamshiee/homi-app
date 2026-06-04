@@ -16,6 +16,8 @@ import { apiClient, uploadClient } from "../../api/client";
 import { propertiesApi } from "../../api/properties.api";
 import { router } from "expo-router";
 import Toast from "react-native-toast-message";
+import { useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "../../hooks/useProperties";
 import * as ImageManipulator from "expo-image-manipulator";
 
 interface AmenityData {
@@ -58,6 +60,7 @@ export default function Step7Review() {
   const [amenitiesMap, setAmenitiesMap] = useState<Record<string, AmenityData>>(
     {},
   );
+  const queryClient = useQueryClient();
 
   /** Compress a local URI to JPEG ≤ 1024px wide, 75% quality before uploading */
   const compressImage = async (uri: string): Promise<string> => {
@@ -203,6 +206,13 @@ export default function Step7Review() {
           ? "Your property changes have been saved."
           : "Your property is now active on the feed.",
       });
+
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.feed({}) });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.featured() });
+      queryClient.invalidateQueries({ queryKey: ["properties", "mine"] });
+      if (propertyId) {
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.detail(propertyId) });
+      }
 
       await resetForm();
       if (isEditMode && propertyId) {

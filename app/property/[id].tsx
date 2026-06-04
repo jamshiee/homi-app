@@ -1,27 +1,25 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Modal, Pressable, Share, FlatList } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { propertiesApi } from '@api/properties.api';
+import { isSavedDto, PropertyDto } from '@api/types';
 import { Colors } from '@constants/colors';
-import { useTranslation } from 'react-i18next';
+import { Ionicons } from '@expo/vector-icons';
 import { usePropertyDetail, useRelatedProperties, useToggleSave } from '@hooks/useProperties';
 import { useAuthStore } from '@store/auth.store';
-import { isSavedDto, PropertyDto } from '@api/types';
-import { propertiesApi } from '@api/properties.api';
-import { openWhatsApp, openPhone } from '@utils/contact';
-import { PropertyCard } from '@components/PropertyCard';
+import { openPhone, openWhatsApp } from '@utils/contact';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Modal, Pressable, ScrollView, Share, Text, TouchableOpacity, View, RefreshControl } from 'react-native';
 import Toast from 'react-native-toast-message';
 
 // Components
+import { PropertyAmenitiesSection } from '@/components/property-detail/PropertyAmenitiesSection';
+import { PropertyDescriptionSection } from '@/components/property-detail/PropertyDescriptionSection';
 import { PropertyHeroGallery } from '@/components/property-detail/PropertyHeroGallery';
 import { PropertyIdentitySection } from '@/components/property-detail/PropertyIdentitySection';
-import { StickyContactBar } from '@/components/property-detail/StickyContactBar';
-import { PropertyQuickFactsSection } from '@/components/property-detail/PropertyQuickFactsSection';
-import { PropertyDescriptionSection } from '@/components/property-detail/PropertyDescriptionSection';
-import { PropertyAmenitiesSection } from '@/components/property-detail/PropertyAmenitiesSection';
 import { PropertyLocationSection } from '@/components/property-detail/PropertyLocationSection';
 import { PropertyOwnerSection } from '@/components/property-detail/PropertyOwnerSection';
-import { RelatedPropertiesSection } from '@/components/property-detail/RelatedPropertiesSection';
+import { PropertyQuickFactsSection } from '@/components/property-detail/PropertyQuickFactsSection';
+import { StickyContactBar } from '@/components/property-detail/StickyContactBar';
 
 const LISTING_URL = (id: string) => `https://homi.holdings/property/${id}`;
 
@@ -55,8 +53,8 @@ export default function PropertyDetailScreen() {
   const { t } = useTranslation();
   const { user } = useAuthStore();
 
-  const { data, isLoading } = usePropertyDetail(id);
-  const { data: relatedData } = useRelatedProperties(id);
+  const { data, isLoading, refetch: refetchDetail, isRefetching: isRefetchingDetail } = usePropertyDetail(id);
+  const { data: relatedData, refetch: refetchRelated, isRefetching: isRefetchingRelated } = useRelatedProperties(id);
   const toggleSaveMutation = useToggleSave();
 
   const [contactSheetVisible, setContactSheetVisible] = useState(false);
@@ -137,9 +135,20 @@ export default function PropertyDetailScreen() {
     return <PropertyDetailSkeleton />;
   }
 
+  const onRefresh = async () => {
+    await Promise.all([refetchDetail(), refetchRelated()]);
+  };
+  const isRefreshing = isRefetchingDetail || isRefetchingRelated;
+
   return (
     <View className="flex-1 bg-white">
-      <ScrollView contentContainerStyle={{ paddingBottom: 100 }} bounces={false} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        contentContainerStyle={{ paddingBottom: 100 }} 
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} colors={[Colors.yellow]} tintColor={Colors.yellow} />
+        }
+      >
 
         {/* Hero Gallery */}
         <PropertyHeroGallery

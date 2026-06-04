@@ -43,8 +43,6 @@ export function RelatedPropertiesSection({
             <PropertyCard
               property={prop}
               onPress={onPress}
-              onWhatsAppPress={onWhatsAppPress}
-              onCallPress={onCallPress}
             />
           </View>
         )}
