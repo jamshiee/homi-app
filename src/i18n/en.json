@@ -126,5 +126,17 @@
     "saved": "Saved — see SCREENS_INIT.md",
     "profile": "Profile — see SCREENS_INIT.md",
     "property_detail": "Property detail — see SCREENS_INIT.md"
+  },
+  "ai": {
+    "title": "Homi Assistant",
+    "subtitle": "Ask me anything about using Homi",
+    "input_placeholder": "Ask something...",
+    "suggested_post": "How do I post a property?",
+    "suggested_save": "How do I save a property?",
+    "suggested_featured": "What is a featured property?",
+    "suggested_contact": "How do I contact an owner?",
+    "suggested_edit": "How do I edit my listing?",
+    "error_message": "Something went wrong. Tap to retry.",
+    "typing": "Typing..."
   }
 }

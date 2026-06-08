@@ -6,8 +6,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  Platform,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -27,6 +28,10 @@ import { propertiesApi } from '@api/properties.api';
 export default function HomeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  // Tab bar height: 64px base + bottom safe area inset
+  const TAB_BAR_HEIGHT = (Platform.OS === 'ios' ? 84 : 64);
+  const fabBottom =  14;
 
   const filterType = useFilterStore((s) => s.type);
   const filterDistrict = useFilterStore((s) => s.district);
@@ -285,6 +290,30 @@ export default function HomeScreen() {
         visible={filterSheetVisible}
         onClose={() => setFilterSheetVisible(false)}
       />
+
+      {/* AI Assistant FAB */}
+      <TouchableOpacity
+        style={{
+          position: 'absolute',
+          bottom: fabBottom,
+          right: 20,
+          width: 52,
+          height: 52,
+          borderRadius: 26,
+          backgroundColor: Colors.yellow,
+          alignItems: 'center',
+          justifyContent: 'center',
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.18,
+          shadowRadius: 4,
+          elevation: 4,
+        }}
+        onPress={() => router.push('/assistant' as any)}
+        activeOpacity={0.85}
+      >
+        <Ionicons name="chatbubble-ellipses" size={24} color={Colors.dark} />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
