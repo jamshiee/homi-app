@@ -21,6 +21,7 @@ import { authApi } from '@api/auth.api';
 import { useAuthStore } from '@store/auth.store';
 import { useAppStore } from '@store/app.store';
 import { COUNTRIES, CountryData } from '@constants/countries';
+import { Config } from '@/constants/config';
 
 export default function PhoneScreen() {
   const { t } = useTranslation();
@@ -53,6 +54,7 @@ export default function PhoneScreen() {
     setLoading(true);
     try {
       const fullPhone = `${selectedCountry.dialCode}${phone}`;
+      console.log({ 'Base Url': Config.API_BASE_URL });
       const res = await authApi.sendOtp(fullPhone);
       router.push({
         pathname: '/(auth)/otp',
@@ -63,7 +65,7 @@ export default function PhoneScreen() {
       });
     } catch (err: unknown) {
       const ax = err as { response?: { data?: { message?: string } } };
-      console.log({ 'Error in handleSend': ax });
+      console.log({ 'Error in handleSend': ax, 'Url hit:': Config.API_BASE_URL });
       Toast.show({
         type: 'error',
         text1: ax?.response?.data?.message || t('common.error_generic'),

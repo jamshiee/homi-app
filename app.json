@@ -48,6 +48,13 @@
       "eas": {
         "projectId": "963cf11c-9b0d-4f99-9c98-2dff935ff68d"
       }
-    }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/963cf11c-9b0d-4f99-9c98-2dff935ff68d"
+    },
+    "owner": "jamshiiie"
   }
 }
