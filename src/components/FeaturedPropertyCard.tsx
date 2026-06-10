@@ -29,7 +29,10 @@ export const FeaturedPropertyCard: React.FC<FeaturedPropertyCardProps> = ({
     property.propertyMedia?.[0]?.media?.url;
 
   const ownerName =
-    property.listedByUser?.name ?? property.lister?.name ?? "Owner";
+     property.lister?.name ?? "Owner";
+
+  const ownerImage =  property?.lister?.profileMedia.url ?? null;
+
 
   const formatPriceUnit = (unit: PriceUnitEnum) => {
     const map: Record<PriceUnitEnum, string> = {

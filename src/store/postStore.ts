@@ -29,6 +29,7 @@ export interface PostState {
   longitude: string;
   price: number;
   isNegotiable: boolean;
+  isVerified: boolean;
   advanceAmount?: number;
   priceUnit: PriceUnitEnum;
   description: string;
@@ -81,6 +82,7 @@ const defaultPostState: PostState = {
   longitude: "",
   price: 0,
   isNegotiable: false,
+  isVerified: false,
   advanceAmount: undefined,
   priceUnit: PriceUnitEnum.TOTAL,
   description: "",
@@ -112,6 +114,7 @@ const serializeDraft = (state: PostState) => ({
   longitude: state.longitude,
   price: state.price,
   isNegotiable: state.isNegotiable,
+  isVerified: state.isVerified,
   advanceAmount: state.advanceAmount,
   priceUnit: state.priceUnit,
   description: state.description,
@@ -227,6 +230,7 @@ export const usePostStore = create<PostStore>((set, get) => ({
       longitude: property?.longitude?.toString() ?? "",
       price: Number(property?.price) || 0,
       isNegotiable: Boolean(property?.isNegotiable),
+      isVerified: Boolean(property?.isVerified),
       advanceAmount: property?.advanceAmount ?? undefined,
       priceUnit: property?.priceUnit ?? PriceUnitEnum.TOTAL,
       description: property?.description ?? "",
@@ -292,6 +296,7 @@ export const usePostStore = create<PostStore>((set, get) => ({
         longitude: property?.longitude?.toString() ?? "",
         price: Number(property?.price) || 0,
         isNegotiable: Boolean(property?.isNegotiable),
+        isVerified: Boolean(property?.isVerified),
         advanceAmount: property?.advanceAmount ?? undefined,
         priceUnit: property?.priceUnit ?? PriceUnitEnum.TOTAL,
         description: property?.description ?? "",

@@ -59,7 +59,8 @@ export interface PropertyDto {
   latitude?: number | null;
   longitude?: number | null;
   price: string;
-  isNegotiable?: boolean;
+  isNegotiable: boolean;
+  isVerified: boolean;
   advanceAmount?: number | null;
   priceUnit: PriceUnitEnum;
   isFeatured: boolean;
@@ -76,13 +77,11 @@ export interface PropertyDto {
   phoneRevealCount?: number;
   isSaved?: boolean;
   listedByUserId: string;
-  listedByUser?: {
-    id: string;
-    name: string | null;
-  };
   lister?: {
     id: string;
     name: string | null;
+    profileMedia: MediaDto
+    
   };
   propertyMedia: PropertyMediaDto[];
   propertyAmenities?: Array<{ amenity: AmenityDto }>;

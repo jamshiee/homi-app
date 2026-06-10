@@ -2,7 +2,7 @@ import { propertiesApi } from '@api/properties.api';
 import { isSavedDto, PropertyDto } from '@api/types';
 import { Colors } from '@constants/colors';
 import { Ionicons } from '@expo/vector-icons';
-import { usePropertyDetail, useRelatedProperties, useToggleSave } from '@hooks/useProperties';
+import { useDeleteProperty, usePropertyDetail, useRelatedProperties, useToggleSave } from '@hooks/useProperties';
 import { useAuthStore } from '@store/auth.store';
 import { openPhone, openWhatsApp } from '@utils/contact';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -20,8 +20,9 @@ import { PropertyLocationSection } from '@/components/property-detail/PropertyLo
 import { PropertyOwnerSection } from '@/components/property-detail/PropertyOwnerSection';
 import { PropertyQuickFactsSection } from '@/components/property-detail/PropertyQuickFactsSection';
 import { StickyContactBar } from '@/components/property-detail/StickyContactBar';
+import { ConfirmModal } from '@/components/ConfirmModal';
 
-const LISTING_URL = (id: string) => `https://homi.holdings/property/${id}`;
+const LISTING_URL = (id: string) => `https://homiholdings.com/property/${id}`;
 
 function PropertyDetailSkeleton() {
   return (
@@ -60,6 +61,9 @@ export default function PropertyDetailScreen() {
   const [contactSheetVisible, setContactSheetVisible] = useState(false);
   const [numberSheetVisible, setNumberSheetVisible] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+   const deleteMutation = useDeleteProperty();
 
   const property = data?.data?.data as PropertyDto | undefined;
   const relatedProperties = (relatedData?.data?.data as PropertyDto[]) ?? [];
@@ -87,9 +91,14 @@ export default function PropertyDetailScreen() {
     );
   }, [property?.propertyMedia]);
 
-  const ownerName = property?.listedByUser?.name ?? property?.lister?.name ?? 'Owner';
+  const ownerName =  property?.lister?.name ?? 'Owner';
+  const ownerImage =  property?.lister?.profileMedia.url ?? null;
   const isOwner = user && property?.listedByUserId === user.id;
   const lang = user?.preferredLanguage ?? 'en';
+
+  useEffect(()=>{
+    console.log("property.lister",property?.lister)
+  },[property])
 
   const handleToggleSave = () => {
     if (!property) return;
@@ -131,6 +140,15 @@ export default function PropertyDetailScreen() {
     openPhone(property.contactPhone);
   };
 
+  const handleDeleteProperty = () => {
+    if(id){
+      deleteMutation.mutate(id);
+    }
+    setShowConfirmModal(false)
+    router.push('/(tabs)')
+
+  }
+
   if (isLoading || !property) {
     return <PropertyDetailSkeleton />;
   }
@@ -168,6 +186,8 @@ export default function PropertyDetailScreen() {
           district={property.district}
           transactionType={property.transactionType}
           isFeatured={property.isFeatured}
+          isNegotiable={property.isNegotiable}
+          isVerified={property.isVerified}
         />
 
         <View className="mx-4 h-[1px] bg-gray-200" />
@@ -178,9 +198,16 @@ export default function PropertyDetailScreen() {
         <View className="mx-4 h-[1px] bg-gray-200" />
 
         {/* Description Section */}
+        {
+          property.description && (
+<View>
         <PropertyDescriptionSection description={property.description} />
 
         <View className="mx-4 h-[1px] bg-gray-200" />
+</View>
+          )
+        }
+  
 
         {/* Amenities Section */}
         <PropertyAmenitiesSection amenities={property.propertyAmenities} lang={lang} />
@@ -200,8 +227,10 @@ export default function PropertyDetailScreen() {
         {/* Owner Section */}
         <PropertyOwnerSection
           ownerName={ownerName}
+          ownerImage={ownerImage}
           isOwner={isOwner ?? false}
           onEdit={() => router.push(`/property/${property.id}/edit` as any)}
+          onDelete={()=> setShowConfirmModal(true)}
         />
 
         <View className="mx-4 h-[1px] bg-gray-200" />
@@ -325,6 +354,17 @@ export default function PropertyDetailScreen() {
           </View>
         </View>
       </Modal>
+
+      <ConfirmModal
+             visible={showConfirmModal}
+             title={t("common.confirm", "Confirm")}
+             message={t("profile.confirm_delete_listing", "Delete this listing?")}
+             confirmText={t("common.delete", "Delete")}
+             cancelText={t("common.cancel", "Cancel")}
+             onConfirm={handleDeleteProperty}
+             onCancel={()=> setShowConfirmModal(false)}
+             isDestructive={true}
+           />
 
     </View>
   );

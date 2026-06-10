@@ -1,20 +1,18 @@
+import { PriceUnitEnum } from '@/common/enums/property-enums/price-unit.enum';
+import { PropertyTypeEnum } from '@/common/enums/property-enums/property-type.enum';
+import { TransactionTypeFilter } from '@/common/enums/transaction-type-filter.enum';
 import React, { useEffect } from 'react';
 import {
-  View,
+  StyleSheet,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
-  Switch,
-  StyleSheet,
-  ScrollView,
+  View
 } from 'react-native';
-import { usePostStore } from '../../store/postStore';
-import { useAuthStore } from '../../store/auth.store';
 import { Colors } from '../../constants/colors';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { PropertyTypeEnum } from '@/common/enums/property-enums/property-type.enum';
-import { TransactionTypeFilter } from '@/common/enums/transaction-type-filter.enum';
-import { PriceUnitEnum } from '@/common/enums/property-enums/price-unit.enum';
+import { useAuthStore } from '../../store/auth.store';
+import { usePostStore } from '../../store/postStore';
 
 export default function Step4Pricing() {
   const { user } = useAuthStore();
@@ -24,6 +22,7 @@ export default function Step4Pricing() {
     transactionType,
     price,
     isNegotiable,
+    isVerified,
     advanceAmount,
     priceUnit,
     description,
@@ -194,7 +193,19 @@ export default function Step4Pricing() {
         />
       </View>
 
-      <Text style={styles.label}>Alternate Phone (Optional)</Text>
+            {/* Is Negotiable Toggle */}
+            {user?.isAdmin &&     (<View style={styles.switchRow}>
+        <Text style={styles.switchLabel}>Is Verified</Text>
+        <Switch
+          value={isVerified}
+          onValueChange={(val) => setField({ isVerified: val })}
+          trackColor={{ false: Colors.border, true: Colors.yellow }}
+          thumbColor={Colors.white}
+        />
+      </View>)}
+  
+
+      {/* <Text style={styles.label}>Alternate Phone (Optional)</Text>
       <View style={styles.inputContainer}>
         <TextInput
           placeholder="+91 XXXXX XXXXX"
@@ -204,7 +215,7 @@ export default function Step4Pricing() {
           onChangeText={(v) => setField({ alternatePhone: v })}
           style={styles.input}
         />
-      </View>
+      </View> */}
     </View>
   );
 }

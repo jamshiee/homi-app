@@ -25,6 +25,7 @@ import { FilterButton } from "@components/FilterButton";
 import { useActiveFilters } from "@hooks/useActiveFilters";
 import { LocationBottomSheet } from "@components/LocationBottomSheet";
 import { TransactionTypeFilter } from "@/common/enums/transaction-type-filter.enum";
+import { useAuthStore } from "@/store/auth.store";
 
 export default function SearchScreen() {
   const { t } = useTranslation();
@@ -33,6 +34,7 @@ export default function SearchScreen() {
   // Store
   const filterState = useFilterStore();
   const { type, setFilter, resetFilters } = filterState;
+  const {user} = useAuthStore();
 
   // Local State
   const [searchQuery, setSearchQuery] = useState("");
@@ -41,7 +43,7 @@ export default function SearchScreen() {
 
   const activeFilters = useActiveFilters();
 
-  // Configure layout animation for android
+  // Configure layout animation for android 
   useEffect(() => {
     if (
       Platform.OS === "android" &&
@@ -120,51 +122,53 @@ export default function SearchScreen() {
     }
   }, [focus, router]);
 
-  const renderEmptyState = () => (
-    <View
-      style={{
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 40,
-        marginTop: 40,
-      }}
-    >
-      <Ionicons name="search-outline" size={64} color={Colors.lightMuted} />
-      <Text
+const renderEmptyState = () => (
+  <View>
+    {activeFilters.length > 0 ? (
+      <View
         style={{
-          fontSize: 18,
-          fontWeight: "bold",
-          color: Colors.dark,
-          marginTop: 16,
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 40,
+          marginTop: 40,
         }}
       >
-        {t("search.no_results", "No results in {{area}}", {
-          area: searchQuery || filterState.district || "this area",
-        })}
-      </Text>
-      <Text
-        style={{
-          fontSize: 14,
-          color: Colors.muted,
-          marginTop: 8,
-          textAlign: "center",
-          marginBottom: 20,
-        }}
-      >
-        {t(
-          "search.try_nearby",
-          "Try searching a nearby locality or clearing your filters",
-        )}
-      </Text>
-      {(activeFilters.length > 0 || searchQuery) && (
+        <Ionicons name="search-outline" size={64} color={Colors.lightMuted} />
+
+        <Text
+          style={{
+            fontSize: 18,
+            fontWeight: "bold",
+            color: Colors.dark,
+            marginTop: 16,
+          }}
+        >
+          {t("search.no_results", "No results in {{area}}", {
+            area: filterState.district || "this area",
+          })}
+        </Text>
+
+        <Text
+          style={{
+            fontSize: 14,
+            color: Colors.muted,
+            marginTop: 8,
+            textAlign: "center",
+            marginBottom: 20,
+          }}
+        >
+          {t(
+            "search.try_nearby",
+            "Try searching a nearby locality or clearing your filters"
+          )}
+        </Text>
+
         <TouchableOpacity
           onPress={() => {
             LayoutAnimation.configureNext(
-              LayoutAnimation.Presets.easeInEaseOut,
+              LayoutAnimation.Presets.easeInEaseOut
             );
             resetFilters();
-            // setSearchQuery("");
-            // setInputValue("");
           }}
           style={{
             backgroundColor: Colors.yellow,
@@ -179,14 +183,92 @@ export default function SearchScreen() {
           }}
         >
           <Text
-            style={{ color: Colors.dark, fontWeight: "bold", fontSize: 14 }}
+            style={{
+              color: Colors.dark,
+              fontWeight: "bold",
+              fontSize: 14,
+            }}
           >
             {t("search.reset_filters", "Reset All Filters")}
           </Text>
         </TouchableOpacity>
-      )}
-    </View>
-  );
+      </View>
+    ) : (
+      <View
+        style={{
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 40,
+          marginTop: 40,
+        }}
+      >
+        <Ionicons
+          name="home-outline"
+          size={64}
+          color={Colors.lightMuted}
+        />
+
+        <Text
+          style={{
+            fontSize: 18,
+            fontWeight: "bold",
+            color: Colors.dark,
+            marginTop: 16,
+          }}
+        >
+          {t("search.no_properties", "No properties found")}
+        </Text>
+
+        <Text
+          style={{
+            fontSize: 14,
+            color: Colors.muted,
+            marginTop: 8,
+            textAlign: "center",
+            marginBottom: 20,
+          }}
+        >
+          {user?.isAdmin
+            ? t(
+                "home.create_first_property",
+                "There are no properties yet. Create the first listing."
+              )
+            : t(
+                "home.no_properties_available",
+                "There are no properties available at the moment. Please check back later."
+              )}
+        </Text>
+
+        {user?.isAdmin && (
+          <TouchableOpacity
+            onPress={() => router.push("/post" as any)}
+            style={{
+              backgroundColor: Colors.yellow,
+              paddingHorizontal: 20,
+              paddingVertical: 12,
+              borderRadius: 24,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.1,
+              shadowRadius: 2,
+              elevation: 2,
+            }}
+          >
+            <Text
+              style={{
+                color: Colors.dark,
+                fontWeight: "bold",
+                fontSize: 14,
+              }}
+            >
+              {t("property.create", "Create Property")}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    )}
+  </View>
+);
 
   return (
     <SafeAreaView

@@ -51,7 +51,7 @@ export default function AboutScreen() {
 
   const openInstagram = async () => {
     try {
-      await Linking.openURL("https://instagram.com/homiholdingsofficial");
+      await Linking.openURL("https://instagram.com/homiholdings");
     } catch {
       Alert.alert(t("common.error_generic"), t("help.instagram_error"));
     }
@@ -59,7 +59,7 @@ export default function AboutScreen() {
 
   const openEmail = async () => {
     try {
-      await Linking.openURL("mailto:info@homi.holdings");
+      await Linking.openURL("mailto:info@homiholdings.com");
     } catch {
       Alert.alert(t("common.error_generic"));
     }
@@ -85,8 +85,14 @@ export default function AboutScreen() {
         {/* Hero Section */}
         <View style={styles.heroSection}>
           <View style={styles.logoContainer}>
-            <Ionicons name="diamond" size={64} color={Colors.yellow} />
-          </View>
+  <Image
+    source={require('../assets/logo-transparent.png')} // adjust path
+    style={{
+      width: 98,
+      height: 98,
+      resizeMode: 'contain',
+    }}
+  />              </View>
           <Text style={styles.appName}>HOMI HOLDINGS</Text>
           <Text style={styles.tagline}>{t("about.tagline")}</Text>
         </View>
@@ -138,7 +144,7 @@ export default function AboutScreen() {
             <Ionicons name="logo-instagram" size={24} color={Colors.dark} />
             <View style={{ flex: 1 }}>
               <Text style={styles.socialName}>Instagram</Text>
-              <Text style={styles.socialHandle}>@homiholdingsofficial</Text>
+              <Text style={styles.socialHandle}>@homiholdings</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={Colors.muted} />
           </TouchableOpacity>
@@ -150,7 +156,7 @@ export default function AboutScreen() {
             <Ionicons name="mail-outline" size={24} color={Colors.dark} />
             <View style={{ flex: 1 }}>
               <Text style={styles.socialName}>{t("about.email")}</Text>
-              <Text style={styles.socialHandle}>info@homi.holdings</Text>
+              <Text style={styles.socialHandle}>info@homiholdings.com</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={Colors.muted} />
           </TouchableOpacity>
@@ -213,7 +219,6 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: Colors.softYellow,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 16,

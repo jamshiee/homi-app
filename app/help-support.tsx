@@ -69,7 +69,7 @@ export default function HelpSupportScreen() {
     setIsSubmitting(true);
     try {
       const message = encodeURIComponent(feedbackText.trim());
-      const whatsappUrl = `https://wa.me/919876543210?text=${message}`;
+      const whatsappUrl = `https://wa.me/918848084905?text=${message}`;
       await Linking.openURL(whatsappUrl);
       setFeedbackText("");
       Alert.alert(t("help.feedback_sent"), t("help.feedback_sent_body"));
@@ -82,7 +82,7 @@ export default function HelpSupportScreen() {
 
   const openInstagram = async () => {
     try {
-      await Linking.openURL("https://instagram.com/homiholdingsofficial");
+      await Linking.openURL("https://instagram.com/homiholdings");
     } catch {
       Alert.alert(t("common.error_generic"), t("help.instagram_error"));
     }
@@ -168,12 +168,12 @@ export default function HelpSupportScreen() {
           <Text style={styles.sectionTitle}>{t("help.contact_title")}</Text>
           <TouchableOpacity
             style={styles.contactRow}
-            onPress={() => Linking.openURL("mailto:support@homi.holdings")}
+            onPress={() => Linking.openURL("mailto:info@homiholdings.com")}
           >
             <Ionicons name="mail-outline" size={20} color={Colors.dark} />
             <View style={{ flex: 1 }}>
               <Text style={styles.contactLabel}>{t("help.email")}</Text>
-              <Text style={styles.contactValue}>support@homi.holdings</Text>
+              <Text style={styles.contactValue}>info@homiholdings.com</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={Colors.muted} />
           </TouchableOpacity>
@@ -185,7 +185,7 @@ export default function HelpSupportScreen() {
             <Ionicons name="logo-instagram" size={20} color={Colors.dark} />
             <View style={{ flex: 1 }}>
               <Text style={styles.contactLabel}>{t("help.instagram")}</Text>
-              <Text style={styles.contactValue}>@homiholdingsofficial</Text>
+              <Text style={styles.contactValue}>@homiholdings</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={Colors.muted} />
           </TouchableOpacity>
@@ -267,8 +267,8 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   faqAnswer: {
-    paddingHorizontal: 16,
-    paddingBottom: 14,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
     fontSize: 13,
     color: Colors.muted,
     lineHeight: 20,

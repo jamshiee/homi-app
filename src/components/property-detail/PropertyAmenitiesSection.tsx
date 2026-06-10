@@ -26,9 +26,9 @@ export function PropertyAmenitiesSection({ amenities, lang }: PropertyAmenitiesS
         {amenities.map(({ amenity }) => (
           <View
             key={amenity.id}
-            className="w-[30%] items-center justify-center rounded-2xl bg-gray-50 p-3 shadow-lg shadow-gray-300  "
+            className="w-[30%] items-center justify-center rounded-2xl bg-gray-50 p-3 shadow-sm shadow-gray-300  "
           >
-            <View className="mb-2 h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm shadow-gray-200 ">
+            <View className="mb-2 h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm shadow-gray-200 border border-yellow-300  ">
               <MaterialCommunityIcons name={(amenity.iconName as any) || 'checkmark-circle-outline'} size={20} color={Colors.dark} />
             </View>
             <Text className="text-center text-[12px] font-bold text-gray-700 leading-tight">

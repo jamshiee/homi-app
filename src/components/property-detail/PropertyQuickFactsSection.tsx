@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { PropertyDto } from '@api/types';
 import { Colors } from '@constants/colors';
 import { PropertyTypeEnum } from '@/common/enums/property-enums/property-type.enum';
+import { formatPrice } from '@/utils/price';
+import { FurnishingStatusEnum } from '@/common/enums/property-enums/furnishing-status.enum';
 
 interface PropertyQuickFactsSectionProps {
   property: PropertyDto;
@@ -42,7 +44,7 @@ export function PropertyQuickFactsSection({ property }: PropertyQuickFactsSectio
         facts.push({ icon: 'grid-outline', value: `${property.houseDetail.balconies} Balconies` });
       }
       if (property.houseDetail.furnishingStatus) {
-        facts.push({ icon: 'color-palette-outline', value: property.houseDetail.furnishingStatus.replace(/_/g, ' ') });
+        facts.push({ icon: 'color-palette-outline', value: property.houseDetail.furnishingStatus == FurnishingStatusEnum.FULLY_FURNISHED ? "Furnished" : property.houseDetail.furnishingStatus == FurnishingStatusEnum.SEMI_FURNISHED ? "Semi Furnished" : property.houseDetail.furnishingStatus == FurnishingStatusEnum.UN_FURNISHED ? "Not Furnished" : "" });
       }
     } else if (property.type === PropertyTypeEnum.BUILDING && property.buildingDetail) {
       if (property.buildingDetail.totalArea) {
@@ -72,7 +74,7 @@ export function PropertyQuickFactsSection({ property }: PropertyQuickFactsSectio
     if (property.advanceAmount) {
       facts.push({
         icon: 'cash-outline',
-        value: `Adv: ₹${property.advanceAmount}`,
+        value: `Adv: ${formatPrice(String(property.advanceAmount))}`,
       });
     }
 
@@ -84,22 +86,29 @@ export function PropertyQuickFactsSection({ property }: PropertyQuickFactsSectio
   if (facts.length === 0) return null;
 
   return (
-    <View className="py-2">
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
+<View className="px-4 py-5">
+  <Text className="mb-4 text-[18px] font-bold text-black">
+    Property Highlights
+  </Text>
+
+  <View className="flex-row flex-wrap justify-between gap-y-3">
+    {facts.map((fact) => (
+      <View
+        key={fact.value}
+        className="w-[48%] flex-row items-center rounded-xl bg-gray-50 p-3"
       >
-        {facts.map((fact, index) => (
-          <View
-            key={index}
-            className="flex-row items-center rounded-xl border border-gray-200  bg-gray-50 px-3 py-2"
-          >
-            <Ionicons name={fact.icon as any} size={16} color={Colors.muted}  />
-            <Text className="text-[13px] font-semibold text-black capitalize">{fact.value}</Text>
-          </View>
-        ))}
-      </ScrollView>
-    </View>
+        <Ionicons
+          name={fact.icon as any}
+          size={18}
+          color={Colors.dark}
+        />
+
+        <Text className="ml-2 flex-1 text-[14px] font-semibold text-black capitalize">
+          {fact.value}
+        </Text>
+      </View>
+    ))}
+  </View>
+</View>
   );
 }

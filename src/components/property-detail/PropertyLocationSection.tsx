@@ -20,17 +20,18 @@ export function PropertyLocationSection({
 }: PropertyLocationSectionProps) {
   const { t } = useTranslation();
 
-  const handleOpenMaps = () => {
-    if (!latitude || !longitude) return;
-    const label = `${locality}, ${district}`;
-    const url = Platform.select({
-      ios: `maps:${latitude},${longitude}?q=${encodeURIComponent(label)}`,
-      android: `geo:${latitude},${longitude}?q=${latitude},${longitude}(${encodeURIComponent(label)})`,
-      default: `https://maps.google.com/?q=${latitude},${longitude}`
-    });
+const handleOpenMaps = async () => {
+  if (!latitude || !longitude) return;
 
-    Linking.openURL(url);
-  };
+  const label = `${locality ?? ""}, ${district ?? ""}`;
+
+  const url =
+    Platform.OS === "ios"
+      ? `maps:0,0?q=${encodeURIComponent(label)}@${latitude},${longitude}`
+      : `geo:0,0?q=${latitude},${longitude}(${encodeURIComponent(label)})`;
+
+  await Linking.openURL(url);
+};
 
   return (
     <View className="px-4 py-4">
@@ -69,7 +70,7 @@ export function PropertyLocationSection({
           >
             <Marker coordinate={{ latitude, longitude }}>
               <View className="items-center justify-center rounded-full bg-red-100 p-2">
-                <View className="h-4 w-4 rounded-full bg-red-500 border-2 border-white shadow-sm" />
+                <View className="h-4 w-4 rounded-full bg-blue-400 border-2 border-white shadow-sm" />
               </View>
             </Marker>
           </MapView>

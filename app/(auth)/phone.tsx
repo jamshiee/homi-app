@@ -38,13 +38,13 @@ export default function PhoneScreen() {
 
   // Auto-detect country on mount
   useEffect(() => {
-    const deviceCountry = Localization.getLocales()[0]?.regionCode;
-    if (deviceCountry) {
-      const found = COUNTRIES.find((c) => c.code === deviceCountry);
+    // const deviceCountry = Localization.getLocales()[0]?.regionCode;
+    // if (deviceCountry) {
+      const found = COUNTRIES.find((c) => c.code === "IN");
       if (found) {
         setSelectedCountry(found);
       }
-    }
+    // }
   }, []);
 
   const isValid = /^\d{10}$/.test(phone);

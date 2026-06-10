@@ -48,7 +48,9 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     property.propertyMedia?.[0]?.media?.url;
 
   const ownerName =
-    property.listedByUser?.name ?? property.lister?.name ?? "Owner";
+     property.lister?.name ?? "Owner";
+  const ownerImage =  property?.lister?.profileMedia?.url ?? null;
+
 
   const ownerInitials = ownerName
     .split(" ")
@@ -243,6 +245,34 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
           </View>
 
           {/* Top-right actions */}
+          {property.isVerified && (
+  <View
+    style={{
+      position: "absolute",
+      top: 10,
+      right: 10,
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: "#16A34A",
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 20,
+    }}
+  >
+    <Ionicons name="checkmark-circle" size={12} color="#fff" />
+    <Text
+      style={{
+        color: "#fff",
+        fontSize: 10,
+        fontWeight: "700",
+        marginLeft: 4,
+        letterSpacing: 0.5,
+      }}
+    >
+      VERIFIED
+    </Text>
+  </View>
+)}
           {/* <View style={{ position: "absolute", top: 8, right: 10, flexDirection: "row", gap: 6 }}>
             {showActions ? (
               <>
@@ -352,20 +382,21 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
               flexShrink: 0,
             }}
           >
-            <View
-              style={{
-                width: 22,
-                height: 22,
-                borderRadius: 11,
-                backgroundColor: "#1a1a2e",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Text style={{ fontSize: 8, fontWeight: "700", color: "#fff" }}>
-                {ownerInitials}
-              </Text>
-            </View>
+         <View className="mr-4">
+  {ownerImage ? (
+    <Image
+      source={{ uri: ownerImage }}
+      className="h-14 w-14 rounded-full border border-gray-200"
+      resizeMode="cover"
+    />
+  ) : (
+    <View className="h-14 w-14 items-center justify-center rounded-full border border-gray-200 bg-gray-100">
+      <Text className="text-[20px] font-bold text-black">
+        {ownerName[0]?.toUpperCase()}
+      </Text>
+    </View>
+  )}
+</View>
             <Text
               style={{ fontSize: 11, color: Colors.muted, fontWeight: "500" }}
             >

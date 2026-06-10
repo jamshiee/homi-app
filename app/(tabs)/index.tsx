@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,44 +7,65 @@ import {
   ActivityIndicator,
   RefreshControl,
   Platform,
-} from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTranslation } from 'react-i18next';
-import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '@constants/colors';
-import { useFilterStore, PropertyType } from '@store/filter.store';
-import { useFeaturedProperties, usePropertyFeed } from '@hooks/useProperties';
-import { useLocation } from '@hooks/useLocation';
-import { PropertyCard } from '@components/PropertyCard';
-import { FeaturedPropertyCard } from '@components/FeaturedPropertyCard';
-import { LocationBottomSheet } from '@components/LocationBottomSheet';
-import { FilterBottomSheet } from '@components/FilterBottomSheet';
-import { FilterButton } from '@components/FilterButton';
-import { PropertyDto } from '@api/types';
-import { openWhatsApp, openPhone } from '@utils/contact';
-import { propertiesApi } from '@api/properties.api';
+  Image,
+  LayoutAnimation,
+} from "react-native";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
+import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { Colors } from "@constants/colors";
+import { useFilterStore, PropertyType } from "@store/filter.store";
+import { useFeaturedProperties, usePropertyFeed } from "@hooks/useProperties";
+import { useLocation } from "@hooks/useLocation";
+import { PropertyCard } from "@components/PropertyCard";
+import { FeaturedPropertyCard } from "@components/FeaturedPropertyCard";
+import { LocationBottomSheet } from "@components/LocationBottomSheet";
+import { FilterBottomSheet } from "@components/FilterBottomSheet";
+import { FilterButton } from "@components/FilterButton";
+import { PropertyDto } from "@api/types";
+import { openWhatsApp, openPhone } from "@utils/contact";
+import { propertiesApi } from "@api/properties.api";
+import { useActiveFilters } from "@/hooks/useActiveFilters";
+import { useAuthStore } from "@/store/auth.store";
 
 export default function HomeScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const insets = useSafeAreaInsets();
-  // Tab bar height: 64px base + bottom safe area inset
-  const TAB_BAR_HEIGHT = (Platform.OS === 'ios' ? 84 : 64);
-  const fabBottom =  14;
+  // const insets = useSafeAreaInsets();
+  // // Tab bar height: 64px base + bottom safe area inset
+  // const TAB_BAR_HEIGHT = Platform.OS === "ios" ? 84 : 64;
+  const fabBottom = 14;
 
   const filterType = useFilterStore((s) => s.type);
   const filterDistrict = useFilterStore((s) => s.district);
-  const setFilter = useFilterStore((s) => s.setFilter);
+
+  const {user} = useAuthStore();
+
+  const activeFilters = useActiveFilters();
+  const { resetFilters, setFilter } = useFilterStore();
 
   useLocation();
 
   const [locationSheetVisible, setLocationSheetVisible] = useState(false);
   const [filterSheetVisible, setFilterSheetVisible] = useState(false);
 
-  const { data: featuredData, isLoading: featuredLoading, refetch: refetchFeatured, isRefetching: isRefetchingFeatured } = useFeaturedProperties();
-  const { data: feedData, isLoading: feedLoading, refetch: refetchFeed, isRefetching: isRefetchingFeed } = usePropertyFeed({
-    type: filterType !== 'all' ? filterType : undefined,
+  const {
+    data: featuredData,
+    isLoading: featuredLoading,
+    refetch: refetchFeatured,
+    isRefetching: isRefetchingFeatured,
+  } = useFeaturedProperties();
+  const {
+    data: feedData,
+    isLoading: feedLoading,
+    refetch: refetchFeed,
+    isRefetching: isRefetchingFeed,
+  } = usePropertyFeed({
+    type: filterType !== "all" ? filterType : undefined,
     district: filterDistrict,
   });
 
@@ -60,45 +81,196 @@ export default function HomeScreen() {
 
   const navToProperty = (id: string) => router.push(`/property/${id}`);
   const navToSearch = () =>
-    router.push({ pathname: '/(tabs)/search', params: { focus: 'true' } });
-
-  const handleWhatsApp = async (property: PropertyDto) => {
-    await propertiesApi.logEnquiry(property.id, 'whatsapp').catch(() => null);
-    openWhatsApp(property.contactPhone, property.title ?? property.type);
-  };
-
-  const handleCall = async (property: PropertyDto) => {
-    await propertiesApi.logEnquiry(property.id, 'phone_reveal').catch(() => null);
-    openPhone(property.contactPhone);
-  };
-
-  const handleViewNumber = (property: PropertyDto) => {
-    router.push(`/property/${property.id}`);
-  };
+    router.push({ pathname: "/(tabs)/search", params: { focus: "true" } });
 
   const types: { label: string; value: PropertyType }[] = [
-    { label: t('modules.all', 'All'), value: 'all' },
-    { label: t('modules.land', 'Land/Plot'), value: 'land' },
-    { label: t('modules.house', 'House'), value: 'house' },
-    { label: t('modules.building', 'Building'), value: 'building' },
-    { label: t('modules.hotel', 'Hotel/PG'), value: 'hotel' },
+    { label: t("modules.all", "All"), value: "all" },
+    { label: t("modules.land", "Land/Plot"), value: "land" },
+    { label: t("modules.house", "House"), value: "house" },
+    { label: t("modules.building", "Building"), value: "building" },
+    { label: t("modules.hotel", "Hotel/PG"), value: "hotel" },
   ];
 
+const renderEmptyState = () => (
+  <View>
+    {activeFilters.length > 0 ? (
+      <View
+        style={{
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 40,
+          marginTop: 40,
+        }}
+      >
+        <Ionicons name="search-outline" size={64} color={Colors.lightMuted} />
+
+        <Text
+          style={{
+            fontSize: 18,
+            fontWeight: "bold",
+            color: Colors.dark,
+            marginTop: 16,
+          }}
+        >
+          {t("search.no_results", "No results in {{area}}", {
+            area: filterDistrict || "this area",
+          })}
+        </Text>
+
+        <Text
+          style={{
+            fontSize: 14,
+            color: Colors.muted,
+            marginTop: 8,
+            textAlign: "center",
+            marginBottom: 20,
+          }}
+        >
+          {t(
+            "search.try_nearby",
+            "Try searching a nearby locality or clearing your filters"
+          )}
+        </Text>
+
+        <TouchableOpacity
+          onPress={() => {
+            LayoutAnimation.configureNext(
+              LayoutAnimation.Presets.easeInEaseOut
+            );
+            resetFilters();
+          }}
+          style={{
+            backgroundColor: Colors.yellow,
+            paddingHorizontal: 20,
+            paddingVertical: 12,
+            borderRadius: 24,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.1,
+            shadowRadius: 2,
+            elevation: 2,
+          }}
+        >
+          <Text
+            style={{
+              color: Colors.dark,
+              fontWeight: "bold",
+              fontSize: 14,
+            }}
+          >
+            {t("search.reset_filters", "Reset All Filters")}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    ) : (
+      <View
+        style={{
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 40,
+          marginTop: 40,
+        }}
+      >
+        <Ionicons
+          name="home-outline"
+          size={64}
+          color={Colors.lightMuted}
+        />
+
+        <Text
+          style={{
+            fontSize: 18,
+            fontWeight: "bold",
+            color: Colors.dark,
+            marginTop: 16,
+          }}
+        >
+          {t("search.no_properties", "No properties found")}
+        </Text>
+
+        <Text
+          style={{
+            fontSize: 14,
+            color: Colors.muted,
+            marginTop: 8,
+            textAlign: "center",
+            marginBottom: 20,
+          }}
+        >
+          {user?.isAdmin
+            ? t(
+                "home.create_first_property",
+                "There are no properties yet. Create the first listing."
+              )
+            : t(
+                "home.no_properties_available",
+                "There are no properties available at the moment. Please check back later."
+              )}
+        </Text>
+
+        {user?.isAdmin && (
+          <TouchableOpacity
+            onPress={() => router.push("/post" as any)}
+            style={{
+              backgroundColor: Colors.yellow,
+              paddingHorizontal: 20,
+              paddingVertical: 12,
+              borderRadius: 24,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.1,
+              shadowRadius: 2,
+              elevation: 2,
+            }}
+          >
+            <Text
+              style={{
+                color: Colors.dark,
+                fontWeight: "bold",
+                fontSize: 14,
+              }}
+            >
+              {t("property.create", "Create Property")}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    )}
+  </View>
+);
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.surface }} edges={['top']}>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: Colors.surface }}
+      edges={["top"]}
+    >
       {/* Header */}
       <View
         style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
           paddingHorizontal: 16,
           paddingVertical: 12,
         }}
       >
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Ionicons name="diamond" size={24} color={Colors.yellow} />
-          <Text style={{ fontWeight: 'bold', fontSize: 16, marginLeft: 4, letterSpacing: 1 }}>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Image
+            source={require("../../assets/logo-transparent.png")} // adjust path
+            style={{
+              width: 32,
+              height: 32,
+              resizeMode: "contain",
+            }}
+          />{" "}
+          <Text
+            style={{
+              fontWeight: "bold",
+              fontSize: 16,
+              marginLeft: 4,
+              letterSpacing: 1,
+            }}
+          >
             HOMI
           </Text>
         </View>
@@ -110,12 +282,19 @@ export default function HomeScreen() {
             paddingHorizontal: 16,
             paddingVertical: 8,
             borderRadius: 20,
-            flexDirection: 'row',
-            alignItems: 'center',
+            flexDirection: "row",
+            alignItems: "center",
           }}
         >
-          <Text style={{ color: Colors.dark, fontWeight: 'bold', fontSize: 13, marginRight: 4 }}>
-            {filterDistrict || t('location.all', 'All Locations')}
+          <Text
+            style={{
+              color: Colors.dark,
+              fontWeight: "bold",
+              fontSize: 13,
+              marginRight: 4,
+            }}
+          >
+            {filterDistrict || t("location.all", "All Locations")}
           </Text>
           <Ionicons name="chevron-down" size={14} color={Colors.dark} />
         </TouchableOpacity>
@@ -126,8 +305,8 @@ export default function HomeScreen() {
         style={{
           paddingHorizontal: 16,
           marginBottom: 16,
-          flexDirection: 'row',
-          alignItems: 'center',
+          flexDirection: "row",
+          alignItems: "center",
           gap: 12,
         }}
       >
@@ -136,8 +315,8 @@ export default function HomeScreen() {
           onPress={navToSearch}
           style={{
             flex: 1,
-            flexDirection: 'row',
-            alignItems: 'center',
+            flexDirection: "row",
+            alignItems: "center",
             backgroundColor: Colors.white,
             borderWidth: 1,
             borderColor: Colors.border,
@@ -146,9 +325,14 @@ export default function HomeScreen() {
             paddingHorizontal: 16,
           }}
         >
-          <Ionicons name="search" size={20} color={Colors.muted} style={{ marginRight: 8 }} />
+          <Ionicons
+            name="search"
+            size={20}
+            color={Colors.muted}
+            style={{ marginRight: 8 }}
+          />
           <Text style={{ color: Colors.muted, fontSize: 15 }}>
-            {t('search.placeholder', 'Search locality, area...')}
+            {t("search.placeholder", "Search locality, area...")}
           </Text>
         </TouchableOpacity>
         <FilterButton onPress={() => setFilterSheetVisible(true)} size={48} />
@@ -158,14 +342,23 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 24 }}
         refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} colors={[Colors.yellow]} tintColor={Colors.yellow} />
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            colors={[Colors.yellow]}
+            tintColor={Colors.yellow}
+          />
         }
       >
         {/* Quick filter pills */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 16, gap: 8, paddingBottom: 16 }}
+          contentContainerStyle={{
+            paddingHorizontal: 16,
+            gap: 8,
+            paddingBottom: 16,
+          }}
         >
           {types.map((mod) => {
             const active = filterType === mod.value;
@@ -185,7 +378,7 @@ export default function HomeScreen() {
                 <Text
                   style={{
                     color: active ? Colors.dark : Colors.muted,
-                    fontWeight: active ? 'bold' : '500',
+                    fontWeight: active ? "bold" : "500",
                     fontSize: 13,
                   }}
                 >
@@ -201,19 +394,27 @@ export default function HomeScreen() {
           <View style={{ marginBottom: 24 }}>
             <View
               style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
                 paddingHorizontal: 16,
                 marginBottom: 12,
               }}
             >
-              <Text style={{ fontSize: 18, fontWeight: 'bold', color: Colors.dark }}>
-                {t('home.featured', 'Featured')}
+              <Text
+                style={{ fontSize: 18, fontWeight: "bold", color: Colors.dark }}
+              >
+                {t("home.featured", "Featured")}
               </Text>
               <TouchableOpacity onPress={navToSearch}>
-                <Text style={{ fontSize: 13, color: Colors.muted, fontWeight: '600' }}>
-                  {t('home.see_all', 'See all →')}
+                <Text
+                  style={{
+                    fontSize: 13,
+                    color: Colors.muted,
+                    fontWeight: "600",
+                  }}
+                >
+                  {t("home.see_all", "See all →")}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -239,27 +440,35 @@ export default function HomeScreen() {
         <View>
           <View
             style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
               paddingHorizontal: 16,
               marginBottom: 12,
             }}
           >
-            <Text style={{ fontSize: 18, fontWeight: 'bold', color: Colors.dark }}>
+            <Text
+              style={{ fontSize: 18, fontWeight: "bold", color: Colors.dark }}
+            >
               {filterDistrict
-                ? t('home.latest_near_you', 'Latest Near You')
-                : t('home.latest_properties', 'Latest Properties')}
+                ? t("home.latest_near_you", "Latest Near You")
+                : t("home.latest_properties", "Latest Properties")}
             </Text>
             <TouchableOpacity onPress={navToSearch}>
-              <Text style={{ fontSize: 13, color: Colors.muted, fontWeight: '600' }}>
-                {t('home.see_all', 'See all →')}
+              <Text
+                style={{ fontSize: 13, color: Colors.muted, fontWeight: "600" }}
+              >
+                {t("home.see_all", "See all →")}
               </Text>
             </TouchableOpacity>
           </View>
 
           {feedLoading ? (
-            <ActivityIndicator size="large" color={Colors.yellow} style={{ marginTop: 24 }} />
+            <ActivityIndicator
+              size="large"
+              color={Colors.yellow}
+              style={{ marginTop: 24 }}
+            />
           ) : feedProperties.length > 0 ? (
             feedProperties.map((prop) => (
               <PropertyCard
@@ -269,15 +478,16 @@ export default function HomeScreen() {
               />
             ))
           ) : (
-            <View style={{ alignItems: 'center', justifyContent: 'center', padding: 40 }}>
-              <Ionicons name="search-outline" size={48} color={Colors.lightMuted} />
-              <Text style={{ fontSize: 16, fontWeight: 'bold', color: Colors.dark, marginTop: 12 }}>
-                {t('home.empty_feed', 'No properties found')}
-              </Text>
-              <Text style={{ fontSize: 13, color: Colors.muted, marginTop: 4 }}>
-                {t('home.empty_feed_sub', 'Try selecting a different filter.')}
-              </Text>
-            </View>
+            renderEmptyState()
+            // <View style={{ alignItems: 'center', justifyContent: 'center', padding: 40 }}>
+            //   <Ionicons name="search-outline" size={48} color={Colors.lightMuted} />
+            //   <Text style={{ fontSize: 16, fontWeight: 'bold', color: Colors.dark, marginTop: 12 }}>
+            //     {t('home.empty_feed', 'No properties found in this area.')}
+            //   </Text>
+            //   <Text style={{ fontSize: 13, color: Colors.muted, marginTop: 4, textAlign: 'center', paddingHorizontal: 12 }}>
+            //     {t('home.empty_feed_sub', 'Try selecting a different filter or search in a different area.')}
+            //   </Text>
+            // </View>
           )}
         </View>
       </ScrollView>
@@ -294,22 +504,22 @@ export default function HomeScreen() {
       {/* AI Assistant FAB */}
       <TouchableOpacity
         style={{
-          position: 'absolute',
+          position: "absolute",
           bottom: fabBottom,
           right: 20,
           width: 52,
           height: 52,
           borderRadius: 26,
           backgroundColor: Colors.yellow,
-          alignItems: 'center',
-          justifyContent: 'center',
-          shadowColor: '#000',
+          alignItems: "center",
+          justifyContent: "center",
+          shadowColor: "#000",
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.18,
           shadowRadius: 4,
           elevation: 4,
         }}
-        onPress={() => router.push('/assistant' as any)}
+        onPress={() => router.push("/assistant" as any)}
         activeOpacity={0.85}
       >
         <Ionicons name="chatbubble-ellipses" size={24} color={Colors.dark} />
