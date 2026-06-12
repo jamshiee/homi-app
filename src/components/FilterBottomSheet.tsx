@@ -115,26 +115,26 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
           <ScrollView style={{ paddingHorizontal: 20 }} showsVerticalScrollIndicator={false}>
 
             {/* SORT */}
-            {renderSectionHeader(t('filter.sort_by', 'Sort By'))}
+            {renderSectionHeader(t('filter.sort_by'))}
             <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
               {[
-                { label: t('filter.sort_newest', 'Newest First'), value: SortOptionEnum.Newest },
-                { label: t('filter.sort_relevance', 'Relevance'), value: SortOptionEnum.Relevance },
-                { label: t('filter.sort_price_low', 'Price: Low to High'), value: SortOptionEnum.PriceAsc },
-                { label: t('filter.sort_price_high', 'Price: High to Low'), value: SortOptionEnum.PriceDesc },
+                { label: t('filter.sort_newest'), value: SortOptionEnum.Newest },
+                { label: t('filter.sort_relevance'), value: SortOptionEnum.Relevance },
+                { label: t('filter.sort_price_low'), value: SortOptionEnum.PriceAsc },
+                { label: t('filter.sort_price_high'), value: SortOptionEnum.PriceDesc },
               ].map((opt) =>
                 renderPill(opt.label, localState.sort === opt.value, () => setProp('sort', opt.value))
               )}
             </View>
 
             {/* PROPERTY TYPE */}
-            {renderSectionHeader(t('filter.module', 'Property Type'))}
+            {renderSectionHeader(t('filter.module'))}
             <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
               {[
-                { label: t('modules.land', 'Land/Plot'), value: 'land' },
-                { label: t('modules.house', 'House'), value: 'house' },
-                { label: t('modules.building', 'Building'), value: 'building' },
-                { label: t('modules.hotel', 'Hotel/PG'), value: 'hotel' },
+                { label: t('modules.land'), value: 'land' },
+                { label: t('modules.house'), value: 'house' },
+                { label: t('modules.building'), value: 'building' },
+                { label: t('modules.hotel'), value: 'hotel' },
               ].map((opt) =>
                 renderPill(opt.label, localState.type === opt.value, () => {
                   setLocalState((s) => ({
@@ -146,12 +146,12 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
             </View>
 
             {/* TRANSACTION TYPE */}
-            {renderSectionHeader(t('filter.transaction', 'Transaction Type'))}
+            {renderSectionHeader(t('filter.transaction'))}
             <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
               {[
-                { label: t('filter.tx_buy', 'Buy'), value: TransactionTypeFilter.BUY },
-                { label: t('filter.tx_rent', 'Rent'), value: TransactionTypeFilter.RENT },
-                { label: t('filter.tx_lease', 'Lease'), value: TransactionTypeFilter.LEASE },
+                { label: t('filter.tx_buy'), value: TransactionTypeFilter.BUY },
+                { label: t('filter.tx_rent'), value: TransactionTypeFilter.RENT },
+                { label: t('filter.tx_lease'), value: TransactionTypeFilter.LEASE },
               ].map((opt) =>
                 renderPill(opt.label, localState.transactionType === opt.value, () => {
                   setLocalState((s) => ({
@@ -163,7 +163,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
             </View>
 
             {/* DISTRICT */}
-            {renderSectionHeader(t('filter.district', 'District'))}
+            {renderSectionHeader(t('filter.district'))}
             {loadingDistricts ? (
               <ActivityIndicator size="small" color={Colors.yellow} />
             ) : districts.length > 0 ? (
@@ -176,12 +176,12 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
               </View>
             ) : (
               <Text style={{ fontSize: 13, color: Colors.lightMuted, marginBottom: 8 }}>
-                No districts available yet
+                {t('filter.no_districts')}
               </Text>
             )}
 
             {/* PRICE */}
-            {renderSectionHeader(t('filter.price', 'Price Range (₹)'))}
+            {renderSectionHeader(t('filter.price'))}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
               <View style={{ flex: 1, borderWidth: 1, borderColor: Colors.border, borderRadius: 12, paddingHorizontal: 12, height: 44, justifyContent: 'center' }}>
                 <TextInput
@@ -221,7 +221,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
             {/* DYNAMIC FILTERS: HOUSE */}
             {localState.type === 'house' && (
               <>
-                {renderSectionHeader('Bedrooms')}
+                {renderSectionHeader(t('filter.bedrooms'))}
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
                   {[1, 2, 3, 4, 5].map((num) =>
                     renderPill(num === 5 ? '5+' : String(num), localState.bedrooms === num, () =>
@@ -230,7 +230,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
                   )}
                 </View>
 
-                {renderSectionHeader('Bathrooms')}
+                {renderSectionHeader(t('filter.bathrooms'))}
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
                   {[1, 2, 3, 4].map((num) =>
                     renderPill(num === 4 ? '4+' : String(num), localState.bathrooms === num, () =>
@@ -239,12 +239,12 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
                   )}
                 </View>
 
-                {renderSectionHeader('Furnishing')}
+                {renderSectionHeader(t('filter.furnishing'))}
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
                   {[
-                    { label: 'Fully Furnished', value: FurnishingStatusEnum.FULLY_FURNISHED },
-                    { label: 'Semi Furnished', value: FurnishingStatusEnum.SEMI_FURNISHED },
-                    { label: 'Unfurnished', value: FurnishingStatusEnum.UN_FURNISHED },
+                    { label: t('property.furnished'), value: FurnishingStatusEnum.FULLY_FURNISHED },
+                    { label: t('property.semi_furnished'), value: FurnishingStatusEnum.SEMI_FURNISHED },
+                    { label: t('property.not_furnished'), value: FurnishingStatusEnum.UN_FURNISHED },
                   ].map((opt) =>
                     renderPill(opt.label, localState.furnishingStatus === opt.value, () =>
                       setProp('furnishingStatus', localState.furnishingStatus === opt.value ? undefined : opt.value)
@@ -257,14 +257,14 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
             {/* DYNAMIC FILTERS: LAND */}
             {localState.type === 'land' && (
               <>
-                {renderSectionHeader('Area Unit')}
+                {renderSectionHeader(t('filter.area_unit'))}
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
                   {['Cents', 'Sqft'].map((unit) =>
                     renderPill(unit, localState.areaUnit === unit, () => setProp('areaUnit', unit))
                   )}
                 </View>
 
-                {renderSectionHeader(`Area (${localState.areaUnit || 'Cents'})`)}
+                {renderSectionHeader(`${t('filter.area')} (${localState.areaUnit || 'Cents'})`)}
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                   <View style={{ flex: 1, borderWidth: 1, borderColor: Colors.border, borderRadius: 12, paddingHorizontal: 12, height: 44, justifyContent: 'center' }}>
                     <TextInput
@@ -296,7 +296,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
           <View style={{ flexDirection: 'row', alignItems: 'center', padding: 20, borderTopWidth: 0.5, borderTopColor: Colors.border, backgroundColor: Colors.white }}>
             <TouchableOpacity onPress={handleReset} style={{ padding: 8 }}>
               <Text style={{ color: Colors.muted, fontSize: 13, textDecorationLine: 'underline' }}>
-                {t('filter.reset_all', 'Reset All')}
+                {t('filter.reset_all')}
               </Text>
             </TouchableOpacity>
 
@@ -312,7 +312,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
                 }}
               >
                 <Text style={{ color: Colors.dark, fontWeight: 'bold', fontSize: 16 }}>
-                  {t('filter.apply', 'Apply Filters')}
+                  {t('filter.apply')}
                 </Text>
               </TouchableOpacity>
             </View>

@@ -92,7 +92,8 @@ export default function AboutScreen() {
       height: 98,
       resizeMode: 'contain',
     }}
-  />              </View>
+  />
+  </View>
           <Text style={styles.appName}>HOMI HOLDINGS</Text>
           <Text style={styles.tagline}>{t("about.tagline")}</Text>
         </View>

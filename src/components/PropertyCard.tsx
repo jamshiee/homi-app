@@ -2,18 +2,20 @@ import React from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
+import { useRouter } from "expo-router";
+import Toast from "react-native-toast-message";
 import { PropertyDto } from "@api/types";
 import { Colors } from "@constants/colors";
 import { formatPrice } from "@utils/price";
 import { PropertyTypeEnum } from "@/common/enums/property-enums/property-type.enum";
 import { PriceUnitEnum } from "@/common/enums/property-enums/price-unit.enum";
 import { LinearGradient } from "expo-linear-gradient";
+import { useToggleSave } from "@/hooks/useProperties";
+import { useAuthStore } from "@/store/auth.store";
 
 export interface PropertyCardProps {
   property: PropertyDto;
   onPress?: (id: string) => void;
-  onSaveToggle?: (id: string) => void;
-  isSaved?: boolean;
   showActions?: boolean;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
@@ -22,13 +24,30 @@ export interface PropertyCardProps {
 export const PropertyCard: React.FC<PropertyCardProps> = ({
   property,
   onPress,
-  onSaveToggle,
-  isSaved = false,
   showActions = false,
   onEdit,
   onDelete,
 }) => {
   const { t } = useTranslation();
+  const router = useRouter();
+  const { user } = useAuthStore();
+  const toggleSave = useToggleSave();
+
+  const isSaved = property.isSaved ?? false;
+  const isTogglingSave =
+    toggleSave.isPending && toggleSave.variables === property.id;
+
+  const handleSaveToggle = () => {
+    if (!user) {
+      Toast.show({
+        type: "info",
+        text1: t("saved.login_required", "Sign in to view saved properties"),
+      });
+      router.push("/(auth)/phone");
+      return;
+    }
+    toggleSave.mutate(property.id);
+  };
 
   const formatPriceUnit = (unit: PriceUnitEnum) => {
     const map: Record<PriceUnitEnum, string> = {
@@ -47,10 +66,8 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     property.propertyMedia?.find((m) => m.isCover)?.media?.url ??
     property.propertyMedia?.[0]?.media?.url;
 
-  const ownerName =
-     property.lister?.name ?? "Owner";
-  const ownerImage =  property?.lister?.profileMedia?.url ?? null;
-
+  const ownerName = property.lister?.name ?? "Owner";
+  const ownerImage = property?.lister?.profileMedia?.url ?? null;
 
   const ownerInitials = ownerName
     .split(" ")
@@ -201,7 +218,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
                 color={Colors.lightMuted}
               />
               <Text style={{ fontSize: 13, color: Colors.lightMuted }}>
-                {t("property.no_photos", "No photos")}
+                {t("property.no_photos")}
               </Text>
             </View>
           )}
@@ -244,65 +261,86 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             </Text>
           </View>
 
-          {/* Top-right actions */}
-          {property.isVerified && (
-  <View
-    style={{
-      position: "absolute",
-      top: 10,
-      right: 10,
-      flexDirection: "row",
-      alignItems: "center",
-      backgroundColor: "#16A34A",
-      paddingHorizontal: 10,
-      paddingVertical: 4,
-      borderRadius: 20,
-    }}
-  >
-    <Ionicons name="checkmark-circle" size={12} color="#fff" />
-    <Text
-      style={{
-        color: "#fff",
-        fontSize: 10,
-        fontWeight: "700",
-        marginLeft: 4,
-        letterSpacing: 0.5,
-      }}
-    >
-      VERIFIED
-    </Text>
-  </View>
-)}
-          {/* <View style={{ position: "absolute", top: 8, right: 10, flexDirection: "row", gap: 6 }}>
-            {showActions ? (
-              <>
-                <TouchableOpacity
-                  onPress={() => onEdit?.(property.id)}
-                  style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: "#fff", alignItems: "center", justifyContent: "center" }}
-                >
-                  <Ionicons name="pencil-outline" size={15} color={Colors.dark} />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => onDelete?.(property.id)}
-                  style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: "#fff2f2", alignItems: "center", justifyContent: "center" }}
-                >
-                  <Ionicons name="trash-outline" size={15} color="#e11d48" />
-                </TouchableOpacity>
-              </>
-            ) : (
+          {/* Top-right: verified badge OR save toggle */}
+          <View
+            style={{
+              position: "absolute",
+              top: 10,
+              right: 10,
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+
+            {/* Save toggle — shown when not in actions (edit/delete) mode */}
+            {!showActions && (
               <TouchableOpacity
-                onPress={() => onSaveToggle?.(property.id)}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  handleSaveToggle();
+                }}
+                disabled={isTogglingSave}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: "rgba(0,0,0,0.45)", alignItems: "center", justifyContent: "center" }}
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 16,
+                  backgroundColor: "rgba(0,0,0,0.45)",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  opacity: isTogglingSave ? 0.6 : 1,
+                }}
               >
                 <Ionicons
                   name={isSaved ? "heart" : "heart-outline"}
-                  size={16}
+                  size={18}
                   color={isSaved ? "#F5C249" : "#fff"}
                 />
               </TouchableOpacity>
             )}
-          </View> */}
+          </View>
+
+          <View
+            style={{
+              position: "absolute",
+              bottom: 10,
+              right: 10,
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            {property.isVerified && (
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  backgroundColor: "#16A34A",
+                  paddingHorizontal: 10,
+                  paddingVertical: 4,
+                  borderRadius: 20,
+                }}
+              >
+                <Ionicons name="checkmark-circle" size={12} color="#fff" />
+                <Text
+                  style={{
+                    color: "#fff",
+                    fontSize: 10,
+                    fontWeight: "700",
+                    marginLeft: 4,
+                    letterSpacing: 0.5,
+                  }}
+                >
+                  VERIFIED
+                </Text>
+              </View>
+            )}
+
+
+          </View>
+
+          
 
           {/* Price — anchored to bottom of image */}
           <View
@@ -382,26 +420,26 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
               flexShrink: 0,
             }}
           >
-         <View className="mr-4">
-  {ownerImage ? (
-    <Image
-      source={{ uri: ownerImage }}
-      className="h-14 w-14 rounded-full border border-gray-200"
-      resizeMode="cover"
-    />
-  ) : (
-    <View className="h-14 w-14 items-center justify-center rounded-full border border-gray-200 bg-gray-100">
-      <Text className="text-[20px] font-bold text-black">
-        {ownerName[0]?.toUpperCase()}
-      </Text>
-    </View>
-  )}
-</View>
             <Text
               style={{ fontSize: 11, color: Colors.muted, fontWeight: "500" }}
             >
               {ownerName}
             </Text>
+               <View className="">
+              {ownerImage ? (
+                <Image
+                  source={{ uri: ownerImage }}
+                  className="h-8 w-8 rounded-full border border-gray-200"
+                  resizeMode="cover"
+                />
+              ) : (
+                <View className="h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-gray-100">
+                  <Text className="text-[16px] font-bold text-black">
+                    {ownerName[0]?.toUpperCase()}
+                  </Text>
+                </View>
+              )}
+            </View>
           </View>
         </View>
 

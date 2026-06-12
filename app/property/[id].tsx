@@ -96,9 +96,6 @@ export default function PropertyDetailScreen() {
   const isOwner = user && property?.listedByUserId === user.id;
   const lang = user?.preferredLanguage ?? 'en';
 
-  useEffect(()=>{
-    console.log("property.lister",property?.lister)
-  },[property])
 
   const handleToggleSave = () => {
     if (!property) return;
@@ -268,7 +265,7 @@ export default function PropertyDetailScreen() {
               <View>
                 <Text className="text-[18px] font-bold text-black">{ownerName}</Text>
                 <View className="mt-1 self-start rounded-md bg-gray-100 px-2 py-0.5">
-                  <Text className="text-[11px] font-bold text-gray-500">OWNER</Text>
+                  <Text className="text-[11px] font-bold text-gray-500">{t('property.lister_badge')}</Text>
                 </View>
               </View>
             </View>
@@ -276,19 +273,19 @@ export default function PropertyDetailScreen() {
             <TouchableOpacity onPress={handleChat} className="mb-3 flex-row items-center rounded-2xl bg-[#25D366] p-4">
               <Ionicons name="logo-whatsapp" size={24} color="white" />
               <Text className="ml-3 text-[16px] font-bold text-white">
-                {t('property.whatsapp_chat', 'WhatsApp Chat')}
+                {t('property.whatsapp_chat')}
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={handleViewNumber} className="flex-row items-center rounded-2xl border-[1.5px] border-black p-4">
               <Ionicons name="call-outline" size={24} color="black" />
               <Text className="ml-3 text-[16px] font-bold text-black">
-                {t('property.view_number', 'View Number')}
+                {t('property.view_number')}
               </Text>
             </TouchableOpacity>
 
             <Text className="mt-5 text-center text-[12px] text-gray-500">
-              {t('property.contact_note', 'Contact details shared with your number.')}
+              {t('property.contact_note')}
             </Text>
           </View>
         </View>
@@ -302,7 +299,7 @@ export default function PropertyDetailScreen() {
             <View className="mb-6 h-1 w-10 rounded-full bg-gray-300" />
 
             <Text className="mb-2 text-[11px] font-bold uppercase tracking-widest text-gray-500">
-              {t('property.contact_number_label', 'OUR CONTACT NUMBER')}
+              {t('property.contact_number_label')}
             </Text>
             <Text className="mb-6 text-[36px] font-bold text-black">
               {property.contactPhone}
@@ -311,7 +308,7 @@ export default function PropertyDetailScreen() {
             {property.alternatePhone && (
               <>
                 <Text className="mb-2 text-[11px] font-bold uppercase tracking-widest text-gray-500">
-                  {t('property.alternate_number_label', 'ALTERNATE NUMBER')}
+                  {t('property.alternate_number_label')}
                 </Text>
                 <Text className="mb-6 text-[24px] font-bold text-black">
                   {property.alternatePhone}
@@ -331,7 +328,7 @@ export default function PropertyDetailScreen() {
                 className="h-14 flex-1 items-center justify-center rounded-full border-[1.5px] border-black"
               >
                 <Text className="text-[16px] font-bold text-black">
-                  {t('property.copy', 'Copy')}
+                  {t('property.copy')}
                 </Text>
               </TouchableOpacity>
 
@@ -340,7 +337,7 @@ export default function PropertyDetailScreen() {
                 className="h-14 flex-1 items-center justify-center rounded-full bg-black"
               >
                 <Text className="text-[16px] font-bold text-white">
-                  {t('property.call_now', 'Call Now')}
+                  {t('property.call_now')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -348,7 +345,7 @@ export default function PropertyDetailScreen() {
             <View className="mt-5 flex-row items-center">
               <Ionicons name="checkmark-circle" size={14} color={Colors.success} style={{ marginRight: 4 }} />
               <Text className="text-[12px] text-gray-500">
-                {t('property.verified', 'Verified by Homi Holdings')}
+                {t('property.verified')}
               </Text>
             </View>
           </View>
@@ -357,10 +354,10 @@ export default function PropertyDetailScreen() {
 
       <ConfirmModal
              visible={showConfirmModal}
-             title={t("common.confirm", "Confirm")}
-             message={t("profile.confirm_delete_listing", "Delete this listing?")}
-             confirmText={t("common.delete", "Delete")}
-             cancelText={t("common.cancel", "Cancel")}
+             title={t("common.confirm")}
+             message={t("profile.confirm_delete_listing")}
+             confirmText={t("common.delete")}
+             cancelText={t("common.cancel")}
              onConfirm={handleDeleteProperty}
              onCancel={()=> setShowConfirmModal(false)}
              isDestructive={true}

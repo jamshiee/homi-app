@@ -6,13 +6,11 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
-  Platform,
   Image,
   LayoutAnimation,
 } from "react-native";
 import {
   SafeAreaView,
-  useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "expo-router";
@@ -27,8 +25,6 @@ import { LocationBottomSheet } from "@components/LocationBottomSheet";
 import { FilterBottomSheet } from "@components/FilterBottomSheet";
 import { FilterButton } from "@components/FilterButton";
 import { PropertyDto } from "@api/types";
-import { openWhatsApp, openPhone } from "@utils/contact";
-import { propertiesApi } from "@api/properties.api";
 import { useActiveFilters } from "@/hooks/useActiveFilters";
 import { useAuthStore } from "@/store/auth.store";
 
@@ -262,7 +258,7 @@ const renderEmptyState = () => (
               height: 32,
               resizeMode: "contain",
             }}
-          />{" "}
+          />
           <Text
             style={{
               fontWeight: "bold",
@@ -406,7 +402,7 @@ const renderEmptyState = () => (
               >
                 {t("home.featured", "Featured")}
               </Text>
-              <TouchableOpacity onPress={navToSearch}>
+              {/* <TouchableOpacity onPress={navToSearch}>
                 <Text
                   style={{
                     fontSize: 13,
@@ -416,7 +412,7 @@ const renderEmptyState = () => (
                 >
                   {t("home.see_all", "See all →")}
                 </Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
             <ScrollView
               horizontal
@@ -454,13 +450,13 @@ const renderEmptyState = () => (
                 ? t("home.latest_near_you", "Latest Near You")
                 : t("home.latest_properties", "Latest Properties")}
             </Text>
-            <TouchableOpacity onPress={navToSearch}>
+            {/* <TouchableOpacity onPress={navToSearch}>
               <Text
                 style={{ fontSize: 13, color: Colors.muted, fontWeight: "600" }}
               >
                 {t("home.see_all", "See all →")}
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
 
           {feedLoading ? (

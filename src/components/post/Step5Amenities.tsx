@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
-  FlatList,
   Dimensions,
 } from 'react-native';
 import { usePostStore } from '../../store/postStore';
@@ -14,6 +13,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { apiClient } from '../../api/client';
 import { useTranslation } from 'react-i18next';
 import { useAppStore } from '@/store/app.store';
+import { t } from 'i18next';
 
 interface AmenityData {
   id: string;
@@ -64,20 +64,20 @@ export default function Step5Amenities() {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={Colors.yellow} />
-        <Text style={styles.loadingText}>Fetching available features...</Text>
+        <Text style={styles.loadingText}>{t('post.step5_loading')}</Text>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Amenities & Extras</Text>
-      <Text style={styles.subtitle}>Select features and amenities available at this property</Text>
+      <Text style={styles.title}>{t('post.step5_title')}</Text>
+      <Text style={styles.subtitle}>{t('post.step5_subtitle')}</Text>
 
       {amenities.length === 0 ? (
         <View style={styles.emptyContainer}>
           <MaterialCommunityIcons name="tag-off-outline" size={48} color={Colors.lightMuted} />
-          <Text style={styles.emptyText}>No matching amenities found for this type.</Text>
+          <Text style={styles.emptyText}>{t('post.step5_empty')}</Text>
         </View>
       ) : (
         <View style={styles.grid}>

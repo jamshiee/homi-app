@@ -1,28 +1,47 @@
-import React, { useState } from "react";
+import React from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
+import { useRouter } from "expo-router";
+import Toast from "react-native-toast-message";
 import { LinearGradient } from "expo-linear-gradient";
 import { PropertyDto } from "@api/types";
 import { Colors } from "@constants/colors";
 import { formatPrice } from "@utils/price";
 import { PropertyTypeEnum } from "@/common/enums/property-enums/property-type.enum";
 import { PriceUnitEnum } from "@/common/enums/property-enums/price-unit.enum";
+import { useToggleSave } from "@/hooks/useProperties";
+import { useAuthStore } from "@/store/auth.store";
 
 export interface FeaturedPropertyCardProps {
   property: PropertyDto;
   onPress?: (id: string) => void;
-  onSaveToggle?: (id: string) => void;
-  isSaved?: boolean;
 }
 
 export const FeaturedPropertyCard: React.FC<FeaturedPropertyCardProps> = ({
   property,
   onPress,
-  onSaveToggle,
-  isSaved = false,
 }) => {
   const { t } = useTranslation();
+  const router = useRouter();
+  const { user } = useAuthStore();
+  const toggleSave = useToggleSave();
+
+  const isSaved = property.isSaved ?? false;
+  const isTogglingSave =
+    toggleSave.isPending && toggleSave.variables === property.id;
+
+  const handleSaveToggle = () => {
+    if (!user) {
+      Toast.show({
+        type: "info",
+        text1: t("saved.login_required", "Sign in to view saved properties"),
+      });
+      router.push("/(auth)/phone");
+      return;
+    }
+    toggleSave.mutate(property.id);
+  };
 
   const coverImage =
     property.propertyMedia?.find((m) => m.isCover)?.media?.url ??
@@ -118,7 +137,7 @@ export const FeaturedPropertyCard: React.FC<FeaturedPropertyCardProps> = ({
           <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
             <Ionicons name="camera-outline" size={36} color={Colors.lightMuted} />
             <Text style={{ color: Colors.lightMuted, marginTop: 8, fontSize: 13 }}>
-              {t("property.no_photos", "No photos")}
+              {t("property.no_photos")}
             </Text>
           </View>
         )}
@@ -144,10 +163,10 @@ export const FeaturedPropertyCard: React.FC<FeaturedPropertyCardProps> = ({
           </Text>
         </View>
 
-        {/* Owner pill — top right of badge row */}
+        {/* Owner pill — top right */}
         <View
           style={{
-            position: "absolute", top: 12, right: 12,
+            position: "absolute", top: 12, right: 52,
             backgroundColor: "rgba(0,0,0,0.45)",
             paddingHorizontal: 10, paddingVertical: 4,
             borderRadius: 20,
@@ -158,15 +177,20 @@ export const FeaturedPropertyCard: React.FC<FeaturedPropertyCardProps> = ({
           </Text>
         </View>
 
-        {/* Save — top right */}
-        {/* <TouchableOpacity
-          onPress={() => onSaveToggle?.(property.id)}
+        {/* Save toggle — top right */}
+        <TouchableOpacity
+          onPress={(e) => {
+            e.stopPropagation();
+            handleSaveToggle();
+          }}
+          disabled={isTogglingSave}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           style={{
             position: "absolute", top: 10, right: 12,
             width: 32, height: 32, borderRadius: 16,
             backgroundColor: "rgba(0,0,0,0.45)",
             alignItems: "center", justifyContent: "center",
+            opacity: isTogglingSave ? 0.6 : 1,
           }}
         >
           <Ionicons
@@ -174,7 +198,7 @@ export const FeaturedPropertyCard: React.FC<FeaturedPropertyCardProps> = ({
             size={17}
             color={isSaved ? "#F5C249" : "#fff"}
           />
-        </TouchableOpacity> */}
+        </TouchableOpacity>
 
         {/* Price + transaction type — overlaid on gradient */}
         <View

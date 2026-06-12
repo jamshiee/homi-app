@@ -34,7 +34,7 @@ export function PropertyOwnerSection({ ownerName,ownerImage, isOwner, onEdit ,on
         <View className="flex-1">
           <Text className="text-[16px] font-bold text-black">{ownerName}</Text>
           <View className="mt-1 self-start rounded-md bg-white px-2 py-1 shadow-sm shadow-gray-200 border border-gray-100">
-            <Text className="text-[10px] font-bold text-gray-500 tracking-wider">LISTER</Text>
+            <Text className="text-[10px] font-bold text-gray-500 tracking-wider">{t('property.lister_badge')}</Text>
           </View>
         </View>
         <View className='flex-row gap-1'>
@@ -44,7 +44,7 @@ export function PropertyOwnerSection({ ownerName,ownerImage, isOwner, onEdit ,on
             className="rounded-full border-2 border-black px-4 py-2"
           >
             <Text className="text-[13px] font-bold text-black">
-              {t('property.edit', 'Edit')}
+              {t('property.edit')}
             </Text>
           </TouchableOpacity>
         )}
@@ -54,7 +54,7 @@ export function PropertyOwnerSection({ ownerName,ownerImage, isOwner, onEdit ,on
             className="rounded-full border-2 border-red-600 px-4 py-2 bg-red-500"
           >
             <Text className="text-[13px] font-bold text-white ">
-              {t('property.delete', 'Delete')}
+              {t('property.delete')}
             </Text>
           </TouchableOpacity>
         )}

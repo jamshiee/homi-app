@@ -4,49 +4,50 @@ import { usePostStore } from "@store/postStore";
 import { Colors } from "@constants/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { PropertyTypeEnum } from "@/common/enums/property-enums/property-type.enum";
-
-interface TypeOption {
-  key: PropertyTypeEnum;
-  label: string;
-  description: string;
-  icon: keyof typeof MaterialCommunityIcons.glyphMap;
-  color: string;
-}
-
-const OPTIONS: TypeOption[] = [
-  {
-    key: PropertyTypeEnum.HOUSE,
-    label: "House",
-    description: "Independent homes, and residential units",
-    icon: "home-city-outline",
-    color: "#3B82F6",
-  },
-  {
-    key: PropertyTypeEnum.LAND,
-    label: "Land / Cent",
-    description:
-      "Residential plots, commercial acres, agricultural land, and cents",
-    icon: "image-filter-hdr",
-    color: "#10B981",
-  },
-  {
-    key: PropertyTypeEnum.BUILDING,
-    label: "Commercial Building",
-    description: "Rooms, office spaces, warehouses",
-    icon: "office-building-outline",
-    color: "#8B5CF6",
-  },
-  {
-    key: PropertyTypeEnum.HOTEL,
-    label: "Hotel / PG / Resort / Lodge",
-    description: "Paying guest accommodations, rooms, short-stays, and lodges",
-    icon: "bed-outline",
-    color: "#EC4899",
-  },
-];
+import { useTranslation } from "react-i18next";
 
 export default function Step1Type() {
   const { type, setField, isEditMode } = usePostStore();
+  const { t } = useTranslation();
+
+  type TypeOption = {
+    key: PropertyTypeEnum;
+    labelKey: string;
+    descKey: string;
+    icon: keyof typeof MaterialCommunityIcons.glyphMap;
+    color: string;
+  };
+
+  const OPTIONS: TypeOption[] = [
+    {
+      key: PropertyTypeEnum.HOUSE,
+      labelKey: "post.type_house_label",
+      descKey: "post.type_house_desc",
+      icon: "home-city-outline",
+      color: "#3B82F6",
+    },
+    {
+      key: PropertyTypeEnum.LAND,
+      labelKey: "post.type_land_label",
+      descKey: "post.type_land_desc",
+      icon: "image-filter-hdr",
+      color: "#10B981",
+    },
+    {
+      key: PropertyTypeEnum.BUILDING,
+      labelKey: "post.type_building_label",
+      descKey: "post.type_building_desc",
+      icon: "office-building-outline",
+      color: "#8B5CF6",
+    },
+    {
+      key: PropertyTypeEnum.HOTEL,
+      labelKey: "post.type_hotel_label",
+      descKey: "post.type_hotel_desc",
+      icon: "bed-outline",
+      color: "#EC4899",
+    },
+  ];
 
   const handleSelect = (key: PropertyTypeEnum) => {
     if (!isEditMode) {
@@ -56,14 +57,10 @@ export default function Step1Type() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>What type of property is this?</Text>
-      <Text style={styles.subtitle}>
-        Select a category to customize listing details and specs
-      </Text>
+      <Text style={styles.title}>{t("post.step1_title")}</Text>
+      <Text style={styles.subtitle}>{t("post.step1_subtitle")}</Text>
       {isEditMode && (
-        <Text style={styles.editNotice}>
-          Property type is locked while editing an existing listing.
-        </Text>
+        <Text style={styles.editNotice}>{t("post.step1_edit_notice")}</Text>
       )}
 
       <View style={styles.grid}>
@@ -105,8 +102,8 @@ export default function Step1Type() {
                   </View>
                 )}
               </View>
-              <Text style={styles.label}>{opt.label}</Text>
-              <Text style={styles.description}>{opt.description}</Text>
+              <Text style={styles.label}>{t(opt.labelKey)}</Text>
+              <Text style={styles.description}>{t(opt.descKey)}</Text>
             </TouchableOpacity>
           );
         })}
@@ -136,27 +133,24 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   grid: {
-    gap: 16,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    gap: 12,
   },
   card: {
+    width: "48%",
     backgroundColor: Colors.white,
-    borderRadius: 12,
-    padding: 18,
+    borderRadius: 24,
+    padding: 16,
     borderWidth: 1.5,
     borderColor: Colors.border,
-    borderLeftWidth: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    borderLeftWidth: 1.5,
+    elevation: 0,
   },
   cardSelected: {
     borderColor: Colors.yellow,
     backgroundColor: Colors.yellow + "05",
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 4,
   },
   cardDisabled: {
     opacity: 0.6,
@@ -165,12 +159,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 8,
   },
   iconWrapper: {
-    width: 48,
-    height: 48,
-    borderRadius: 10,
+    width: 44,
+    height: 44,
+    borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -179,14 +173,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   label: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "bold",
     color: Colors.dark,
     marginBottom: 4,
   },
   description: {
-    fontSize: 13,
+    fontSize: 12,
     color: Colors.lightMuted,
-    lineHeight: 18,
+    lineHeight: 16,
   },
 });

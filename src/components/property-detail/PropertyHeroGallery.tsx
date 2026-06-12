@@ -63,7 +63,7 @@ export function PropertyHeroGallery({
         <View className="flex-1 items-center justify-center">
           <Ionicons name="camera-outline" size={48} color={Colors.lightMuted} />
           <Text className="mt-2 text-gray-400">
-            {t('property.no_photos', 'No photos available')}
+            {t('property.no_photos')}
           </Text>
         </View>
       )}
@@ -109,8 +109,8 @@ export function PropertyHeroGallery({
         <View className={`absolute bottom-0 left-0 right-0 px-4 py-2.5 ${moderationColor}`}>
           <Text className="text-[13px] font-bold text-white">
             {moderationStatus === 'pending'
-              ? t('property.pending_approval', 'This listing is pending approval')
-              : t('property.listing_inactive', 'This listing is currently inactive')}
+              ? t('property.pending_approval')
+              : t('property.listing_inactive')}
           </Text>
         </View>
       )}

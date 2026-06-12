@@ -37,12 +37,12 @@ const handleOpenMaps = async () => {
     <View className="px-4 py-4">
       <View className="mb-3 flex-row items-center justify-between">
         <Text className="text-[18px] font-bold text-black">
-          {t('property.location', 'Location')}
+          {t('property.location')}
         </Text>
         {latitude && longitude && (
           <TouchableOpacity onPress={handleOpenMaps}>
             <Text className="text-[14px] font-bold text-black underline">
-              {t('property.open_in_maps', 'Open in Maps')}
+              {t('property.open_in_maps')}
             </Text>
           </TouchableOpacity>
         )}
@@ -79,7 +79,7 @@ const handleOpenMaps = async () => {
         <View className="h-[160px] items-center justify-center rounded-2xl bg-gray-100">
           <Ionicons name="map-outline" size={40} color={Colors.lightMuted} />
           <Text className="mt-2 text-[14px] text-gray-500">
-            {t('property.exact_location_hidden', 'Exact location not provided')}
+            {t('property.exact_location_hidden')}
           </Text>
         </View>
       )}

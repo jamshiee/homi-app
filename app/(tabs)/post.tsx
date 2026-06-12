@@ -7,9 +7,13 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, usePreventRemove } from "@react-navigation/native";
+import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { Colors } from "@constants/colors";
 import { useAuthStore } from "@store/auth.store";
 import { usePostStore } from "@store/postStore";
@@ -30,6 +34,7 @@ interface PostScreenProps {
 }
 
 export function PostScreen({ mode = "create", propertyId }: PostScreenProps) {
+  const { t } = useTranslation();
   const { user } = useAuthStore();
   const navigation = useNavigation();
   const isAdmin = user?.isAdmin ?? false;
@@ -59,10 +64,10 @@ export function PostScreen({ mode = "create", propertyId }: PostScreenProps) {
   } = usePostStore();
 
   usePreventRemove(mode === "edit" && isDirty, ({ data }) => {
-    Alert.alert("Unsaved changes", "Leave this page without saving?", [
-      { text: "Stay", style: "cancel" },
+    Alert.alert(t("post.unsaved_changes"), t("post.leave_without_saving"), [
+      { text: t("post.stay"), style: "cancel" },
       {
-        text: "Discard changes",
+        text: t("post.discard_changes"),
         style: "destructive",
         onPress: () => {
           navigation.dispatch(data.action);
@@ -92,7 +97,7 @@ export function PostScreen({ mode = "create", propertyId }: PostScreenProps) {
         if (step === 1) nextStep(); // If property type is already set, skip to step 2
       } catch (error) {
         console.warn("Failed to load property for edit mode", error);
-        Alert.alert("Unable to load property", "Please try again later.");
+        Alert.alert(t("post.unable_to_load"), t("post.try_again_later"));
       } finally {
         if (isMounted) setIsHydrating(false);
       }
@@ -115,10 +120,9 @@ export function PostScreen({ mode = "create", propertyId }: PostScreenProps) {
               color={Colors.error}
             />
           </View>
-          <Text style={styles.guardTitle}>Admin Access Required</Text>
+          <Text style={styles.guardTitle}>{t("post.admin_required")}</Text>
           <Text style={styles.guardSubtitle}>
-            Only authorized administrator and lister accounts can create and
-            publish listings on Homi.
+            {t("post.admin_required_sub")}
           </Text>
         </View>
       </SafeAreaView>
@@ -130,9 +134,9 @@ export function PostScreen({ mode = "create", propertyId }: PostScreenProps) {
       <SafeAreaView style={styles.guardContainer}>
         <View style={styles.guardCard}>
           <ActivityIndicator size="large" color={Colors.yellow} />
-          <Text style={styles.guardTitle}>Loading listing</Text>
+          <Text style={styles.guardTitle}>{t("post.loading_listing")}</Text>
           <Text style={styles.guardSubtitle}>
-            Preparing your existing property details for editing.
+            {t("post.loading_listing_sub")}
           </Text>
         </View>
       </SafeAreaView>
@@ -183,66 +187,85 @@ export function PostScreen({ mode = "create", propertyId }: PostScreenProps) {
     }
   };
 
+  const handleExit = () => {
+    if (mode === "edit") {
+      navigation.goBack();
+    } else {
+      router.navigate("/(tabs)");
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+      {/* Modal-style top bar */}
       <View style={styles.header}>
-        <View>
+        <TouchableOpacity style={styles.exitButton} onPress={handleExit}>
+          <MaterialCommunityIcons name="close" size={22} color={Colors.dark} />
+        </TouchableOpacity>
+
+        <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>
-            {mode === "edit" ? "Edit Listing" : "Create Listing"}
+            {mode === "edit" ? t("post.edit_listing") : t("post.create_listing")}
           </Text>
           <Text style={styles.headerSubtitle}>
-            {mode === "edit"
-              ? "Update the property details and media"
-              : "Publish property to the Homi feed"}
+            {t("post.step_of", { step })}
           </Text>
         </View>
-        {mode === "create" && (
+
+        {mode === "create" ? (
           <TouchableOpacity
             style={styles.resetButton}
             onPress={() => void resetForm()}
           >
             <MaterialCommunityIcons
               name="refresh"
-              size={20}
+              size={18}
               color={Colors.lightMuted}
             />
-            <Text style={styles.resetText}>Reset</Text>
+            <Text style={styles.resetText}>{t("post.reset")}</Text>
           </TouchableOpacity>
+        ) : (
+          <View style={styles.resetButton} />
         )}
       </View>
 
+      {/* Progress bar */}
       <View style={styles.progressContainer}>
         <View style={styles.progressBarBackground}>
           <View
             style={[styles.progressBarFill, { width: `${(step / 7) * 100}%` }]}
           />
         </View>
-        <View style={styles.progressLabels}>
-          <Text style={styles.progressText}>Step {step} of 7</Text>
-          <Text style={styles.progressPercent}>
-            {Math.round((step / 7) * 100)}% Complete
-          </Text>
-        </View>
+        <Text style={styles.progressPercent}>
+          {t("post.percent_complete", { percent: Math.round((step / 7) * 100) })}
+        </Text>
       </View>
 
-      <ScrollView
-        scrollEnabled={scrollEnabled !== false}
-        style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        keyboardVerticalOffset={84}
       >
-        {renderStepContent()}
-      </ScrollView>
+        <ScrollView
+          scrollEnabled={scrollEnabled !== false}
+          style={styles.scroll}
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+          showsVerticalScrollIndicator={false}
+        >
+          {renderStepContent()}
+        </ScrollView>
+      </KeyboardAvoidingView>
 
       {step < 7 && (
         <View style={styles.footer}>
           {step > 1 ? (
             <TouchableOpacity style={styles.backButton} onPress={prevStep}>
-              <Text style={styles.backButtonText}>Back</Text>
+              <Text style={styles.backButtonText}>{t("post.back")}</Text>
             </TouchableOpacity>
           ) : (
-            <View style={{ flex: 1 }} />
+            <View style={styles.backButtonPlaceholder} />
           )}
 
           <TouchableOpacity
@@ -253,7 +276,7 @@ export function PostScreen({ mode = "create", propertyId }: PostScreenProps) {
             disabled={isNextDisabled()}
             onPress={nextStep}
           >
-            <Text style={styles.nextButtonText}>Next</Text>
+            <Text style={styles.nextButtonText}>{t("post.next")}</Text>
             <MaterialCommunityIcons
               name="arrow-right"
               size={16}
@@ -319,70 +342,75 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 10,
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
+    backgroundColor: Colors.white,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
-    backgroundColor: Colors.white,
+  },
+  exitButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.surface,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerCenter: {
+    flex: 1,
+    alignItems: "center",
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 17,
     fontWeight: "bold",
     color: Colors.dark,
   },
   headerSubtitle: {
-    fontSize: 13,
+    fontSize: 12,
     color: Colors.lightMuted,
+    marginTop: 1,
   },
   resetButton: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    width: 72,
+    justifyContent: "flex-end",
+    paddingRight: 4,
   },
   resetText: {
     fontSize: 13,
     color: Colors.lightMuted,
     fontWeight: "600",
-    marginLeft: 4,
+    marginLeft: 3,
   },
   progressContainer: {
     paddingHorizontal: 20,
-    paddingVertical: 14,
+    paddingTop: 10,
+    paddingBottom: 6,
     backgroundColor: Colors.white,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
   progressBarBackground: {
-    height: 6,
-    borderRadius: 3,
+    height: 4,
+    borderRadius: 2,
     backgroundColor: Colors.border,
     overflow: "hidden",
-    marginBottom: 8,
+    marginBottom: 6,
   },
   progressBarFill: {
     height: "100%",
     backgroundColor: Colors.yellow,
-    borderRadius: 3,
-  },
-  progressLabels: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  progressText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: Colors.dark,
+    borderRadius: 2,
   },
   progressPercent: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "600",
     color: Colors.yellow,
+    textAlign: "right",
   },
   scroll: {
     flex: 1,
@@ -400,38 +428,38 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: Colors.border,
   },
+  backButtonPlaceholder: {
+    width: 90,
+  },
   backButton: {
-    paddingVertical: 12,
     paddingHorizontal: 24,
-    borderRadius: 8,
-    borderWidth: 1,
+    borderRadius: 30,
+    borderWidth: 1.5,
     borderColor: Colors.border,
+    height: 56,
+    justifyContent: "center",
+    alignItems: "center",
   },
   backButtonText: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: Colors.lightMuted,
+    fontSize: 16,
+    fontWeight: "bold",
+    color: Colors.dark,
   },
   nextButton: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     backgroundColor: Colors.yellow,
-    paddingVertical: 12,
     paddingHorizontal: 28,
-    borderRadius: 8,
-    shadowColor: Colors.yellow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
+    borderRadius: 30,
+    height: 56,
   },
   nextButtonDisabled: {
     backgroundColor: Colors.border,
-    shadowOpacity: 0,
-    elevation: 0,
+    opacity: 0.6,
   },
   nextButtonText: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "bold",
     color: Colors.dark,
     marginRight: 6,

@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   Switch,
   StyleSheet,
-  ScrollView,
 } from 'react-native';
 import { usePostStore } from '../../store/postStore';
 import { Colors } from '../../constants/colors';
@@ -18,6 +17,7 @@ import { RoomTypeEnum } from '@/common/enums/property-enums/room-type.enum';
 import { PropertyTypeEnum } from '@/common/enums/property-enums/property-type.enum';
 import { AreaUnitEnum } from '@/common/enums/property-enums/area-unit.enum';
 import { BuildingStatusEnum } from '@/common/enums/property-enums/building-status.enum';
+import { useTranslation } from 'react-i18next';
 
 interface StepperProps {
   label: string;
@@ -54,6 +54,7 @@ function Stepper({ label, value, onChange, min = 0, max = 99 }: StepperProps) {
 
 export default function Step3Details() {
   const { type, landDetail, houseDetail, buildingDetail, hotelDetail, setField } = usePostStore();
+  const { t } = useTranslation();
 
   const handleUpdateLand = (updates: any) => {
     setField({ landDetail: { ...(landDetail || { totalArea: 0, areaUnit: AreaUnitEnum.CENT }), ...updates } });
@@ -109,10 +110,10 @@ export default function Step3Details() {
     const details = landDetail || { totalArea: 0, areaUnit: AreaUnitEnum.CENT };
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Land Metrics</Text>
-        <Text style={styles.subtitle}>Enter the surface area and metric boundaries</Text>
+        <Text style={styles.title}>{t('post.step3_land_title')}</Text>
+        <Text style={styles.subtitle}>{t('post.step3_land_subtitle')}</Text>
 
-        <Text style={styles.label}>Total Area *</Text>
+        <Text style={styles.label}>{t('post.step3_land_area_label')}</Text>
         <View style={styles.inputContainer}>
           <TextInput
             placeholder="0"
@@ -124,9 +125,9 @@ export default function Step3Details() {
           />
         </View>
 
-        <Text style={styles.label}>Area Unit *</Text>
+        <Text style={styles.label}>{t('post.step3_land_unit_label')}</Text>
         <View style={styles.pillContainer}>
-          {Object.entries(AreaUnitEnum).map(([key,value]) => {
+          {Object.entries(AreaUnitEnum).map(([key, value]) => {
             const isSelected = details.areaUnit === value;
             return (
               <TouchableOpacity
@@ -158,35 +159,35 @@ export default function Step3Details() {
     };
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>House Specifications</Text>
-        <Text style={styles.subtitle}>Specify rooms, kitchen, and furnishing parameters</Text>
+        <Text style={styles.title}>{t('post.step3_house_title')}</Text>
+        <Text style={styles.subtitle}>{t('post.step3_house_subtitle')}</Text>
 
         <Stepper
-          label="Bedrooms"
+          label={t('post.step3_house_bedrooms')}
           value={details.bedrooms}
           onChange={(val) => handleUpdateHouse({ bedrooms: val })}
           min={1}
         />
         <Stepper
-          label="Bathrooms"
+          label={t('post.step3_house_bathrooms')}
           value={details.bathrooms}
           onChange={(val) => handleUpdateHouse({ bathrooms: val })}
           min={1}
         />
         <Stepper
-          label="Balconies"
+          label={t('post.step3_house_balconies')}
           value={details.balconies}
           onChange={(val) => handleUpdateHouse({ balconies: val })}
         />
         <Stepper
-          label="Total Floors"
+          label={t('post.step3_house_floors')}
           value={details.floors}
           onChange={(val) => handleUpdateHouse({ floors: val })}
           min={1}
         />
 
         <View style={styles.switchRow}>
-          <Text style={styles.switchLabel}>Has Kitchen / Pantry?</Text>
+          <Text style={styles.switchLabel}>{t('post.step3_house_kitchen')}</Text>
           <Switch
             value={details.hasKitchen}
             onValueChange={(val) => handleUpdateHouse({ hasKitchen: val })}
@@ -195,7 +196,7 @@ export default function Step3Details() {
           />
         </View>
 
-        <Text style={styles.label}>Furnishing Status *</Text>
+        <Text style={styles.label}>{t('post.step3_house_furnishing')}</Text>
         <View style={styles.pillContainer}>
           {[FurnishingStatusEnum.UN_FURNISHED, FurnishingStatusEnum.SEMI_FURNISHED, FurnishingStatusEnum.FULLY_FURNISHED].map((status) => {
             const isSelected = details.furnishingStatus === status;
@@ -228,10 +229,10 @@ export default function Step3Details() {
     };
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Building Specifications</Text>
-        <Text style={styles.subtitle}>Enter commercial metrics, subtype, and active state</Text>
+        <Text style={styles.title}>{t('post.step3_building_title')}</Text>
+        <Text style={styles.subtitle}>{t('post.step3_building_subtitle')}</Text>
 
-        <Text style={styles.label}>Commercial Subtype *</Text>
+        <Text style={styles.label}>{t('post.step3_building_subtype')}</Text>
         <View style={styles.pillContainer}>
           {Object.values(BuildingSubTypeEnum).map((sub) => {
             const isSelected = details.subType === sub;
@@ -250,7 +251,7 @@ export default function Step3Details() {
           })}
         </View>
 
-        <Text style={styles.label}>Total Area *</Text>
+        <Text style={styles.label}>{t('post.step3_building_area')}</Text>
         <View style={styles.inputContainer}>
           <TextInput
             placeholder="0"
@@ -262,9 +263,9 @@ export default function Step3Details() {
           />
         </View>
 
-        <Text style={styles.label}>Area Unit *</Text>
+        <Text style={styles.label}>{t('post.step3_building_unit')}</Text>
         <View style={styles.pillContainer}>
-          {Object.entries(AreaUnitEnum).map(([key,value]) => {
+          {Object.entries(AreaUnitEnum).map(([key, value]) => {
             const isSelected = details.areaUnit === value;
             return (
               <TouchableOpacity
@@ -282,14 +283,14 @@ export default function Step3Details() {
         </View>
 
         <Stepper
-          label="Floor Level"
+          label={t('post.step3_building_floor')}
           value={details.floorNumber}
           onChange={(val) => handleUpdateBuilding({ floorNumber: val })}
         />
 
-        <Text style={styles.label}>Current Status *</Text>
+        <Text style={styles.label}>{t('post.step3_building_status')}</Text>
         <View style={styles.pillContainer}>
-          {Object.entries(BuildingStatusEnum).map(([key,value]) => {
+          {Object.entries(BuildingStatusEnum).map(([key, value]) => {
             const isSelected = details.currentStatus === value;
             return (
               <TouchableOpacity
@@ -319,12 +320,12 @@ export default function Step3Details() {
     };
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Short-stay & Room details</Text>
-        <Text style={styles.subtitle}>Configure PG, rooms, capacity, and meals options</Text>
+        <Text style={styles.title}>{t('post.step3_hotel_title')}</Text>
+        <Text style={styles.subtitle}>{t('post.step3_hotel_subtitle')}</Text>
 
-        <Text style={styles.label}>Hotel Subtype *</Text>
+        <Text style={styles.label}>{t('post.step3_hotel_subtype')}</Text>
         <View style={styles.pillContainer}>
-          {Object.entries(HotelSubTypeEnum).map(([key,value]) => {
+          {Object.entries(HotelSubTypeEnum).map(([key, value]) => {
             const isSelected = details.subType === value;
             return (
               <TouchableOpacity
@@ -341,9 +342,9 @@ export default function Step3Details() {
           })}
         </View>
 
-        <Text style={styles.label}>Room Type *</Text>
+        <Text style={styles.label}>{t('post.step3_hotel_roomtype')}</Text>
         <View style={styles.pillContainer}>
-          {Object.entries(RoomTypeEnum).map(([key,value]) => {
+          {Object.entries(RoomTypeEnum).map(([key, value]) => {
             const isSelected = details.roomType === value;
             return (
               <TouchableOpacity
@@ -360,16 +361,15 @@ export default function Step3Details() {
           })}
         </View>
 
-          <Stepper
-          label="Allowed Occupancy"
-          
+        <Stepper
+          label={t('post.step3_hotel_occupancy')}
           value={details.occupancy}
           onChange={(val) => handleUpdateHotel({ occupancy: val })}
           min={1}
         />
 
         <View style={styles.switchRow}>
-          <Text style={styles.switchLabel}>Meals / Food Included?</Text>
+          <Text style={styles.switchLabel}>{t('post.step3_hotel_meals')}</Text>
           <Switch
             value={details.mealsIncluded}
             onValueChange={(val) => handleUpdateHotel({ mealsIncluded: val })}
@@ -383,7 +383,7 @@ export default function Step3Details() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.subtitle}>Please select a property type in Step 1 first.</Text>
+      <Text style={styles.subtitle}>{t('post.step3_select_type_first')}</Text>
     </View>
   );
 }

@@ -84,6 +84,7 @@ export default function TabsLayout() {
           href: isAdmin ? undefined : null,
           tabBarIcon: () => <PostTabIcon />,
           tabBarItemStyle: { marginTop: -10 },
+          tabBarStyle: { display: 'none' },
         }}
       />
       <Tabs.Screen

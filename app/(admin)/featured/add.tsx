@@ -18,6 +18,7 @@ import { PropertyFilter } from "@api/properties.api";
 import { FeatureConfigBottomSheet } from "@/components/admin/FeatureConfigBottomSheet";
 import Toast from "react-native-toast-message";
 import { router } from "expo-router";
+import { t } from "i18next";
 
 export default function AddFeaturedScreen() {
   const [properties, setProperties] = useState<PropertyDto[]>([]);
@@ -117,7 +118,7 @@ export default function AddFeaturedScreen() {
           {item.isFeatured && (
             <View style={styles.badgeFeatured}>
               <Ionicons name="star" size={12} color={Colors.dark} />
-              <Text style={styles.badgeTextFeatured}>Featured</Text>
+              <Text style={styles.badgeTextFeatured}>{t("featured.featured")}</Text>
             </View>
           )}
         </View>
@@ -172,7 +173,7 @@ export default function AddFeaturedScreen() {
           }
           ListEmptyComponent={
             <View style={styles.emptyBox}>
-              <Text style={styles.emptyText}>No properties found.</Text>
+              <Text style={styles.emptyText}>{t("featured.no_properties_found")}</Text>
             </View>
           }
         />

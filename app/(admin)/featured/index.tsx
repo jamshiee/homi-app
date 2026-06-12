@@ -19,6 +19,7 @@ import { formatPrice } from "@utils/price";
 import { router, useFocusEffect } from "expo-router";
 import Toast from "react-native-toast-message";
 import { FeatureConfigBottomSheet } from "@/components/admin/FeatureConfigBottomSheet";
+import { t } from "i18next";
 
 export default function FeaturedDashboardScreen() {
   const [properties, setProperties] = useState<PropertyDto[]>([]);
@@ -120,7 +121,7 @@ export default function FeaturedDashboardScreen() {
         >
           <Ionicons name="arrow-back" size={24} color={Colors.dark} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Featured Properties</Text>
+        <Text style={styles.headerTitle}>{t("featured.title", "Featured Properties")}</Text>
         <View style={{ width: 40 }} />
       </View>
       <ScrollView
@@ -133,33 +134,33 @@ export default function FeaturedDashboardScreen() {
         <View style={styles.summaryRow}>
           <View style={[styles.summaryCard, { backgroundColor: Colors.surface }]}>
             <Text style={styles.summaryValue}>{properties.length}</Text>
-            <Text style={styles.summaryLabel}>Total</Text>
+            <Text style={styles.summaryLabel}>{t("featured.total")}</Text>
           </View>
           <View style={[styles.summaryCard, { backgroundColor: Colors.yellow + "40" }]}>
             <Text style={styles.summaryValue}>{active.length}</Text>
-            <Text style={styles.summaryLabel}>Active</Text>
+            <Text style={styles.summaryLabel}>{t("featured.active")}</Text>
           </View>
           <View style={[styles.summaryCard, { backgroundColor: Colors.error + "20" }]}>
             <Text style={styles.summaryValue}>{expired.length}</Text>
-            <Text style={styles.summaryLabel}>Expired</Text>
+            <Text style={styles.summaryLabel}>{t("featured.expired")}</Text>
           </View>
         </View>
 
         {/* Active Section */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Active Featured</Text>
+          <Text style={styles.sectionTitle} numberOfLines={1}>{t("featured.active_featured")}</Text>
           <TouchableOpacity
             style={styles.addButton}
             onPress={() => router.push("/(admin)/featured/add" as any)}
           >
             <Ionicons name="add" size={16} color={Colors.white} />
-            <Text style={styles.addButtonText}>Add New</Text>
+            <Text style={styles.addButtonText}>{t("featured.add_new")}</Text>
           </TouchableOpacity>
         </View>
 
         {active.length === 0 ? (
           <View style={styles.emptyBox}>
-            <Text style={styles.emptyText}>No active featured properties.</Text>
+            <Text style={styles.emptyText}>{t("featured.no_active_properties")}</Text>
           </View>
         ) : (
           active.map((p, index) => (
@@ -185,7 +186,7 @@ export default function FeaturedDashboardScreen() {
         {expired.length > 0 && (
           <>
             <View style={[styles.sectionHeader, { marginTop: 24 }]}>
-              <Text style={styles.sectionTitle}>Expired</Text>
+              <Text style={styles.sectionTitle} >{t("featured.expired_featured")}</Text>
             </View>
             {expired.map((p) => (
               <AdminFeaturedCard
@@ -270,18 +271,18 @@ function AdminFeaturedCard({
             {isActive ? (
               <View style={styles.badgeActive}>
                 <Text style={styles.badgeTextActive}>
-                  Position {property.featuredOrder}
+                  {t("featured.position", { position: property.featuredOrder })}
                 </Text>
               </View>
             ) : (
               <View style={styles.badgeExpired}>
-                <Text style={styles.badgeTextExpired}>Expired</Text>
+                <Text style={styles.badgeTextExpired}>{t("featured.expired")}</Text>
               </View>
             )}
             
             {property.featuredUntil && (
               <Text style={styles.untilText}>
-                Until {new Date(property.featuredUntil).toLocaleDateString()}
+                {t("featured.until", { date: new Date(property.featuredUntil).toLocaleDateString() })}
               </Text>
             )}
           </View>
@@ -312,7 +313,7 @@ function AdminFeaturedCard({
 
         <TouchableOpacity style={styles.actionBtn} onPress={onEdit}>
           <Ionicons name="pencil" size={16} color={Colors.dark} />
-          <Text style={styles.actionBtnText}>Edit</Text>
+          <Text style={styles.actionBtnText}>{t("featured.edit")}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.actionBtnDanger} onPress={onRemove}>
@@ -371,18 +372,21 @@ const styles = StyleSheet.create({
     color: Colors.muted,
     marginTop: 4,
     textTransform: "uppercase",
+    textAlign:"center"
   },
-  sectionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: Colors.dark,
-  },
+sectionHeader: {
+  flexDirection: "row",
+  alignItems: "center",
+  marginBottom: 16,
+},
+
+sectionTitle: {
+  flex: 1,
+  fontSize: 18,
+  fontWeight: "bold",
+  color: Colors.dark,
+  marginRight: 8,
+},
   addButton: {
     flexDirection: "row",
     alignItems: "center",
@@ -396,6 +400,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontWeight: "600",
     fontSize: 13,
+    textAlign:"center"
   },
   emptyBox: {
     padding: 24,

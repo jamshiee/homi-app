@@ -7,6 +7,7 @@ import Toast from 'react-native-toast-message';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "../../hooks/useProperties";
+import { t } from 'i18next';
 
 interface Props {
   visible: boolean;
@@ -61,8 +62,8 @@ export function FeatureConfigBottomSheet({ visible, property, onClose, onSuccess
       });
       Toast.show({ type: 'success', text1: 'Featured settings updated' });
       
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.feed({}) });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.featured() });
+      queryClient.invalidateQueries({ queryKey: ["properties", "feed"] });
+      queryClient.invalidateQueries({ queryKey: ["properties", "featured"] });
 
       onSuccess();
       onClose();
@@ -90,12 +91,12 @@ export function FeatureConfigBottomSheet({ visible, property, onClose, onSuccess
             <View style={styles.handle} />
           </View>
 
-          <Text style={styles.title}>Feature Property</Text>
-          <Text style={styles.subtitle} numberOfLines={1}>{property.title || property.type}</Text>
+          <Text style={styles.title}>{property.title || property.type}</Text>
+          <Text style={styles.subtitle} numberOfLines={1}>{property.address}</Text>
 
           <ScrollView style={[styles.form, { flexShrink: 1 }]} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 16 }}>
             <View style={styles.row}>
-              <Text style={styles.labelRow}>Is Featured</Text>
+              <Text style={styles.labelRow}>{t('featured.is_featured')}</Text>
               <Switch 
                 value={isFeatured} 
                 onValueChange={setIsFeatured} 
@@ -107,7 +108,7 @@ export function FeatureConfigBottomSheet({ visible, property, onClose, onSuccess
             {isFeatured && (
               <>
                 <View style={styles.inputGroup}>
-                  <Text style={styles.label}>Position</Text>
+                  <Text style={styles.label}>{t('featured.position')}</Text>
                   <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
                     {Array.from({ length: Math.max(1, property.isFeatured ? featuredCount : featuredCount + 1) }, (_, i) => i + 1).map(num => (
                       <TouchableOpacity 
@@ -122,29 +123,29 @@ export function FeatureConfigBottomSheet({ visible, property, onClose, onSuccess
                 </View>
 
                 <View style={styles.inputGroup}>
-                  <Text style={styles.label}>Featured Until</Text>
+                  <Text style={styles.label}>{t('featured.featured_until')}</Text>
                   
                   <View style={[styles.quickDates, { flexWrap: 'wrap' }]}>
                     <TouchableOpacity style={[styles.quickDateBtn, dateMode === '7' && styles.quickDateBtnActive]} onPress={() => { setDateMode('7'); addDays(7); }}>
-                      <Text style={[styles.quickDateText, dateMode === '7' && styles.quickDateTextActive]}>7 Days</Text>
+                      <Text style={[styles.quickDateText, dateMode === '7' && styles.quickDateTextActive]}>7 {t('common.days')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={[styles.quickDateBtn, dateMode === '14' && styles.quickDateBtnActive]} onPress={() => { setDateMode('14'); addDays(14); }}>
-                      <Text style={[styles.quickDateText, dateMode === '14' && styles.quickDateTextActive]}>14 Days</Text>
+                      <Text style={[styles.quickDateText, dateMode === '14' && styles.quickDateTextActive]}>14 {t('common.days')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={[styles.quickDateBtn, dateMode === '30' && styles.quickDateBtnActive]} onPress={() => { setDateMode('30'); addDays(30); }}>
-                      <Text style={[styles.quickDateText, dateMode === '30' && styles.quickDateTextActive]}>30 Days</Text>
+                      <Text style={[styles.quickDateText, dateMode === '30' && styles.quickDateTextActive]}>30 {t('common.days')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={[styles.quickDateBtn, dateMode === 'always' && styles.quickDateBtnActive]} onPress={() => { setDateMode('always'); setFeaturedUntil(null); }}>
-                      <Text style={[styles.quickDateText, dateMode === 'always' && styles.quickDateTextActive]}>Always</Text>
+                      <Text style={[styles.quickDateText, dateMode === 'always' && styles.quickDateTextActive]}>{t('common.always')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={[styles.quickDateBtn, dateMode === 'other' && styles.quickDateBtnActive]} onPress={() => { setDateMode('other'); if (!featuredUntil) setFeaturedUntil(new Date()); }}>
-                      <Text style={[styles.quickDateText, dateMode === 'other' && styles.quickDateTextActive]}>Other</Text>
+                      <Text style={[styles.quickDateText, dateMode === 'other' && styles.quickDateTextActive]}>{t('common.other')}</Text>
                     </TouchableOpacity>
                   </View>
 
                   {dateMode !== 'always' && dateMode !== 'other' && featuredUntil && (
                     <Text style={{ fontSize: 13, color: Colors.muted, marginTop: -4, marginBottom: 8, fontWeight: '500' }}>
-                      Expires on: {featuredUntil.toLocaleDateString()}
+                      {t('featured.expires_on')}: {featuredUntil.toLocaleDateString()}
                     </Text>
                   )}
 
@@ -166,7 +167,7 @@ export function FeatureConfigBottomSheet({ visible, property, onClose, onSuccess
                   {dateMode === 'other' && Platform.OS === 'android' && (
                     <TouchableOpacity style={[styles.datePickerBtn, { marginTop: 4, marginBottom: 12 }]} onPress={() => setShowDatePicker(true)}>
                       <Text style={styles.datePickerText}>
-                        {featuredUntil ? featuredUntil.toLocaleDateString() : 'Select Date'}
+                        {featuredUntil ? featuredUntil.toLocaleDateString() : t('common.select_date')}
                       </Text>
                     </TouchableOpacity>
                   )}
@@ -190,13 +191,13 @@ export function FeatureConfigBottomSheet({ visible, property, onClose, onSuccess
 
           <View style={styles.actions}>
             <TouchableOpacity style={styles.cancelBtn} onPress={onClose}>
-              <Text style={styles.cancelBtnText}>Cancel</Text>
+              <Text style={styles.cancelBtnText}>{t('common.cancel')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.saveBtn} onPress={handleSave} disabled={isSubmitting}>
               {isSubmitting ? (
                 <ActivityIndicator color={Colors.white} />
               ) : (
-                <Text style={styles.saveBtnText}>Save</Text>
+                <Text style={styles.saveBtnText}>{t('common.save')}</Text>
               )}
             </TouchableOpacity>
           </View>

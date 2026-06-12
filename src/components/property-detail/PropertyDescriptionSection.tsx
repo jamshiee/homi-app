@@ -18,7 +18,7 @@ export function PropertyDescriptionSection({ description }: PropertyDescriptionS
   return (
     <View className="px-4 py-4">
       <Text className="mb-3 text-[18px] font-bold text-black">
-        {t('property.description', 'Description')}
+        {t('property.description')}
       </Text>
       <Text className="text-[15px] leading-relaxed text-gray-700">
         {displayDesc}
@@ -26,7 +26,7 @@ export function PropertyDescriptionSection({ description }: PropertyDescriptionS
       {isLong && (
         <TouchableOpacity onPress={() => setExpanded(!expanded)} className="mt-2">
           <Text className="text-[15px] font-bold text-black underline">
-            {expanded ? t('common.read_less', 'Read less') : t('common.read_more', 'Read more')}
+            {expanded ? t('common.read_less') : t('common.read_more')}
           </Text>
         </TouchableOpacity>
       )}

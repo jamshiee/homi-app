@@ -18,13 +18,15 @@ import { Config } from "@constants/config";
 import { authApi } from "@api/auth.api";
 import { useAuthStore } from "@store/auth.store";
 import { useAppStore } from "@store/app.store";
+import { OTPWidget } from "@msg91comm/sendotp-react-native";
 
 export default function OtpScreen() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { language } = useAppStore();
-  const { phone, channel } = useLocalSearchParams<{
+  // Destructure reqId from params
+  const { phone, reqId } = useLocalSearchParams<{
     phone: string;
-    channel: "whatsapp" | "sms";
+    reqId: string; // ← add this
   }>();
   const { login, isLoading, setLoading } = useAuthStore();
 
@@ -32,6 +34,7 @@ export default function OtpScreen() {
   const [activeIdx, setActiveIdx] = useState(0);
   const [countdown, setCountdown] = useState<number>(Config.OTP_RESEND_SECONDS);
   const inputRefs = useRef<Array<TextInput | null>>([]);
+  const [currentReqId, setCurrentReqId] = useState(reqId);
 
   useEffect(() => {
     if (countdown === 0) return;
@@ -73,18 +76,30 @@ export default function OtpScreen() {
     }
   };
 
+  // Called once all OTP digits are filled
   const verify = async (code?: string) => {
     const c = code ?? otp.join("");
     if (c.length !== Config.OTP_LENGTH) return;
     setLoading(true);
     try {
-      const res = await authApi.verifyOtp(phone, c, language);
+      // Step 1: verify OTP with MSG91 SDK — get accessToken back
+      console.log("MSG91 Verify Attempt with OTP:", c);
+      const msg91Response = await OTPWidget.verifyOTP({ otp: c, reqId: currentReqId });
+      console.log("MSG91 Verify Response:", msg91Response);
+      if (msg91Response?.type !== "success") {
+        throw new Error("Invalid OTP");
+      }
+
+      const accessToken = msg91Response.message; // MSG91 accessToken
+
+      // Step 2: send accessToken to YOUR backend
+      const res = await authApi.verifyOtp(accessToken, language);
       const data = res.data.data;
-      
-      // Sync language from backend if it's different
-      if (data.user.preferredLanguage && data.user.preferredLanguage !== language) {
-        console.log(`user reponse data ${JSON.stringify(data.user)}`)
-        console.log(`syncing language from ${language} to ${data.user.preferredLanguage}`)
+
+      if (
+        data.user.preferredLanguage &&
+        data.user.preferredLanguage !== language
+      ) {
         await useAppStore.getState().setLanguage(data.user.preferredLanguage);
       }
 
@@ -93,11 +108,16 @@ export default function OtpScreen() {
       router.replace(data.isNewUser ? "/(auth)/name" : "/(tabs)");
     } catch (err: unknown) {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      const ax = err as { response?: { data?: { message?: string } } };
-      console.log({ ax });
+      const ax = err as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
       Toast.show({
         type: "error",
-        text1: ax?.response?.data?.message || t("common.error_generic"),
+        text1:
+          ax?.response?.data?.message ??
+          ax?.message ??
+          t("common.error_generic"),
       });
       setOtp(Array(Config.OTP_LENGTH).fill(""));
       inputRefs.current[0]?.focus();
@@ -106,23 +126,21 @@ export default function OtpScreen() {
     }
   };
 
-  const handleResend = async () => {
-    if (countdown > 0) return;
-    try {
-      await authApi.sendOtp(phone);
-      setCountdown(Config.OTP_RESEND_SECONDS);
-      setOtp(Array(Config.OTP_LENGTH).fill(""));
-      setActiveIdx(0);
-      inputRefs.current[0]?.focus();
-    } catch (err: unknown) {
-      const ax = err as { response?: { data?: { message?: string } } };
-      console.log({ ax });
-      Toast.show({
-        type: "error",
-        text1: ax?.response?.data?.message || t("common.error_generic"),
-      });
-    }
-  };
+const handleResend = async () => {
+  if (countdown > 0) return;
+  try {
+    const response = await OTPWidget.retryOTP({ retryChannel: 'sms' });
+    console.log("MSG91 Resend Response:", response);
+    if (response?.message) setCurrentReqId(response.message); // update if new reqId
+    setCountdown(Config.OTP_RESEND_SECONDS);
+    setOtp(Array(Config.OTP_LENGTH).fill(''));
+    setActiveIdx(0);
+    inputRefs.current[0]?.focus();
+  } catch (err: unknown) {
+    const e = err as { message?: string };
+    Toast.show({ type: 'error', text1: e?.message || t('common.error_generic') });
+  }
+};
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.yellow }}>
@@ -198,9 +216,7 @@ export default function OtpScreen() {
               marginTop: 10,
             }}
           >
-            {channel === "whatsapp"
-              ? `${t("auth.otp_whatsapp")}`
-              : `${t("auth.otp_sms")}`}
+            {`${t("auth.otp_sms")}`}
           </Text>
 
           <TouchableOpacity

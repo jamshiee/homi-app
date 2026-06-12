@@ -20,7 +20,7 @@ export function PropertyAmenitiesSection({ amenities, lang }: PropertyAmenitiesS
   return (
     <View className="px-4 py-4">
       <Text className="mb-4 text-[18px] font-bold text-black">
-        {t('property.amenities', 'Amenities')}
+        {t('property.amenities')}
       </Text>
       <View className="flex-row flex-wrap gap-x-[4%] gap-y-3">
         {amenities.map(({ amenity }) => (

@@ -27,31 +27,40 @@ export function PropertyQuickFactsSection({ property }: PropertyQuickFactsSectio
       if (property.landDetail.hasRoadAccess) {
         facts.push({
           icon: 'car-outline',
-          value: 'Road Access'
+          value: t('property.road_access'),
         });
       }
     } else if (property.type === PropertyTypeEnum.HOUSE && property.houseDetail) {
       if (property.houseDetail.bedrooms) {
-        facts.push({ icon: 'bed-outline', value: `${property.houseDetail.bedrooms} Beds` });
+        facts.push({ icon: 'bed-outline', value: `${property.houseDetail.bedrooms} ${t('property.beds')}` });
       }
       if (property.houseDetail.bathrooms) {
-        facts.push({ icon: 'water-outline', value: `${property.houseDetail.bathrooms} Baths` });
+        facts.push({ icon: 'water-outline', value: `${property.houseDetail.bathrooms} ${t('property.baths')}` });
       }
       if (property.houseDetail.floors) {
-        facts.push({ icon: 'layers-outline', value: `${property.houseDetail.floors} Floors` });
+        facts.push({ icon: 'layers-outline', value: `${property.houseDetail.floors} ${t('property.floors')}` });
       }
       if (property.houseDetail.balconies !== undefined) {
-        facts.push({ icon: 'grid-outline', value: `${property.houseDetail.balconies} Balconies` });
+        facts.push({ icon: 'grid-outline', value: `${property.houseDetail.balconies} ${t('property.balconies')}` });
       }
       if (property.houseDetail.furnishingStatus) {
-        facts.push({ icon: 'color-palette-outline', value: property.houseDetail.furnishingStatus == FurnishingStatusEnum.FULLY_FURNISHED ? "Furnished" : property.houseDetail.furnishingStatus == FurnishingStatusEnum.SEMI_FURNISHED ? "Semi Furnished" : property.houseDetail.furnishingStatus == FurnishingStatusEnum.UN_FURNISHED ? "Not Furnished" : "" });
+        facts.push({
+          icon: 'color-palette-outline',
+          value: property.houseDetail.furnishingStatus === FurnishingStatusEnum.FULLY_FURNISHED
+            ? t('property.furnished')
+            : property.houseDetail.furnishingStatus === FurnishingStatusEnum.SEMI_FURNISHED
+            ? t('property.semi_furnished')
+            : property.houseDetail.furnishingStatus === FurnishingStatusEnum.UN_FURNISHED
+            ? t('property.not_furnished')
+            : '',
+        });
       }
     } else if (property.type === PropertyTypeEnum.BUILDING && property.buildingDetail) {
       if (property.buildingDetail.totalArea) {
         facts.push({ icon: 'expand-outline', value: `${property.buildingDetail.totalArea} ${property.buildingDetail.areaUnit ?? 'Unit'}` });
       }
       if (property.buildingDetail.floorNumber !== undefined) {
-        facts.push({ icon: 'layers-outline', value: `Floor ${property.buildingDetail.floorNumber}` });
+        facts.push({ icon: 'layers-outline', value: `${t('property.floor')} ${property.buildingDetail.floorNumber}` });
       }
       if (property.buildingDetail.currentStatus) {
         facts.push({ icon: 'key-outline', value: property.buildingDetail.currentStatus });
@@ -67,14 +76,14 @@ export function PropertyQuickFactsSection({ property }: PropertyQuickFactsSectio
         facts.push({ icon: 'people-outline', value: property.hotelDetail.occupancy });
       }
       if (property.hotelDetail.mealsIncluded) {
-        facts.push({ icon: 'restaurant-outline', value: 'Meals Included' });
+        facts.push({ icon: 'restaurant-outline', value: t('property.meals_included') });
       }
     }
 
     if (property.advanceAmount) {
       facts.push({
         icon: 'cash-outline',
-        value: `Adv: ${formatPrice(String(property.advanceAmount))}`,
+        value: `${t('property.advance_deposit_short')}: ${formatPrice(String(property.advanceAmount))}`,
       });
     }
 
@@ -88,7 +97,7 @@ export function PropertyQuickFactsSection({ property }: PropertyQuickFactsSectio
   return (
 <View className="px-4 py-5">
   <Text className="mb-4 text-[18px] font-bold text-black">
-    Property Highlights
+    {t('property.highlights')}
   </Text>
 
   <View className="flex-row flex-wrap justify-between gap-y-3">

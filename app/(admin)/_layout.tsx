@@ -22,7 +22,7 @@ export default function AdminLayout() {
       <Stack.Screen
         name="featured/add"
         options={{
-          title: t('admin.add_featured', 'Select Property'),
+          title: t('featured.select_property', 'Select Property'),
           presentation: 'modal',
         }}
       />

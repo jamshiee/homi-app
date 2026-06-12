@@ -189,7 +189,6 @@ export default function SavedScreen() {
             <PropertyCard
               property={item}
               onPress={(id) => router.push(`/property/${id}`)}
-              onSaveToggle={(id) => toggleSave.mutate(id)}
             />
           )}
         />

@@ -13,9 +13,11 @@ import {
 import { Colors } from '../../constants/colors';
 import { useAuthStore } from '../../store/auth.store';
 import { usePostStore } from '../../store/postStore';
+import { useTranslation } from 'react-i18next';
 
 export default function Step4Pricing() {
   const { user } = useAuthStore();
+  const { t } = useTranslation();
   const {
     type,
     title,
@@ -31,7 +33,6 @@ export default function Step4Pricing() {
     setField,
   } = usePostStore();
 
-  // Populate user contact phone initially if blank
   useEffect(() => {
     if (!contactPhone && user?.phone) {
       setField({ contactPhone: user.phone });
@@ -45,7 +46,6 @@ export default function Step4Pricing() {
     if (type === PropertyTypeEnum.HOTEL) {
       return [PriceUnitEnum.PER_NIGHT, PriceUnitEnum.PER_MONTH];
     }
-    // house, building
     if (transactionType === TransactionTypeFilter.RENT || transactionType === TransactionTypeFilter.LEASE) {
       return [PriceUnitEnum.PER_MONTH];
     }
@@ -53,12 +53,11 @@ export default function Step4Pricing() {
   };
 
   const getTransactionTypeOptions = () => {
-
     if (type === PropertyTypeEnum.HOTEL) {
       return [TransactionTypeFilter.RENT];
     }
     return [TransactionTypeFilter.BUY, TransactionTypeFilter.RENT, TransactionTypeFilter.LEASE];
-  }
+  };
 
   const handleTransactionSelect = (tx: TransactionTypeFilter) => {
     setField({
@@ -69,14 +68,14 @@ export default function Step4Pricing() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Pricing & Listing Info</Text>
-      <Text style={styles.subtitle}>Define listing title, transactions, prices, and contact details</Text>
+      <Text style={styles.title}>{t('post.step4_title')}</Text>
+      <Text style={styles.subtitle}>{t('post.step4_subtitle')}</Text>
 
       {/* Listing Title */}
-      <Text style={styles.label}>Listing Title *</Text>
+      <Text style={styles.label}>{t('post.step4_listing_title')}</Text>
       <View style={styles.inputContainer}>
         <TextInput
-          placeholder="e.g. Luxury 4 BHK Villa on Bypass Road"
+          placeholder={t('post.step4_listing_title_placeholder')}
           placeholderTextColor={Colors.lightMuted}
           value={title}
           onChangeText={(v) => setField({ title: v })}
@@ -85,7 +84,7 @@ export default function Step4Pricing() {
       </View>
 
       {/* Transaction Type Selection */}
-      <Text style={styles.label}>Transaction Type *</Text>
+      <Text style={styles.label}>{t('post.step4_transaction_label')}</Text>
       <View style={styles.pillContainer}>
         {getTransactionTypeOptions().map((value) => {
           const isSelected = transactionType === value;
@@ -96,7 +95,7 @@ export default function Step4Pricing() {
               onPress={() => handleTransactionSelect(value)}
               style={[styles.pill, isSelected && styles.pillSelected]}
             >
-              <Text style={[styles.pillText, isSelected && styles.pillTextSelected]} >
+              <Text style={[styles.pillText, isSelected && styles.pillTextSelected]}>
                 {value}
               </Text>
             </TouchableOpacity>
@@ -105,7 +104,7 @@ export default function Step4Pricing() {
       </View>
 
       {/* Price Field */}
-      <Text style={styles.label}>Price (INR ₹) *</Text>
+      <Text style={styles.label}>{t('post.step4_price_label')}</Text>
       <View style={styles.priceInputRow}>
         <Text style={styles.currencyPrefix}>₹</Text>
         <TextInput
@@ -121,11 +120,11 @@ export default function Step4Pricing() {
       {/* Advance Deposit (conditional on rent/lease) */}
       {((transactionType === TransactionTypeFilter.RENT || transactionType === TransactionTypeFilter.LEASE) && type !== PropertyTypeEnum.HOTEL) && (
         <>
-          <Text style={styles.label}>Advance Deposit Amount (₹)</Text>
+          <Text style={styles.label}>{t('post.step4_advance_label')}</Text>
           <View style={styles.priceInputRow}>
             <Text style={styles.currencyPrefix}>₹</Text>
             <TextInput
-              placeholder="e.g. 50,000"
+              placeholder={t('post.step4_advance_placeholder')}
               placeholderTextColor={Colors.lightMuted}
               keyboardType="numeric"
               value={advanceAmount ? advanceAmount.toString() : ''}
@@ -137,7 +136,7 @@ export default function Step4Pricing() {
       )}
 
       {/* Price Unit Selection */}
-      <Text style={styles.label}>Price Unit *</Text>
+      <Text style={styles.label}>{t('post.step4_price_unit_label')}</Text>
       <View style={styles.pillContainer}>
         {getPriceUnitOptions().map((unit) => {
           const isSelected = priceUnit === unit;
@@ -158,7 +157,7 @@ export default function Step4Pricing() {
 
       {/* Is Negotiable Toggle */}
       <View style={styles.switchRow}>
-        <Text style={styles.switchLabel}>Is Price Negotiable?</Text>
+        <Text style={styles.switchLabel}>{t('post.step4_negotiable')}</Text>
         <Switch
           value={isNegotiable}
           onValueChange={(val) => setField({ isNegotiable: val })}
@@ -168,9 +167,9 @@ export default function Step4Pricing() {
       </View>
 
       {/* Description Text Area */}
-      <Text style={styles.label}>Detailed Description</Text>
+      <Text style={styles.label}>{t('post.step4_description_label')}</Text>
       <TextInput
-        placeholder="Describe the property's unique selling points, proximity to facilities, neighborhood..."
+        placeholder={t('post.step4_description_placeholder')}
         placeholderTextColor={Colors.lightMuted}
         multiline
         numberOfLines={5}
@@ -180,42 +179,32 @@ export default function Step4Pricing() {
       />
 
       {/* Lister Contact Info */}
-      <Text style={styles.sectionHeader}>Contact Information</Text>
-      <Text style={styles.label}>Primary Phone *</Text>
+      <Text style={styles.sectionHeader}>{t('post.step4_contact_section')}</Text>
+      <Text style={styles.label}>{t('post.step4_primary_phone')}</Text>
       <View style={styles.inputContainer}>
         <TextInput
           placeholder="+91 XXXXX XXXXX"
           placeholderTextColor={Colors.lightMuted}
           keyboardType="phone-pad"
+          returnKeyType="done"
+          blurOnSubmit
           value={contactPhone}
           onChangeText={(v) => setField({ contactPhone: v })}
           style={styles.input}
         />
       </View>
 
-            {/* Is Negotiable Toggle */}
-            {user?.isAdmin &&     (<View style={styles.switchRow}>
-        <Text style={styles.switchLabel}>Is Verified</Text>
-        <Switch
-          value={isVerified}
-          onValueChange={(val) => setField({ isVerified: val })}
-          trackColor={{ false: Colors.border, true: Colors.yellow }}
-          thumbColor={Colors.white}
-        />
-      </View>)}
-  
-
-      {/* <Text style={styles.label}>Alternate Phone (Optional)</Text>
-      <View style={styles.inputContainer}>
-        <TextInput
-          placeholder="+91 XXXXX XXXXX"
-          placeholderTextColor={Colors.lightMuted}
-          keyboardType="phone-pad"
-          value={alternatePhone}
-          onChangeText={(v) => setField({ alternatePhone: v })}
-          style={styles.input}
-        />
-      </View> */}
+      {user?.isAdmin && (
+        <View style={styles.switchRow}>
+          <Text style={styles.switchLabel}>{t('post.step4_is_verified')}</Text>
+          <Switch
+            value={isVerified}
+            onValueChange={(val) => setField({ isVerified: val })}
+            trackColor={{ false: Colors.border, true: Colors.yellow }}
+            thumbColor={Colors.white}
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -223,6 +212,7 @@ export default function Step4Pricing() {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
+    paddingBottom: 40,
   },
   title: {
     fontSize: 22,
@@ -308,7 +298,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: Colors.lightMuted,
-    textTransform: 'capitalize'
+    textTransform: 'capitalize',
   },
   pillTextSelected: {
     color: Colors.yellow,

@@ -13,6 +13,7 @@ import { Colors } from "../../constants/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { apiClient } from "../../api/client";
 import { useAppStore } from "@/store/app.store";
+import { useTranslation } from "react-i18next";
 
 interface GeocodeSuggestion {
   displayAddress: string;
@@ -25,6 +26,7 @@ interface GeocodeSuggestion {
 export default function Step2Location() {
   const { district, locality, address, latitude, longitude, setField } =
     usePostStore();
+  const { t } = useTranslation();
 
   const { latitude: appLatitude, longitude: appLongitude } = useAppStore(
     (state) => state
@@ -36,20 +38,15 @@ export default function Step2Location() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isResolving, setIsResolving] = useState(false);
 
-  // Track if we already init'd from GPS so we don't re-run on every render
   const hasInitialisedFromGps = useRef(false);
-
   const mapRef = useRef<MapView | null>(null);
 
-  // Parse coords safely — default to Malappuram centre
   const parsedLat = parseFloat(latitude) || appLatitude || 11.051;
   const parsedLon = parseFloat(longitude) || appLongitude || 76.0711;
 
-  // ─── GPS auto-init: run once when GPS coords arrive and draft has no coords ──
   useEffect(() => {
     if (!appLatitude || !appLongitude) return;
     if (hasInitialisedFromGps.current) return;
-    // Only prefill from GPS if the draft is empty (user hasn't set anything yet)
     if (latitude && longitude) return;
 
     hasInitialisedFromGps.current = true;
@@ -84,7 +81,6 @@ export default function Step2Location() {
     void init();
   }, [appLatitude, appLongitude]);
 
-  // ─── Autocomplete debounce ───────────────────────────────────────────────────
   useEffect(() => {
     if (!searchQuery || searchQuery.trim().length < 3) {
       setSuggestions([]);
@@ -112,7 +108,6 @@ export default function Step2Location() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // ─── Select suggestion ───────────────────────────────────────────────────────
   const handleSelectSuggestion = (item: GeocodeSuggestion) => {
     setField({
       locality: item.locality || item.displayAddress.split(",")[0],
@@ -136,7 +131,6 @@ export default function Step2Location() {
     );
   };
 
-  // ─── Map press: drop pin + reverse geocode ────────────────────────────────────
   const handleMapPress = async (e: MapPressEvent) => {
     const { latitude: clickLat, longitude: clickLon } = e.nativeEvent.coordinate;
 
@@ -165,13 +159,11 @@ export default function Step2Location() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Where is it located?</Text>
-      <Text style={styles.subtitle}>
-        Search a place or tap the map to pin the exact location
-      </Text>
+      <Text style={styles.title}>{t("post.step2_title")}</Text>
+      <Text style={styles.subtitle}>{t("post.step2_subtitle")}</Text>
 
       {/* ── Search locality ────────────────────────────────────────────── */}
-      <Text style={styles.label}>Search Locality / Place *</Text>
+      <Text style={styles.label}>{t("post.step2_search_label")}</Text>
       <View style={styles.searchWrapper}>
         <View style={styles.searchInputContainer}>
           <MaterialCommunityIcons
@@ -181,7 +173,7 @@ export default function Step2Location() {
             style={styles.searchIcon}
           />
           <TextInput
-            placeholder="Type a place name, locality or area…"
+            placeholder={t("post.step2_search_placeholder")}
             placeholderTextColor={Colors.lightMuted}
             value={searchQuery || locality}
             onChangeText={(v) => {
@@ -195,7 +187,6 @@ export default function Step2Location() {
           )}
         </View>
 
-        {/* Autocomplete dropdown */}
         {showSuggestions && suggestions.length > 0 && (
           <View style={styles.suggestionsCard}>
             {suggestions.map((item, index) => (
@@ -228,7 +219,7 @@ export default function Step2Location() {
           {isResolving ? (
             <View style={styles.resolvingBadge}>
               <ActivityIndicator size="small" color={Colors.yellow} />
-              <Text style={styles.resolvingText}>Detecting location…</Text>
+              <Text style={styles.resolvingText}>{t("post.step2_detecting")}</Text>
             </View>
           ) : (
             <>
@@ -250,9 +241,9 @@ export default function Step2Location() {
       )}
 
       {/* ── Optional address text area ───────────────────────────────────── */}
-      <Text style={styles.label}>Detailed Address (Optional)</Text>
+      <Text style={styles.label}>{t("post.step2_address_label")}</Text>
       <TextInput
-        placeholder="House name, flat no., street name…"
+        placeholder={t("post.step2_address_placeholder")}
         placeholderTextColor={Colors.lightMuted}
         multiline
         numberOfLines={3}
@@ -263,8 +254,8 @@ export default function Step2Location() {
 
       {/* ── Map pin widget ───────────────────────────────────────────────── */}
       <View style={styles.mapLabelContainer}>
-        <Text style={styles.label}>Pin Location on Map *</Text>
-        <Text style={styles.mapHint}>Tap map to drop accurate pin</Text>
+        <Text style={styles.label}>{t("post.step2_map_label")}</Text>
+        <Text style={styles.mapHint}>{t("post.step2_map_hint")}</Text>
       </View>
       <View style={styles.mapCard}>
         <MapView
@@ -353,8 +344,6 @@ const styles = StyleSheet.create({
   },
   suggestionBorder: { borderBottomWidth: 1, borderBottomColor: Colors.border },
   suggestionText: { fontSize: 14, color: Colors.dark, marginLeft: 8, flex: 1 },
-
-  // ── Badge styles
   badgeRow: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -396,7 +385,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.lightMuted,
   },
-
   textArea: {
     backgroundColor: Colors.white,
     borderWidth: 1.5,

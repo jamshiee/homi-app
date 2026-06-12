@@ -22,6 +22,10 @@ import { useAuthStore } from '@store/auth.store';
 import { useAppStore } from '@store/app.store';
 import { COUNTRIES, CountryData } from '@constants/countries';
 import { Config } from '@/constants/config';
+import { OTPWidget } from '@msg91comm/sendotp-react-native';
+
+const WIDGET_ID = process.env.EXPO_PUBLIC_MSG91_WIDGET_ID!;
+const TOKEN_AUTH = process.env.EXPO_PUBLIC_MSG91_TOKEN!
 
 export default function PhoneScreen() {
   const { t } = useTranslation();
@@ -29,6 +33,8 @@ export default function PhoneScreen() {
   const { isLoading, setLoading } = useAuthStore();
   const [phone, setPhone] = useState('');
   const [focused, setFocused] = useState(false);
+
+;
 
   // Country Picker State
   const [selectedCountry, setSelectedCountry] = useState<CountryData>(
@@ -38,6 +44,8 @@ export default function PhoneScreen() {
 
   // Auto-detect country on mount
   useEffect(() => {
+      // Initialize MSG91 widget once on mount
+    OTPWidget.initializeWidget(WIDGET_ID, TOKEN_AUTH);
     // const deviceCountry = Localization.getLocales()[0]?.regionCode;
     // if (deviceCountry) {
       const found = COUNTRIES.find((c) => c.code === "IN");
@@ -53,22 +61,29 @@ export default function PhoneScreen() {
     if (!isValid) return;
     setLoading(true);
     try {
-      const fullPhone = `${selectedCountry.dialCode}${phone}`;
-      console.log({ 'Base Url': Config.API_BASE_URL });
-      const res = await authApi.sendOtp(fullPhone);
+      const fullPhone = `${selectedCountry.dialCode.replace('+', '')}${phone}`; // e.g. "919XXXXXXXXX"
+
+      const response = await OTPWidget.sendOTP({ identifier: fullPhone });
+
+      if (response?.type !== 'success') {
+        console.log("Error Response from MSG91:", response);
+        throw new Error(response?.message || 'Failed to send OTP');
+      }
+
+      console.log("Success Response from MSG91:", response);
+
       router.push({
         pathname: '/(auth)/otp',
-        params: {
+        params: { 
           phone: fullPhone,
-          channel: res.data.data.channel,
+          reqId: response.message,  // ← this is the reqId
         },
       });
     } catch (err: unknown) {
-      const ax = err as { response?: { data?: { message?: string } } };
-      console.log({ 'Error in handleSend': ax, 'Url hit:': Config.API_BASE_URL });
+      const e = err as { message?: string };
       Toast.show({
         type: 'error',
-        text1: ax?.response?.data?.message || t('common.error_generic'),
+        text1: e?.message || t('common.error_generic'),
       });
     } finally {
       setLoading(false);

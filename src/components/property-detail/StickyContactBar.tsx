@@ -19,7 +19,7 @@ export function StickyContactBar({ onContactPress }: StickyContactBarProps) {
           className="h-12 flex-1 items-center justify-center rounded-full bg-yellow-400"
         >
           <Text className="text-[15px] font-bold text-black">
-            {t('property.contact', 'Contact')}
+            {t('property.contact')}
           </Text>
         </TouchableOpacity>
       </SafeAreaView>

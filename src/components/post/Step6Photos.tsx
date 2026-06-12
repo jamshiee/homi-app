@@ -14,6 +14,7 @@ import * as Haptics from "expo-haptics";
 import { usePostStore } from "../../store/postStore";
 import { Colors } from "../../constants/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
 
 const GAP = 8;
 const COVER_HEIGHT = 180;
@@ -56,7 +57,6 @@ interface DraggableTileProps {
   onDragMove: (uri: string, dx: number, dy: number) => void;
   onDragEnd: (uri: string) => void;
   onRemove: () => void;
-  onSetCover: () => void;
   animatedPos: Animated.ValueXY;
 }
 
@@ -69,7 +69,6 @@ function DraggableTile({
   onDragMove,
   onDragEnd,
   onRemove,
-  onSetCover,
   animatedPos,
 }: DraggableTileProps) {
   const scale = useRef(new Animated.Value(1)).current;
@@ -189,7 +188,7 @@ function DraggableTile({
         style={[styles.badge, isCover ? styles.coverBadge : styles.orderBadge]}
       >
         <Text style={[styles.badgeText, isCover && styles.coverBadgeText]}>
-          {isCover ? "COVER IMAGE" : `${visualIndex + 1}`}
+          {isCover ? "COVER" : `${visualIndex + 1}`}
         </Text>
       </View>
 
@@ -200,33 +199,13 @@ function DraggableTile({
       >
         <MaterialCommunityIcons name="close" size={14} color={Colors.white} />
       </TouchableOpacity>
-
-      <TouchableOpacity
-        activeOpacity={0.7}
-        onPress={onSetCover}
-        style={styles.coverActionBtn}
-      >
-        <MaterialCommunityIcons
-          name={isCover ? "star" : "star-outline"}
-          size={16}
-          color={Colors.yellow}
-        />
-      </TouchableOpacity>
-
-      {isCover && (
-        <View style={styles.coverLabelRow}>
-          <MaterialCommunityIcons name="star" size={12} color={Colors.yellow} />
-          <Text style={styles.coverLabelText}>
-            Primary photo shown in feed search
-          </Text>
-        </View>
-      )}
     </Animated.View>
   );
 }
 
 export default function Step6Photos() {
   const { photos, setField } = usePostStore();
+  const { t } = useTranslation();
 
   const [containerWidth, setContainerWidth] = useState(
     Dimensions.get("window").width - 32,
@@ -453,11 +432,8 @@ export default function Step6Photos() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Property Photos</Text>
-      <Text style={styles.subtitle}>
-        Drag and drop photos to reorder. Tap the star to choose the primary
-        cover image.
-      </Text>
+      <Text style={styles.title}>{t('post.step6_title')}</Text>
+      <Text style={styles.subtitle}>{t('post.step6_subtitle')}</Text>
 
       {/* Large Upload Button shown only if no photos are selected */}
       {!hasPhotos && (
@@ -471,12 +447,8 @@ export default function Step6Photos() {
             size={48}
             color={Colors.yellow}
           />
-          <Text style={styles.uploadButtonText}>
-            Select Photos from Gallery
-          </Text>
-          <Text style={styles.uploadSubtext}>
-            Upload up to 10 high-quality photos
-          </Text>
+          <Text style={styles.uploadButtonText}>{t('post.step6_upload_button')}</Text>
+          <Text style={styles.uploadSubtext}>{t('post.step6_upload_subtext')}</Text>
         </TouchableOpacity>
       )}
 
@@ -495,12 +467,11 @@ export default function Step6Photos() {
               uri={uri}
               visualIndex={idx}
               containerWidth={containerWidth}
-              isCover={photos.find((p) => p.uri === uri)?.isCover ?? false}
+              isCover={idx === 0}
               onDragStart={onDragStart}
               onDragMove={onDragMove}
               onDragEnd={onDragEnd}
               onRemove={() => handleRemovePhoto(uri)}
-              onSetCover={() => handleSetCover(uri)}
               animatedPos={animatedPositions[uri]}
             />
           ))}
@@ -526,7 +497,7 @@ export default function Step6Photos() {
                 size={32}
                 color={Colors.yellow}
               />
-              <Text style={styles.compactAddText}>Add More</Text>
+              <Text style={styles.compactAddText}>{t('post.step6_add_more')}</Text>
               <Text style={styles.compactAddCount}>({order.length}/10)</Text>
             </TouchableOpacity>
           )}
@@ -541,7 +512,7 @@ export default function Step6Photos() {
             color={Colors.lightMuted}
           />
           <Text style={styles.tipText}>
-            Press and hold a photo to drag & reorder
+            {t('post.step6_drag_tip')}
           </Text>
         </View>
       )}
@@ -649,28 +620,10 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   coverActionBtn: {
-    position: "absolute",
-    top: 8,
-    left: 8,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: "rgba(255,255,255,0.9)",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 10,
+    display: "none", // removed — cover is always index 0
   },
   coverLabelRow: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 6,
-    gap: 4,
+    display: "none", // removed
   },
   coverLabelText: {
     color: Colors.white,

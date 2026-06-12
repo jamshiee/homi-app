@@ -19,6 +19,7 @@ import Toast from "react-native-toast-message";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "../../hooks/useProperties";
 import * as ImageManipulator from "expo-image-manipulator";
+import { useTranslation } from "react-i18next";
 
 interface AmenityData {
   id: string;
@@ -56,11 +57,10 @@ export default function Step7Review() {
     resetForm,
   } = usePostStore();
 
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStep, setSubmitStep] = useState("");
-  const [amenitiesMap, setAmenitiesMap] = useState<Record<string, AmenityData>>(
-    {},
-  );
+  const [amenitiesMap, setAmenitiesMap] = useState<Record<string, AmenityData>>({});
   const queryClient = useQueryClient();
 
   /** Compress a local URI to JPEG ≤ 1024px wide, 75% quality before uploading */
@@ -102,8 +102,8 @@ export default function Step7Review() {
     setIsSubmitting(true);
     setSubmitStep(
       isEditMode
-        ? "Saving property changes..."
-        : "Creating property listing...",
+        ? t('post.step7_saving')
+        : t('post.step7_creating'),
     );
 
     try {
@@ -173,8 +173,8 @@ export default function Step7Review() {
         for (let i = 0; i < newPhotos.length; i++) {
           setSubmitStep(
             isEditMode
-              ? `Uploading new photo ${i + 1} of ${newPhotos.length}...`
-              : `Uploading photo ${i + 1} of ${newPhotos.length}...`,
+              ? t('post.step7_uploading_new', { current: i + 1, total: newPhotos.length })
+              : t('post.step7_uploading', { current: i + 1, total: newPhotos.length }),
           );
 
           const p = newPhotos[i];
@@ -203,14 +203,14 @@ export default function Step7Review() {
       setSubmitStep("Done!");
       Toast.show({
         type: "success",
-        text1: isEditMode ? "Listing Updated!" : "Listing Published!",
+        text1: isEditMode ? t('post.step7_listing_updated') : t('post.step7_listing_published'),
         text2: isEditMode
-          ? "Your property changes have been saved."
-          : "Your property is now active on the feed.",
+          ? t('post.step7_update_saved')
+          : t('post.step7_now_active'),
       });
 
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.feed({}) });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.featured() });
+      queryClient.invalidateQueries({ queryKey: ["properties", "feed"] });
+      queryClient.invalidateQueries({ queryKey: ["properties", "featured"] });
       queryClient.invalidateQueries({ queryKey: ["properties", "mine"] });
       if (propertyId) {
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.detail(propertyId) });
@@ -228,7 +228,7 @@ export default function Step7Review() {
         err.response?.data?.message ||
         err.message ||
         "Check inputs and try again.";
-      Alert.alert(isEditMode ? "Save Failed" : "Publish Failed", msg);
+      Alert.alert(isEditMode ? t('post.step7_save_failed') : t('post.step7_publish_failed'), msg);
     } finally {
       setIsSubmitting(false);
       setSubmitStep("");
@@ -253,23 +253,21 @@ export default function Step7Review() {
           <View style={styles.specGrid}>
             <View style={styles.specBox}>
               <Text style={styles.specVal}>{houseDetail?.bedrooms || "0"}</Text>
-              <Text style={styles.specLabel}>BEDS</Text>
+              <Text style={styles.specLabel}>{t('post.step7_beds')}</Text>
             </View>
             <View style={styles.specBox}>
-              <Text style={styles.specVal}>
-                {houseDetail?.bathrooms || "0"}
-              </Text>
-              <Text style={styles.specLabel}>BATHS</Text>
+              <Text style={styles.specVal}>{houseDetail?.bathrooms || "0"}</Text>
+              <Text style={styles.specLabel}>{t('post.step7_baths')}</Text>
             </View>
             <View style={styles.specBox}>
               <Text style={styles.specVal}>{houseDetail?.floors || "0"}</Text>
-              <Text style={styles.specLabel}>FLOORS</Text>
+              <Text style={styles.specLabel}>{t('post.step7_floors')}</Text>
             </View>
             <View style={styles.specBox}>
               <Text style={styles.specVal}>
                 {houseDetail?.furnishingStatus?.replace("_", " ").toUpperCase()}
               </Text>
-              <Text style={styles.specLabel}>FURNISHING</Text>
+              <Text style={styles.specLabel}>{t('post.step7_furnishing')}</Text>
             </View>
           </View>
         );
@@ -277,9 +275,7 @@ export default function Step7Review() {
         return (
           <View style={styles.specGrid}>
             <View style={styles.specBox}>
-              <Text style={styles.specVal}>
-                {buildingDetail?.totalArea || "0"}
-              </Text>
+              <Text style={styles.specVal}>{buildingDetail?.totalArea || "0"}</Text>
               <Text style={styles.specLabel}>
                 {buildingDetail?.areaUnit?.toUpperCase()}
               </Text>
@@ -288,13 +284,13 @@ export default function Step7Review() {
               <Text style={styles.specVal}>
                 {buildingDetail?.subType?.toUpperCase()}
               </Text>
-              <Text style={styles.specLabel}>SUBTYPE</Text>
+              <Text style={styles.specLabel}>{t('post.step7_subtype')}</Text>
             </View>
             <View style={styles.specBox}>
               <Text style={styles.specVal}>
                 {buildingDetail?.currentStatus?.replace("_", " ").toUpperCase()}
               </Text>
-              <Text style={styles.specLabel}>STATUS</Text>
+              <Text style={styles.specLabel}>{t('post.step7_status')}</Text>
             </View>
           </View>
         );
@@ -305,11 +301,11 @@ export default function Step7Review() {
               <Text style={styles.specVal}>
                 {hotelDetail?.roomType?.toUpperCase()}
               </Text>
-              <Text style={styles.specLabel}>ROOM TYPE</Text>
+              <Text style={styles.specLabel}>{t('post.step7_room_type')}</Text>
             </View>
             <View style={styles.specBox}>
               <Text style={styles.specVal}>{hotelDetail?.occupancy}</Text>
-              <Text style={styles.specLabel}>OCCUPANCY</Text>
+              <Text style={styles.specLabel}>{t('post.step7_occupancy')}</Text>
             </View>
           </View>
         );
@@ -323,7 +319,7 @@ export default function Step7Review() {
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={Colors.yellow} />
         <Text style={styles.loadingTitle}>
-          {isEditMode ? "Saving Changes..." : "Publishing Listing..."}
+          {isEditMode ? t('post.step7_saving') : t('post.step7_publishing')}
         </Text>
         <Text style={styles.loadingSubtitle}>{submitStep}</Text>
       </View>
@@ -332,10 +328,8 @@ export default function Step7Review() {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <Text style={styles.title}>Review & Submit</Text>
-      <Text style={styles.subtitle}>
-        Double check all inputs before making this listing active
-      </Text>
+      <Text style={styles.title}>{t('post.step7_title')}</Text>
+      <Text style={styles.subtitle}>{t('post.step7_subtitle')}</Text>
 
       {/* Main Review Card */}
       <View style={styles.card}>
@@ -344,24 +338,20 @@ export default function Step7Review() {
           <Text style={styles.typeBadge}>{type.toUpperCase()}</Text>
           <Text style={styles.txBadge}>{transactionType.toUpperCase()}</Text>
         </View>
-        <Text style={styles.cardTitle}>{title || "Untitled Property"}</Text>
+        <Text style={styles.cardTitle}>{title || t('post.step7_untitled')}</Text>
         <Text style={styles.cardPrice}>
-          ₹{price ? price.toLocaleString() : "0"}{" "}
+          ₹{price ? price.toLocaleString() : "0"}
           <Text style={styles.priceUnit}>/ {priceUnit.replace("_", " ")}</Text>
         </Text>
         {advanceAmount ? (
           <Text style={styles.advanceText}>
-            Advance Deposit: ₹{advanceAmount.toLocaleString()}
+            {t('post.step4_advance_label')}: ₹{advanceAmount.toLocaleString()}
           </Text>
         ) : null}
 
         {/* Location Block */}
         <View style={styles.locationBlock}>
-          <MaterialCommunityIcons
-            name="map-marker"
-            size={18}
-            color={Colors.yellow}
-          />
+          <MaterialCommunityIcons name="map-marker" size={18} color={Colors.yellow} />
           <Text style={styles.locationText} numberOfLines={2}>
             {locality}, {district}
           </Text>
@@ -369,13 +359,13 @@ export default function Step7Review() {
         {address ? <Text style={styles.addressSub}>{address}</Text> : null}
 
         {/* Specifications Grid */}
-        <Text style={styles.sectionTitle}>Specifications</Text>
+        <Text style={styles.sectionTitle}>{t('post.step7_specs')}</Text>
         {renderDetailSummary()}
 
         {/* Selected Amenities List */}
-        <Text style={styles.sectionTitle}>Selected Features</Text>
+        <Text style={styles.sectionTitle}>{t('post.step7_features')}</Text>
         {amenityIds.length === 0 ? (
-          <Text style={styles.emptyText}>No amenities selected.</Text>
+          <Text style={styles.emptyText}>{t('post.step7_no_amenities')}</Text>
         ) : (
           <View style={styles.featuresRow}>
             {amenityIds.map((id) => {
@@ -396,9 +386,9 @@ export default function Step7Review() {
         )}
 
         {/* Photo Gallery Scroll */}
-        <Text style={styles.sectionTitle}>Photos ({photos.length})</Text>
+        <Text style={styles.sectionTitle}>{t('post.step7_photos')} ({photos.length})</Text>
         {photos.length === 0 ? (
-          <Text style={styles.emptyText}>No photos uploaded yet.</Text>
+          <Text style={styles.emptyText}>{t('post.step7_no_photos')}</Text>
         ) : (
           <ScrollView
             horizontal
@@ -421,30 +411,22 @@ export default function Step7Review() {
         {/* Description Section */}
         {description ? (
           <>
-            <Text style={styles.sectionTitle}>Description</Text>
+            <Text style={styles.sectionTitle}>{t('post.step7_description')}</Text>
             <Text style={styles.descriptionText}>{description}</Text>
           </>
         ) : null}
 
         {/* Primary Contact details */}
-        <Text style={styles.sectionTitle}>Primary Listing Contacts</Text>
+        <Text style={styles.sectionTitle}>{t('post.step7_contacts')}</Text>
         <View style={styles.contactRow}>
-          <MaterialCommunityIcons
-            name="phone"
-            size={16}
-            color={Colors.lightMuted}
-          />
-          <Text style={styles.contactLabel}>Phone: </Text>
+          <MaterialCommunityIcons name="phone" size={16} color={Colors.lightMuted} />
+          <Text style={styles.contactLabel}>{t('post.step7_phone_label')}</Text>
           <Text style={styles.contactValue}>{contactPhone}</Text>
         </View>
         {alternatePhone ? (
           <View style={styles.contactRow}>
-            <MaterialCommunityIcons
-              name="phone-outline"
-              size={16}
-              color={Colors.lightMuted}
-            />
-            <Text style={styles.contactLabel}>Alt Phone: </Text>
+            <MaterialCommunityIcons name="phone-outline" size={16} color={Colors.lightMuted} />
+            <Text style={styles.contactLabel}>{t('post.step7_alt_phone_label')}</Text>
             <Text style={styles.contactValue}>{alternatePhone}</Text>
           </View>
         ) : null}
@@ -455,13 +437,9 @@ export default function Step7Review() {
         onPress={handlePublish}
         style={styles.publishBtn}
       >
-        <MaterialCommunityIcons
-          name="check-decagram"
-          size={24}
-          color={Colors.dark}
-        />
+        <MaterialCommunityIcons name="check-decagram" size={24} color={Colors.dark} />
         <Text style={styles.publishText}>
-          {isEditMode ? "SAVE CHANGES" : "PUBLISH LISTING"}
+          {isEditMode ? t('post.step7_save_changes') : t('post.step7_publish')}
         </Text>
       </TouchableOpacity>
     </ScrollView>

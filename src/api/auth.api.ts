@@ -14,13 +14,12 @@ export interface VerifyOtpResponse {
 }
 
 export const authApi = {
-  sendOtp: (phone: string) =>
-    apiClient.post<ApiResponse<SendOtpResponse>>('/auth/send-otp', { phone }),
+  // sendOtp: (phone: string) =>
+  //   apiClient.post<ApiResponse<SendOtpResponse>>('/auth/send-otp', { phone }),
 
-  verifyOtp: (phone: string, otp: string, preferredLanguage?: 'en' | 'ml') =>
+ verifyOtp: (accessToken: string, preferredLanguage?: 'en' | 'ml') =>
     apiClient.post<ApiResponse<VerifyOtpResponse>>('/auth/verify-otp', {
-      phone,
-      otp,
+      accessToken,                 // ← was { phone, otp }
       preferredLanguage,
     }),
 

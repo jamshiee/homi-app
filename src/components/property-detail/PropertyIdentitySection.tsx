@@ -69,7 +69,7 @@ export function PropertyIdentitySection({
 
       {transactionType === "rent" && (
         <Text className="ml-2 mb-1 text-[15px] font-medium text-gray-500">
-          / month
+          {t('property.per_month')}
         </Text>
       )}
     </View>
