@@ -44,6 +44,8 @@ export default function PhoneScreen() {
 
   // Auto-detect country on mount
   useEffect(() => {
+     console.log('WIDGET_ID:', WIDGET_ID);
+  console.log('TOKEN_AUTH:', TOKEN_AUTH);  
       // Initialize MSG91 widget once on mount
     OTPWidget.initializeWidget(WIDGET_ID, TOKEN_AUTH);
     // const deviceCountry = Localization.getLocales()[0]?.regionCode;

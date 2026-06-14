@@ -29,7 +29,12 @@
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "softwareKeyboardLayoutMode": "pan",
-      "package": "com.jamshiiie.homiholdings"
+      "package": "com.jamshiiie.homiholdings",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyD_TaCynxaPc1VIfkjsVDe2mgpFu4RlEyM"
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
