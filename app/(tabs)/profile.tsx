@@ -146,7 +146,7 @@ export default function ProfileScreen() {
       });
       const { data } = await uploadClient.post("/media/user", formData as any);
       const media = data.data;
-      updateUser({ profileMediaId: media.id, profileMediaUrl: media.url });
+      updateUser({ profileMediaId: media?.id || null, profileMediaUrl: media?.url || null });
       Toast.show({ type: "success", text1: t("profile.photo_uploaded") });
     } catch (e: any) {
       console.error("Upload error", e);

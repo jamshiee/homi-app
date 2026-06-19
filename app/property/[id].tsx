@@ -86,13 +86,13 @@ export default function PropertyDetailScreen() {
         .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
         .map((m) => ({
           id: m.id,
-          url: m.media.url,
+          url: m.media?.url,
         })) ?? []
     );
   }, [property?.propertyMedia]);
 
   const ownerName =  property?.lister?.name ?? 'Owner';
-  const ownerImage =  property?.lister?.profileMedia.url ?? null;
+  const ownerImage =  property?.lister?.profileMedia?.url ?? null;
   const isOwner = user && property?.listedByUserId === user.id;
   const lang = user?.preferredLanguage ?? 'en';
 

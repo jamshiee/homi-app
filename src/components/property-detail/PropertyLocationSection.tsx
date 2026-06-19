@@ -6,19 +6,22 @@ import { useTranslation } from 'react-i18next';
 import { Colors } from '@constants/colors';
 
 interface PropertyLocationSectionProps {
-  latitude?: number | null;
-  longitude?: number | null;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
   locality?: string;
   district?: string;
 }
 
 export function PropertyLocationSection({
-  latitude,
-  longitude,
+  latitude: rawLat,
+  longitude: rawLng,
   locality,
   district,
 }: PropertyLocationSectionProps) {
   const { t } = useTranslation();
+
+  const latitude = rawLat ? Number(rawLat) : null;
+  const longitude = rawLng ? Number(rawLng) : null;
 
 const handleOpenMaps = async () => {
   if (!latitude || !longitude) return;

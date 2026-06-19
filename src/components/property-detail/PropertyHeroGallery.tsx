@@ -52,7 +52,7 @@ export function PropertyHeroGallery({
           {images.map((img, idx) => (
             <TouchableOpacity key={img.id} activeOpacity={0.95} onPress={() => openImage(idx)}>
               <Image
-                source={{ uri: img.url }}
+                source={{ uri: img?.url }}
                 style={{ width, height: 320 }}
                 resizeMode="cover"
               />

@@ -50,7 +50,7 @@ export const FeaturedPropertyCard: React.FC<FeaturedPropertyCardProps> = ({
   const ownerName =
      property.lister?.name ?? "Owner";
 
-  const ownerImage =  property?.lister?.profileMedia.url ?? null;
+  const ownerImage =  property?.lister?.profileMedia?.url ?? null;
 
 
   const formatPriceUnit = (unit: PriceUnitEnum) => {

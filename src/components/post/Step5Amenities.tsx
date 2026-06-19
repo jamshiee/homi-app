@@ -21,9 +21,8 @@ interface AmenityData {
   nameMl: string;
   iconName: string;
 }
-
 const { width } = Dimensions.get('window');
-const ITEM_WIDTH = (width - 48) / 3;
+const ITEM_WIDTH = (width - 50) / 3; // Slightly reduced to account for Android pixel rounding
 
 export default function Step5Amenities() {
   const { type, amenityIds, setField } = usePostStore();
@@ -40,7 +39,6 @@ export default function Step5Amenities() {
         });
         if (res.data?.data) {
           setAmenities(res.data.data);
-          console.log("user language", language)
         }
       } catch (err) {
         console.warn('Failed to fetch amenities:', err);
@@ -181,7 +179,7 @@ const styles = StyleSheet.create({
   },
   tileSelected: {
     borderColor: Colors.yellow,
-    backgroundColor: Colors.yellow + '05',
+    backgroundColor: '#FFFCF0', // Solid light yellow instead of transparent to prevent Android shadow bleed
     shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 2,
