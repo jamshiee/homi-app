@@ -18,5 +18,5 @@ export const userApi = {
     name: name?.trim(),
     preferredLanguage: preferredLanguage,
   }),
-
+  deleteAccount: () => apiClient.delete("/users/me"),
 };

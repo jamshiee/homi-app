@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Colors } from '@constants/colors';
+import Markdown from 'react-native-markdown-display';
 import { aiApi } from '@api/ai.api';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -73,15 +74,33 @@ function MessageBubble({ message, onRetry }: MessageBubbleProps) {
           message.status === 'error' && styles.errorBubble,
         ]}
       >
-        <Text
-          style={[
-            styles.bubbleText,
-            isUser ? styles.userText : styles.assistantText,
-            message.status === 'error' && styles.errorText,
-          ]}
-        >
-          {message.status === 'error' ? t('ai.error_message') : message.text}
-        </Text>
+        {isUser ? (
+  <Text style={[styles.bubbleText, styles.userText]}>
+    {message.text}
+  </Text>
+) : (
+  <Markdown
+    style={{
+      body: {
+        color: Colors.dark,
+        fontSize: 16,
+        lineHeight: 24,
+      },
+      paragraph: {
+        marginTop: 0,
+        marginBottom: 12,
+      },
+      bullet_list: {
+        marginBottom: 12,
+      },
+      ordered_list: {
+        marginBottom: 12,
+      },
+    }}
+  >
+    {message.text}
+  </Markdown>
+)}
       </TouchableOpacity>
     </View>
   );

@@ -23,6 +23,7 @@ import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { uploadClient } from "@api/client";
 import { userApi } from "@/api/user.api";
+import { PromptModal } from "@/components/PromptModal";
 
 export default function ProfileScreen() {
   const { t } = useTranslation();
@@ -32,6 +33,8 @@ export default function ProfileScreen() {
   const [name, setName] = useState(user?.name ?? "");
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeletePromptVisible, setIsDeletePromptVisible] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -59,8 +62,8 @@ export default function ProfileScreen() {
 
     setIsSaving(true);
     try {
-      const res = await userApi.updateProfile(name.trim())
-      if(!res.status){
+      const res = await userApi.updateProfile(name.trim());
+      if (!res.status) {
         Toast.show({
           type: "error",
           text1: t("profile.saved_title"),
@@ -86,14 +89,14 @@ export default function ProfileScreen() {
     }
   };
 
-    const handleLanguageToggle = async () => {
+  const handleLanguageToggle = async () => {
     if (!user) return;
 
-    let updatedLanguage : "en" | "ml" = language == 'en' ? 'ml' : 'en';
+    let updatedLanguage: "en" | "ml" = language == "en" ? "ml" : "en";
 
     try {
-      const res = await userApi.updateProfile(undefined, updatedLanguage)
-      if(!res.status){
+      const res = await userApi.updateProfile(undefined, updatedLanguage);
+      if (!res.status) {
         Toast.show({
           type: "error",
           text1: t("profile.saved_title"),
@@ -102,11 +105,11 @@ export default function ProfileScreen() {
         return;
       }
       setLanguage(updatedLanguage);
-      updateUser({ preferredLanguage: updatedLanguage });;
+      updateUser({ preferredLanguage: updatedLanguage });
       Toast.show({
         type: "success",
-        text1: t("profile.saved_title","Updated Language"),
-        text2: t("profile.saved_body","Language Updated Successfully"),
+        text1: t("profile.saved_title", "Updated Language"),
+        text2: t("profile.saved_body", "Language Updated Successfully"),
       });
     } catch (err: any) {
       console.error("Language Toggle Error :", err);
@@ -146,7 +149,10 @@ export default function ProfileScreen() {
       });
       const { data } = await uploadClient.post("/media/user", formData as any);
       const media = data.data;
-      updateUser({ profileMediaId: media?.id || null, profileMediaUrl: media?.url || null });
+      updateUser({
+        profileMediaId: media?.id || null,
+        profileMediaUrl: media?.url || null,
+      });
       Toast.show({ type: "success", text1: t("profile.photo_uploaded") });
     } catch (e: any) {
       console.error("Upload error", e);
@@ -156,6 +162,30 @@ export default function ProfileScreen() {
       );
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setIsDeletePromptVisible(false);
+    setIsDeleting(true);
+    try {
+      await userApi.deleteAccount();
+      Toast.show({
+        type: "success",
+        text1: t("profile.account_deleted_title", "Account Deleted"),
+        text2: t(
+          "profile.account_deleted_body",
+          "Your account has been deleted successfully.",
+        ),
+      });
+      logout();
+    } catch (err: any) {
+      console.error("Account delete error:", err);
+      Alert.alert(
+        t("common.error_generic"),
+        err.response?.data?.message || t("common.error_generic"),
+      );
+      setIsDeleting(false);
     }
   };
 
@@ -265,14 +295,16 @@ export default function ProfileScreen() {
 
         {/* Language Section */}
         <View style={styles.section}>
-          <TouchableOpacity onPress={()=> handleLanguageToggle()}  style={styles.sectionHeader}>
+          <TouchableOpacity
+            onPress={() => handleLanguageToggle()}
+            style={styles.sectionHeader}
+          >
             <View style={styles.sectionTitleContainer}>
               <Ionicons name="globe-outline" size={20} color={Colors.muted} />
               <Text style={styles.sectionTitle}>{t("profile.language")}</Text>
             </View>
             <View style={styles.languagePill}>
               <TouchableOpacity
-  
                 style={[
                   styles.pillButton,
                   user.preferredLanguage === "en" && styles.pillButtonActive,
@@ -319,8 +351,14 @@ export default function ProfileScreen() {
                 onPress={() => router.push("/my-listings")}
               >
                 <Ionicons name="home-outline" size={20} color={Colors.dark} />
-                <Text style={styles.actionText}>{t("profile.my_listings")}</Text>
-                <Ionicons name="chevron-forward" size={20} color={Colors.muted} />
+                <Text style={styles.actionText}>
+                  {t("profile.my_listings")}
+                </Text>
+                <Ionicons
+                  name="chevron-forward"
+                  size={20}
+                  color={Colors.muted}
+                />
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -328,8 +366,14 @@ export default function ProfileScreen() {
                 onPress={() => router.push("/(admin)/featured" as any)}
               >
                 <Ionicons name="star-outline" size={20} color={Colors.dark} />
-                <Text style={styles.actionText}>{t("profile.featured_properties", "Featured Properties")}</Text>
-                <Ionicons name="chevron-forward" size={20} color={Colors.muted} />
+                <Text style={styles.actionText}>
+                  {t("profile.featured_properties", "Featured Properties")}
+                </Text>
+                <Ionicons
+                  name="chevron-forward"
+                  size={20}
+                  color={Colors.muted}
+                />
               </TouchableOpacity>
             </>
           )}
@@ -378,7 +422,43 @@ export default function ProfileScreen() {
           <Ionicons name="log-out-outline" size={20} color={Colors.error} />
           <Text style={styles.logoutButtonText}>{t("profile.logout")}</Text>
         </TouchableOpacity>
+
+        {/* Delete Account Button */}
+        <TouchableOpacity
+          style={styles.deleteAccountButton}
+          onPress={() => {
+            setIsDeletePromptVisible(true);
+          }}
+          disabled={isDeleting}
+        >
+          {isDeleting ? (
+            <ActivityIndicator size="small" color={Colors.error} />
+          ) : (
+            <>
+              <Ionicons name="trash-outline" size={18} color={Colors.error} />
+              <Text style={styles.deleteAccountText}>
+                {t("profile.delete_account", "Delete Account")}
+              </Text>
+            </>
+          )}
+        </TouchableOpacity>
       </ScrollView>
+
+      <PromptModal
+        visible={isDeletePromptVisible}
+        title={t("profile.delete_account", "Delete Account")}
+        message={t(
+          "profile.delete_account_prompt",
+          "Are you sure you want to delete your account? This will permanently remove your profile and all your listings. Type 'DELETE' to confirm.",
+        )}
+        expectedText="DELETE"
+        placeholder="DELETE"
+        confirmText={t("common.delete", "Delete")}
+        cancelText={t("common.cancel", "Cancel")}
+        onConfirm={handleDeleteAccount}
+        onCancel={() => setIsDeletePromptVisible(false)}
+        isDestructive
+      />
     </SafeAreaView>
   );
 }
@@ -612,5 +692,24 @@ const styles = StyleSheet.create({
     color: Colors.error,
     fontWeight: "700",
     fontSize: 15,
+  },
+
+  // Delete Account Styles
+  deleteAccountButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,0,0,0.1)",
+    borderRadius: 16,
+    paddingVertical: 14,
+    gap: 6,
+    borderWidth: 1,
+    borderColor: Colors.error,
+    marginTop: 16,
+  },
+  deleteAccountText: {
+    color: Colors.error,
+    fontWeight: "600",
+    fontSize: 14,
   },
 });

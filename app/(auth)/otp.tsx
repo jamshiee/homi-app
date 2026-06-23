@@ -44,22 +44,38 @@ export default function OtpScreen() {
 
   const handleChange = (value: string, idx: number) => {
     const digits = value.replace(/\D/g, "");
-    if (!digits) return;
-    if (digits.length === Config.OTP_LENGTH) {
-      const filled = digits.split("");
+    
+    if (!digits) {
+      const next = [...otp];
+      next[idx] = "";
+      setOtp(next);
+      return;
+    }
+
+    if (digits.length >= Config.OTP_LENGTH) {
+      const filled = digits.slice(0, Config.OTP_LENGTH).split("");
       setOtp(filled);
-      inputRefs.current[Config.OTP_LENGTH - 1]?.focus();
+      inputRefs.current[Config.OTP_LENGTH - 1]?.blur();
       setTimeout(() => void verify(filled.join("")), 100);
       return;
     }
+
     const next = [...otp];
-    next[idx] = digits[0] ?? "";
+    // Always take the last typed character in case they type fast in one box
+    next[idx] = digits[digits.length - 1] ?? "";
     setOtp(next);
-    if (idx < Config.OTP_LENGTH - 1) {
+
+    if (idx < Config.OTP_LENGTH - 1 && next[idx] !== "") {
       inputRefs.current[idx + 1]?.focus();
       setActiveIdx(idx + 1);
+    } else if (idx === Config.OTP_LENGTH - 1 && next[idx] !== "") {
+      inputRefs.current[idx]?.blur(); // Close keyboard on last input
     }
-    if (next.every((d) => d)) setTimeout(() => void verify(next.join("")), 100);
+
+    if (next.every((d) => d !== "")) {
+      inputRefs.current[Config.OTP_LENGTH - 1]?.blur();
+      setTimeout(() => void verify(next.join("")), 100);
+    }
   };
 
   const handleKeyPress = (key: string, idx: number) => {
@@ -78,8 +94,16 @@ export default function OtpScreen() {
 
   // Called once all OTP digits are filled
   const verify = async (code?: string) => {
+    if (isLoading) return; // Prevent double API calls
+
     const c = code ?? otp.join("");
     if (c.length !== Config.OTP_LENGTH) return;
+
+    if (!currentReqId) {
+      Toast.show({ type: "error", text1: t("auth.invalid_session", "Session expired. Please request a new OTP.") });
+      return;
+    }
+
     setLoading(true);
     try {
       // Step 1: verify OTP with MSG91 SDK — get accessToken back
@@ -202,7 +226,18 @@ const handleResend = async () => {
                 onKeyPress={({ nativeEvent }) =>
                   handleKeyPress(nativeEvent.key, i)
                 }
-                onFocus={() => setActiveIdx(i)}
+                onFocus={() => {
+                  const firstEmptyIdx = otp.findIndex((d) => d === "");
+                  const targetIdx = firstEmptyIdx === -1 ? Config.OTP_LENGTH - 1 : firstEmptyIdx;
+                  
+                  // If they try to focus a box far ahead of the current empty one, redirect them
+                  if (i > targetIdx) {
+                    inputRefs.current[targetIdx]?.focus();
+                    setActiveIdx(targetIdx);
+                  } else {
+                    setActiveIdx(i);
+                  }
+                }}
                 selectTextOnFocus
               />
             ))}

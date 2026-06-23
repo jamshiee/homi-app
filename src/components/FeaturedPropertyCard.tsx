@@ -164,7 +164,7 @@ export const FeaturedPropertyCard: React.FC<FeaturedPropertyCardProps> = ({
         </View>
 
         {/* Owner pill — top right */}
-        <View
+        {/* <View
           style={{
             position: "absolute", top: 12, right: 52,
             backgroundColor: "rgba(0,0,0,0.45)",
@@ -175,7 +175,7 @@ export const FeaturedPropertyCard: React.FC<FeaturedPropertyCardProps> = ({
           <Text style={{ fontSize: 11, fontWeight: "500", color: "#fff" }}>
             {ownerName}
           </Text>
-        </View>
+        </View> */}
 
         {/* Save toggle — top right */}
         <TouchableOpacity

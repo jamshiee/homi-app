@@ -411,7 +411,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             </Text>
           </View>
 
-          <View
+          {/* <View
             style={{
               flexDirection: "row",
               alignItems: "center",
@@ -440,7 +440,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
                 </View>
               )}
             </View>
-          </View>
+          </View> */}
         </View>
 
         {/* Divider */}

@@ -222,13 +222,13 @@ export default function PropertyDetailScreen() {
         <View className="mx-4 h-[1px] bg-gray-200" />
 
         {/* Owner Section */}
-        <PropertyOwnerSection
+        {/* <PropertyOwnerSection
           ownerName={ownerName}
           ownerImage={ownerImage}
           isOwner={isOwner ?? false}
           onEdit={() => router.push(`/property/${property.id}/edit` as any)}
           onDelete={()=> setShowConfirmModal(true)}
-        />
+        /> */}
 
         <View className="mx-4 h-[1px] bg-gray-200" />
 
@@ -258,7 +258,7 @@ export default function PropertyDetailScreen() {
           <View className="rounded-t-3xl bg-white p-6">
             <View className="mb-6 h-1 w-10 self-center rounded-full bg-gray-300" />
 
-            <View className="mb-6 flex-row items-center">
+            {/* <View className="mb-6 flex-row items-center">
               <View className="mr-3 h-12 w-12 items-center justify-center rounded-full bg-gray-100">
                 <Text className="text-[18px] font-bold text-black">{ownerName[0]?.toUpperCase()}</Text>
               </View>
@@ -268,7 +268,7 @@ export default function PropertyDetailScreen() {
                   <Text className="text-[11px] font-bold text-gray-500">{t('property.lister_badge')}</Text>
                 </View>
               </View>
-            </View>
+            </View> */}
 
             <TouchableOpacity onPress={handleChat} className="mb-3 flex-row items-center rounded-2xl bg-[#25D366] p-4">
               <Ionicons name="logo-whatsapp" size={24} color="white" />

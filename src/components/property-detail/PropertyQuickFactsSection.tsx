@@ -60,10 +60,10 @@ export function PropertyQuickFactsSection({ property }: PropertyQuickFactsSectio
         facts.push({ icon: 'expand-outline', value: `${property.buildingDetail.totalArea} ${property.buildingDetail.areaUnit ?? 'Unit'}` });
       }
       if (property.buildingDetail.floorNumber !== undefined) {
-        facts.push({ icon: 'layers-outline', value: `${t('property.floor')} ${property.buildingDetail.floorNumber}` });
+        facts.push({ icon: 'layers-outline', value: `${t('property.floor')}: ${property.buildingDetail.floorNumber}` });
       }
       if (property.buildingDetail.currentStatus) {
-        facts.push({ icon: 'key-outline', value: property.buildingDetail.currentStatus });
+        facts.push({ icon: 'key-outline', value: property.buildingDetail.currentStatus.replaceAll('_', ' ') });
       }
     } else if (property.type === PropertyTypeEnum.HOTEL && property.hotelDetail) {
       if (property.hotelDetail.subType) {

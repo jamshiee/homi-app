@@ -28,6 +28,11 @@ export default function AboutScreen() {
 
   const features: Feature[] = [
     {
+      icon: "sparkles-outline",
+      title: t("about.feature_ai"),
+      description: t("about.feature_ai_desc"),
+    },
+    {
       icon: "search-outline",
       title: t("about.feature_search"),
       description: t("about.feature_search_desc"),
