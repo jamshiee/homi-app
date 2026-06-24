@@ -38,6 +38,18 @@ export default function HomeScreen() {
 
   const filterType = useFilterStore((s) => s.type);
   const filterDistrict = useFilterStore((s) => s.district);
+  const filterTransactionType = useFilterStore((s) => s.transactionType);
+  const filterSort = useFilterStore((s) => s.sort);
+  const filterMinPrice = useFilterStore((s) => s.minPrice);
+  const filterMaxPrice = useFilterStore((s) => s.maxPrice);
+  const filterBedrooms = useFilterStore((s) => s.bedrooms);
+  const filterBathrooms = useFilterStore((s) => s.bathrooms);
+  const filterFurnishingStatus = useFilterStore((s) => s.furnishingStatus);
+  const filterMinArea = useFilterStore((s) => s.minArea);
+  const filterMaxArea = useFilterStore((s) => s.maxArea);
+  const filterAreaUnit = useFilterStore((s) => s.areaUnit);
+  const filterBuildingSubtype = useFilterStore((s) => s.buildingSubtype);
+  const filterRoomType = useFilterStore((s) => s.roomType);
 
   const {user} = useAuthStore();
 
@@ -63,6 +75,18 @@ export default function HomeScreen() {
   } = usePropertyFeed({
     type: filterType !== "all" ? filterType : undefined,
     district: filterDistrict,
+    transactionType: filterTransactionType,
+    sort: filterSort,
+    minPrice: filterMinPrice,
+    maxPrice: filterMaxPrice,
+    bedrooms: filterBedrooms,
+    bathrooms: filterBathrooms,
+    furnishingStatus: filterFurnishingStatus,
+    minArea: filterMinArea,
+    maxArea: filterMaxArea,
+    areaUnit: filterAreaUnit,
+    buildingSubtype: filterBuildingSubtype,
+    roomType: filterRoomType,
   });
 
   const onRefresh = async () => {

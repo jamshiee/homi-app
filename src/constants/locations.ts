@@ -14,6 +14,7 @@ export const SUPPORTED_DISTRICTS = [
   "Thrissur",
   "Palakkad",
   "Bengaluru Urban",
+  "Bangalore Division"
 ];
 
 export const isDistrictSupported = (
