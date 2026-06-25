@@ -13,6 +13,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { FurnishingStatusEnum } from '@/common/enums/property-enums/furnishing-status.enum';
 import { BuildingSubTypeEnum } from '@/common/enums/property-enums/building-subtype.enum';
 import { HotelSubTypeEnum } from '@/common/enums/property-enums/hotel-subtype.enum';
+import { HotelCategoryEnum } from '@/common/enums/property-enums/hotel-category.enum';
 import { RoomTypeEnum } from '@/common/enums/property-enums/room-type.enum';
 import { PropertyTypeEnum } from '@/common/enums/property-enums/property-type.enum';
 import { AreaUnitEnum } from '@/common/enums/property-enums/area-unit.enum';
@@ -99,6 +100,7 @@ export default function Step3Details() {
           roomType: RoomTypeEnum.DOUBLE,
           occupancy: 1,
           mealsIncluded: false,
+          hotelCategory: undefined,
         }),
         ...updates,
       },
@@ -377,6 +379,30 @@ export default function Step3Details() {
             thumbColor={Colors.white}
           />
         </View>
+
+        {/* Hotel Category - Only show for HOTEL or RESORT */}
+        {(details.subType === HotelSubTypeEnum.HOTEL || details.subType === HotelSubTypeEnum.RESORT) && (
+          <>
+            <Text style={styles.label}>{t('post.step3_hotel_category', 'Hotel Category')}</Text>
+            <View style={styles.pillContainer}>
+              {Object.entries(HotelCategoryEnum).map(([key, value]) => {
+                const isSelected = details.hotelCategory === value;
+                return (
+                  <TouchableOpacity
+                    key={key}
+                    activeOpacity={0.7}
+                    onPress={() => handleUpdateHotel({ hotelCategory: value })}
+                    style={[styles.pill, isSelected && styles.pillSelected]}
+                  >
+                    <Text style={[styles.pillText, isSelected && styles.pillTextSelected]}>
+                      {key.charAt(0) + key.slice(1).toLowerCase()}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </>
+        )}
       </View>
     );
   }

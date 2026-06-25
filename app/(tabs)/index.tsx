@@ -48,7 +48,9 @@ export default function HomeScreen() {
   const filterMaxArea = useFilterStore((s) => s.maxArea);
   const filterAreaUnit = useFilterStore((s) => s.areaUnit);
   const filterBuildingSubtype = useFilterStore((s) => s.buildingSubtype);
+  const filterHotelSubtype = useFilterStore((s) => s.hotelSubtype);
   const filterRoomType = useFilterStore((s) => s.roomType);
+  const filterHotelCategory = useFilterStore((s) => s.hotelCategory);
 
   const { user } = useAuthStore();
 
@@ -92,7 +94,9 @@ export default function HomeScreen() {
     maxArea: filterMaxArea,
     areaUnit: filterAreaUnit,
     buildingSubtype: filterBuildingSubtype,
+    hotelSubtype: filterHotelSubtype,
     roomType: filterRoomType,
+    hotelCategory: filterHotelCategory,
   });
 
   const onRefresh = async () => {

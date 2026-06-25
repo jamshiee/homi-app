@@ -4,6 +4,7 @@ import { BuildingSubTypeEnum } from "@/common/enums/property-enums/building-subt
 import { AreaUnitEnum } from "@/common/enums/property-enums/area-unit.enum";
 import { BuildingStatusEnum } from "@/common/enums/property-enums/building-status.enum";
 import { HotelSubTypeEnum } from "@/common/enums/property-enums/hotel-subtype.enum";
+import { HotelCategoryEnum } from "@/common/enums/property-enums/hotel-category.enum";
 import { RoomTypeEnum } from "@/common/enums/property-enums/room-type.enum";
 import { FurnishingStatusEnum } from "@/common/enums/property-enums/furnishing-status.enum";
 import { PriceUnitEnum } from "@/common/enums/property-enums/price-unit.enum";
@@ -59,6 +60,7 @@ export interface PostState {
     roomType: RoomTypeEnum;
     occupancy: number;
     mealsIncluded: boolean;
+    hotelCategory?: HotelCategoryEnum;
   };
   amenityIds: string[];
   photos: PostPhoto[];
@@ -272,6 +274,7 @@ export const usePostStore = create<PostStore>((set, get) => ({
             roomType: property.hotelDetail.roomType ?? RoomTypeEnum.SINGLE,
             occupancy: Number(property.hotelDetail.occupancy) || 1,
             mealsIncluded: Boolean(property.hotelDetail.mealsIncluded),
+            hotelCategory: property.hotelDetail.hotelCategory ?? undefined,
           }
         : undefined,
       amenityIds: (property?.propertyAmenities ?? [])
@@ -338,6 +341,7 @@ export const usePostStore = create<PostStore>((set, get) => ({
               roomType: property.hotelDetail.roomType ?? RoomTypeEnum.SINGLE,
               occupancy: Number(property.hotelDetail.occupancy) || 1,
               mealsIncluded: Boolean(property.hotelDetail.mealsIncluded),
+              hotelCategory: property.hotelDetail.hotelCategory ?? undefined,
             }
           : undefined,
         amenityIds: (property?.propertyAmenities ?? [])

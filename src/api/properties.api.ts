@@ -20,7 +20,9 @@ export interface PropertyFilter {
   maxArea?: number;
   areaUnit?: string;
   buildingSubtype?: string;
+  hotelSubtype?: string;
   roomType?: string;
+  hotelCategory?: string;
   sort?: SortOptionEnum;
 }
 

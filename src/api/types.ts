@@ -1,3 +1,4 @@
+import { HotelCategoryEnum } from "@/common/enums/property-enums/hotel-category.enum";
 import { PriceUnitEnum } from "@/common/enums/property-enums/price-unit.enum";
 import { PropertyTypeEnum } from "@/common/enums/property-enums/property-type.enum";
 import { TransactionTypeFilter } from "@/common/enums/transaction-type-filter.enum";
@@ -110,6 +111,7 @@ export interface PropertyDto {
   };
   hotelDetail?: {
     subType: string;
+    hotelCategory: HotelCategoryEnum | null;
     roomsAvailable: number;
     roomType: string;
     occupancy: string;

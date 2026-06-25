@@ -78,7 +78,9 @@ export default function SearchScreen() {
       maxArea: filterState.maxArea,
       areaUnit: filterState.areaUnit,
       buildingSubtype: filterState.buildingSubtype,
+      hotelSubtype: filterState.hotelSubtype,
       roomType: filterState.roomType,
+      hotelCategory: filterState.hotelCategory,
     });
 
   const properties =

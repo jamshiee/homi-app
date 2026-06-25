@@ -148,25 +148,42 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
               ]
             : []),
         ];
-      case PropertyTypeEnum.HOTEL:
-        return [
-          ...(property.hotelDetail?.roomType
-            ? [
-                {
-                  icon: "bed-outline" as const,
-                  label: property.hotelDetail.roomType,
-                },
-              ]
-            : []),
+
+  case PropertyTypeEnum.HOTEL:
+    const categoryIconMap = {
+  luxury: 'diamond-outline' as const,
+  premium: 'ribbon-outline' as const,
+  classic: 'star-outline' as const,
+};
+  return [
+    ...(property.hotelDetail?.hotelCategory
+      ? [
+          {
+            icon:
+              categoryIconMap[property.hotelDetail.hotelCategory] ??
+              ('star-outline' as const),
+            label: property.hotelDetail.hotelCategory,
+          },
+        ]
+      : []),
           ...(property.hotelDetail?.subType
-            ? [
-                {
-                  icon: "business-outline" as const,
-                  label: property.hotelDetail.subType,
-                },
-              ]
-            : []),
-        ];
+      ? [
+          {
+            icon: 'business-outline' as const,
+            label: property.hotelDetail.subType,
+          },
+        ]
+      : []),
+    ...(property.hotelDetail?.roomType
+      ? [
+          {
+            icon: 'bed-outline' as const,
+            label: property.hotelDetail.roomType,
+          },
+        ]
+      : []),
+
+  ];
       default:
         return [];
     }

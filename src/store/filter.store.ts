@@ -31,9 +31,11 @@ export interface FilterState {
   floorNumber?: number;
 
   // Dynamic Filters - Hotel
+  hotelSubtype?: string;
   roomType?: string;
   occupancy?: string;
   mealsIncluded?: boolean;
+  hotelCategory?: string;
 }
 
 const defaultState: FilterState = {
@@ -58,9 +60,11 @@ const defaultState: FilterState = {
   buildingSubtype: undefined,
   floorNumber: undefined,
 
+  hotelSubtype: undefined,
   roomType: undefined,
   occupancy: undefined,
   mealsIncluded: undefined,
+  hotelCategory: undefined,
 };
 
 interface FilterStore extends FilterState {
@@ -75,23 +79,58 @@ export const useFilterStore = create<FilterStore>((set) => ({
 
   setFilter: (updates) =>
     set((state) => {
-      // If module changes, clear dynamic filters that don't apply
+      // If module changes, clear type-specific filters
       if (updates.type && updates.type !== state.type) {
-        return {
+        const newType = updates.type;
+        const newState = {
           ...state,
           ...updates,
-          minArea: undefined,
-          maxArea: undefined,
-          bedrooms: undefined,
-          bathrooms: undefined,
-          furnishingStatus: undefined,
-          buildingSubtype: undefined,
-          floorNumber: undefined,
-          roomType: undefined,
-          occupancy: undefined,
-          mealsIncluded: undefined,
         };
+
+        // Clear hotel-specific filters when switching away from hotel
+        if (state.type === 'hotel' && newType !== 'hotel') {
+          newState.hotelSubtype = undefined;
+          newState.roomType = undefined;
+          newState.occupancy = undefined;
+          newState.mealsIncluded = undefined;
+          newState.hotelCategory = undefined;
+        }
+
+        // Clear house-specific filters when switching away from house
+        if (state.type === 'house' && newType !== 'house') {
+          newState.bedrooms = undefined;
+          newState.bathrooms = undefined;
+          newState.furnishingStatus = undefined;
+        }
+
+        // Clear building-specific filters when switching away from building
+        if (state.type === 'building' && newType !== 'building') {
+          newState.buildingSubtype = undefined;
+          newState.floorNumber = undefined;
+        }
+
+        // Clear land-specific filters when switching away from land
+        if (state.type === 'land' && newType !== 'land') {
+          newState.minArea = undefined;
+          newState.maxArea = undefined;
+          newState.areaUnit = undefined;
+        }
+
+        return newState;
       }
+
+      // If hotelSubtype changes to pg or lodge, clear hotelCategory (only hotel and resort have categories)
+      if (updates.hotelSubtype && updates.hotelSubtype !== state.hotelSubtype) {
+        const newSubtype = updates.hotelSubtype;
+        if (newSubtype === 'pg' || newSubtype === 'lodge') {
+          return {
+            ...state,
+            ...updates,
+            hotelCategory: undefined,
+          };
+        }
+      }
+
       return { ...state, ...updates };
     }),
 
@@ -106,9 +145,11 @@ export const useFilterStore = create<FilterStore>((set) => ({
       furnishingStatus: undefined,
       buildingSubtype: undefined,
       floorNumber: undefined,
+      hotelSubtype: undefined,
       roomType: undefined,
       occupancy: undefined,
       mealsIncluded: undefined,
+      hotelCategory: undefined,
     }),
 
   toggleAmenity: (amenity) =>

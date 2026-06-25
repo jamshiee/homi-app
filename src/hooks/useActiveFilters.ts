@@ -157,5 +157,34 @@ export function useActiveFilters() {
     });
   }
 
+  // Hotel Subtype
+  if (filterState.hotelSubtype !== undefined) {
+    const subtypeMap: Record<string, string> = {
+      hotel: "Hotel",
+      pg: "PG",
+      lodge: "Lodge",
+      resort: "Resort",
+    };
+    activeFilters.push({
+      id: "hotelSubtype",
+      label: subtypeMap[filterState.hotelSubtype] || filterState.hotelSubtype,
+      clear: () => setFilter({ hotelSubtype: undefined }),
+    });
+  }
+
+  // Hotel Category
+  if (filterState.hotelCategory !== undefined) {
+    const categoryMap: Record<string, string> = {
+      luxury: "Luxury",
+      premium: "Premium",
+      classic: "Classic",
+    };
+    activeFilters.push({
+      id: "hotelCategory",
+      label: categoryMap[filterState.hotelCategory] || filterState.hotelCategory,
+      clear: () => setFilter({ hotelCategory: undefined }),
+    });
+  }
+
   return activeFilters;
 }

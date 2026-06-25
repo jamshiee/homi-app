@@ -7,6 +7,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { TransactionTypeFilter } from '@/common/enums/transaction-type-filter.enum';
 import { FurnishingStatusEnum } from '@/common/enums/property-enums/furnishing-status.enum';
 import { SortOptionEnum } from '@/common/enums/sort-option-filter.enum';
+import { HotelSubTypeEnum } from '@/common/enums/property-enums/hotel-subtype.enum';
+import { HotelCategoryEnum } from '@/common/enums/property-enums/hotel-category.enum';
 import { propertiesApi } from '@/api/properties.api';
 
 interface FilterBottomSheetProps {
@@ -45,7 +47,9 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
         maxArea: filterState.maxArea,
         areaUnit: filterState.areaUnit || 'cents',
         buildingSubtype: filterState.buildingSubtype,
+        hotelSubtype: filterState.hotelSubtype,
         roomType: filterState.roomType,
+        hotelCategory: filterState.hotelCategory,
       });
       // Fetch districts once
       if (districts.length === 0) {
@@ -148,19 +152,149 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
             {renderSectionHeader(t('filter.module'))}
             <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
               {[
-                { label: t('modules.land'), value: 'land' },
-                { label: t('modules.house'), value: 'house' },
-                { label: t('modules.building'), value: 'building' },
                 { label: t('modules.hotel'), value: 'hotel' },
+                { label: t('modules.house'), value: 'house' },
+                { label: t('modules.land'), value: 'land' },
+                { label: t('modules.building'), value: 'building' },
               ].map((opt) =>
                 renderPill(opt.label, localState.type === opt.value, () => {
-                  setLocalState((s) => ({
-                    ...s,
-                    type: s.type === opt.value ? 'all' : (opt.value as PropertyType),
-                  }));
+                  const newType = localState.type === opt.value ? 'all' : (opt.value as PropertyType);
+                  setLocalState((s) => {
+                    const newState = { ...s, type: newType };
+
+                    // Clear type-specific filters when switching types
+                    if (s.type === 'hotel' && newType !== 'hotel') {
+                      newState.hotelSubtype = undefined;
+                      newState.roomType = undefined;
+                      newState.occupancy = undefined;
+                      newState.mealsIncluded = undefined;
+                      newState.hotelCategory = undefined;
+                    }
+                    if (s.type === 'house' && newType !== 'house') {
+                      newState.bedrooms = undefined;
+                      newState.bathrooms = undefined;
+                      newState.furnishingStatus = undefined;
+                    }
+                    if (s.type === 'building' && newType !== 'building') {
+                      newState.buildingSubtype = undefined;
+                      newState.floorNumber = undefined;
+                    }
+                    if (s.type === 'land' && newType !== 'land') {
+                      newState.minArea = undefined;
+                      newState.maxArea = undefined;
+                      newState.areaUnit = 'cents';
+                    }
+
+                    return newState;
+                  });
                 })
               )}
             </View>
+
+                     {/* DYNAMIC FILTERS: HOUSE */}
+            {localState.type === 'house' && (
+              <>
+                {renderSectionHeader(t('filter.bedrooms'))}
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                  {[1, 2, 3, 4, 5].map((num) =>
+                    renderPill(num === 5 ? '5+' : String(num), localState.bedrooms === num, () =>
+                      setProp('bedrooms', localState.bedrooms === num ? undefined : num)
+                    )
+                  )}
+                </View>
+
+                {renderSectionHeader(t('filter.bathrooms'))}
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                  {[1, 2, 3, 4].map((num) =>
+                    renderPill(num === 4 ? '4+' : String(num), localState.bathrooms === num, () =>
+                      setProp('bathrooms', localState.bathrooms === num ? undefined : num)
+                    )
+                  )}
+                </View>
+
+                {renderSectionHeader(t('filter.furnishing'))}
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                  {[
+                    { label: t('property.furnished'), value: FurnishingStatusEnum.FULLY_FURNISHED },
+                    { label: t('property.semi_furnished'), value: FurnishingStatusEnum.SEMI_FURNISHED },
+                    { label: t('property.not_furnished'), value: FurnishingStatusEnum.UN_FURNISHED },
+                  ].map((opt) =>
+                    renderPill(opt.label, localState.furnishingStatus === opt.value, () =>
+                      setProp('furnishingStatus', localState.furnishingStatus === opt.value ? undefined : opt.value)
+                    )
+                  )}
+                </View>
+              </>
+            )}
+
+            {/* DYNAMIC FILTERS: LAND */}
+            {localState.type === 'land' && (
+              <>
+                {renderSectionHeader(t('filter.area_unit'))}
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                  {['Cents', 'Sqft'].map((unit) =>
+                    renderPill(unit, localState.areaUnit === unit, () => setProp('areaUnit', unit))
+                  )}
+                </View>
+
+                {renderSectionHeader(`${t('filter.area')} (${localState.areaUnit || 'Cents'})`)}
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                  <View style={{ flex: 1, borderWidth: 1, borderColor: Colors.border, borderRadius: 12, paddingHorizontal: 12, height: 44, justifyContent: 'center' }}>
+                    <TextInput
+                      placeholder="Min"
+                      keyboardType="numeric"
+                      value={localState.minArea ? String(localState.minArea) : ''}
+                      onChangeText={(val) => setProp('minArea', val ? parseInt(val) : undefined)}
+                      style={{ fontSize: 14, color: Colors.dark }}
+                    />
+                  </View>
+                  <Text style={{ color: Colors.muted }}>to</Text>
+                  <View style={{ flex: 1, borderWidth: 1, borderColor: Colors.border, borderRadius: 12, paddingHorizontal: 12, height: 44, justifyContent: 'center' }}>
+                    <TextInput
+                      placeholder="Max"
+                      keyboardType="numeric"
+                      value={localState.maxArea ? String(localState.maxArea) : ''}
+                      onChangeText={(val) => setProp('maxArea', val ? parseInt(val) : undefined)}
+                      style={{ fontSize: 14, color: Colors.dark }}
+                    />
+                  </View>
+                </View>
+              </>
+            )}
+
+            {/* DYNAMIC FILTERS: HOTEL */}
+            {localState.type === 'hotel' && (
+              <>
+                {renderSectionHeader(t('filter.hotel_subtype', 'Hotel Subtype'))}
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                  {Object.entries(HotelSubTypeEnum).map(([key, value]) =>
+                    renderPill(key.charAt(0) + key.slice(1).toLowerCase(), localState.hotelSubtype === value, () => {
+                      const newValue = localState.hotelSubtype === value ? undefined : value;
+                      // Clear hotelCategory if subtype changes to pg or lodge (they don't have categories)
+                      if (newValue === 'pg' || newValue === 'lodge') {
+                        setLocalState((prev) => ({ ...prev, hotelSubtype: newValue, hotelCategory: undefined }));
+                      } else {
+                        setProp('hotelSubtype', newValue);
+                      }
+                    })
+                  )}
+                </View>
+
+                {/* Hotel Category - Only show for HOTEL or RESORT */}
+                {(localState.hotelSubtype === HotelSubTypeEnum.HOTEL || localState.hotelSubtype === HotelSubTypeEnum.RESORT) && (
+                  <>
+                    {renderSectionHeader(t('filter.hotel_category', 'Hotel Category'))}
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                      {Object.entries(HotelCategoryEnum).map(([key, value]) =>
+                        renderPill(key.charAt(0) + key.slice(1).toLowerCase(), localState.hotelCategory === value, () =>
+                          setProp('hotelCategory', localState.hotelCategory === value ? undefined : value)
+                        )
+                      )}
+                    </View>
+                  </>
+                )}
+              </>
+            )}
 
             {/* TRANSACTION TYPE */}
             {renderSectionHeader(t('filter.transaction'))}
@@ -265,76 +399,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
               })}
             </View>
 
-            {/* DYNAMIC FILTERS: HOUSE */}
-            {localState.type === 'house' && (
-              <>
-                {renderSectionHeader(t('filter.bedrooms'))}
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                  {[1, 2, 3, 4, 5].map((num) =>
-                    renderPill(num === 5 ? '5+' : String(num), localState.bedrooms === num, () =>
-                      setProp('bedrooms', localState.bedrooms === num ? undefined : num)
-                    )
-                  )}
-                </View>
-
-                {renderSectionHeader(t('filter.bathrooms'))}
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                  {[1, 2, 3, 4].map((num) =>
-                    renderPill(num === 4 ? '4+' : String(num), localState.bathrooms === num, () =>
-                      setProp('bathrooms', localState.bathrooms === num ? undefined : num)
-                    )
-                  )}
-                </View>
-
-                {renderSectionHeader(t('filter.furnishing'))}
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                  {[
-                    { label: t('property.furnished'), value: FurnishingStatusEnum.FULLY_FURNISHED },
-                    { label: t('property.semi_furnished'), value: FurnishingStatusEnum.SEMI_FURNISHED },
-                    { label: t('property.not_furnished'), value: FurnishingStatusEnum.UN_FURNISHED },
-                  ].map((opt) =>
-                    renderPill(opt.label, localState.furnishingStatus === opt.value, () =>
-                      setProp('furnishingStatus', localState.furnishingStatus === opt.value ? undefined : opt.value)
-                    )
-                  )}
-                </View>
-              </>
-            )}
-
-            {/* DYNAMIC FILTERS: LAND */}
-            {localState.type === 'land' && (
-              <>
-                {renderSectionHeader(t('filter.area_unit'))}
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                  {['Cents', 'Sqft'].map((unit) =>
-                    renderPill(unit, localState.areaUnit === unit, () => setProp('areaUnit', unit))
-                  )}
-                </View>
-
-                {renderSectionHeader(`${t('filter.area')} (${localState.areaUnit || 'Cents'})`)}
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                  <View style={{ flex: 1, borderWidth: 1, borderColor: Colors.border, borderRadius: 12, paddingHorizontal: 12, height: 44, justifyContent: 'center' }}>
-                    <TextInput
-                      placeholder="Min"
-                      keyboardType="numeric"
-                      value={localState.minArea ? String(localState.minArea) : ''}
-                      onChangeText={(val) => setProp('minArea', val ? parseInt(val) : undefined)}
-                      style={{ fontSize: 14, color: Colors.dark }}
-                    />
-                  </View>
-                  <Text style={{ color: Colors.muted }}>to</Text>
-                  <View style={{ flex: 1, borderWidth: 1, borderColor: Colors.border, borderRadius: 12, paddingHorizontal: 12, height: 44, justifyContent: 'center' }}>
-                    <TextInput
-                      placeholder="Max"
-                      keyboardType="numeric"
-                      value={localState.maxArea ? String(localState.maxArea) : ''}
-                      onChangeText={(val) => setProp('maxArea', val ? parseInt(val) : undefined)}
-                      style={{ fontSize: 14, color: Colors.dark }}
-                    />
-                  </View>
-                </View>
-              </>
-            )}
+   
 
             <View style={{ height: 40 }} />
           </ScrollView>
