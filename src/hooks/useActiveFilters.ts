@@ -34,7 +34,17 @@ export function useActiveFilters() {
     activeFilters.push({
       id: "district",
       label: filterState.district,
-      clear: () => setFilter({ district: undefined }),
+      // Clearing district should also clear its child locality
+      clear: () => setFilter({ district: undefined, locality: undefined }),
+    });
+  }
+
+  // Locality (sub-filter of district — only shown when district is also active)
+  if (filterState.locality && filterState.district) {
+    activeFilters.push({
+      id: "locality",
+      label: `📍 ${filterState.locality}`,
+      clear: () => setFilter({ locality: undefined }),
     });
   }
 

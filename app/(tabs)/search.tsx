@@ -64,6 +64,7 @@ export default function SearchScreen() {
       type: type !== "all" ? type : undefined,
       keyword: searchQuery || undefined,
       district: filterState.district,
+      locality: filterState.locality,
       transactionType:
         filterState.transactionType !== TransactionTypeFilter.ALL
           ? filterState.transactionType

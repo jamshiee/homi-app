@@ -23,8 +23,11 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
   // Local state
   const [localState, setLocalState] = useState<Partial<FilterState>>({});
   const [districts, setDistricts] = useState<string[]>([]);
+  const [localities, setLocalities] = useState<string[]>([]);
   const [loadingDistricts, setLoadingDistricts] = useState(false);
+  const [loadingLocalities, setLoadingLocalities] = useState(false);
 
+  // Sync from global filter state when sheet opens
   useEffect(() => {
     if (visible) {
       setLocalState({
@@ -32,6 +35,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
         type: filterState.type,
         transactionType: filterState.transactionType,
         district: filterState.district,
+        locality: filterState.locality,
         minPrice: filterState.minPrice,
         maxPrice: filterState.maxPrice,
         bedrooms: filterState.bedrooms,
@@ -43,7 +47,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
         buildingSubtype: filterState.buildingSubtype,
         roomType: filterState.roomType,
       });
-      // Fetch dynamic districts on open
+      // Fetch districts once
       if (districts.length === 0) {
         setLoadingDistricts(true);
         propertiesApi.getDistricts()
@@ -53,6 +57,19 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
       }
     }
   }, [visible, filterState]);
+
+  // Fetch localities whenever district selection changes inside the sheet
+  useEffect(() => {
+    if (!localState.district) {
+      setLocalities([]);
+      return;
+    }
+    setLoadingLocalities(true);
+    propertiesApi.getLocalities(localState.district)
+      .then((res) => { setLocalities(res.data?.data ?? []); })
+      .catch(() => { setLocalities([]); })
+      .finally(() => setLoadingLocalities(false));
+  }, [localState.district]);
 
   const handleApply = () => {
     setFilter(localState);
@@ -170,7 +187,12 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
               <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
                 {districts.map((d) =>
                   renderPill(d, localState.district === d, () =>
-                    setLocalState((s) => ({ ...s, district: s.district === d ? undefined : d }))
+                    setLocalState((s) => ({
+                      ...s,
+                      district: s.district === d ? undefined : d,
+                      // Clear locality when district changes
+                      locality: s.district === d ? undefined : s.locality,
+                    }))
                   )
                 )}
               </View>
@@ -178,6 +200,31 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
               <Text style={{ fontSize: 13, color: Colors.lightMuted, marginBottom: 8 }}>
                 {t('filter.no_districts')}
               </Text>
+            )}
+
+            {/* LOCALITY — only shows when a district is selected */}
+            {localState.district && (
+              <>
+                {renderSectionHeader(t('filter.locality', 'Locality'))}
+                {loadingLocalities ? (
+                  <ActivityIndicator size="small" color={Colors.yellow} />
+                ) : localities.length > 0 ? (
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                    {localities.map((loc) =>
+                      renderPill(loc, localState.locality === loc, () =>
+                        setLocalState((s) => ({
+                          ...s,
+                          locality: s.locality === loc ? undefined : loc,
+                        }))
+                      )
+                    )}
+                  </View>
+                ) : (
+                  <Text style={{ fontSize: 13, color: Colors.lightMuted, marginBottom: 8 }}>
+                    {t('filter.no_localities', 'No localities found for this district')}
+                  </Text>
+                )}
+              </>
             )}
 
             {/* PRICE */}

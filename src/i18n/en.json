@@ -234,11 +234,12 @@
     "land": "Land/Plot",
     "house": "House",
     "building": "Building",
-    "hotel": "Hotel/PG"
+    "hotel": "Hotel, Resort & Lodge"
   },
   "home": {
     "featured": "Featured",
     "see_all": "See all →",
+    "latest_in": "Latest in {{area}}",
     "latest_near_you": "Latest Near You",
     "latest_properties": "Latest Properties",
     "create_first_property": "There are no properties yet. Create the first listing.",
@@ -253,7 +254,10 @@
     "properties": "properties"
   },
   "location": {
-    "all": "All Locations"
+    "all": "All Locations",
+    "all_sub": "Browse properties across all areas",
+    "any_locality": "Any locality in {{district}}",
+    "select": "Select District"
   },
   "filter": {
     "clear_all": "Clear All",
@@ -268,6 +272,8 @@
     "tx_rent": "Rent",
     "tx_lease": "Lease",
     "district": "District",
+    "locality": "Locality",
+    "no_localities": "No localities found for this district",
     "price": "Price Range (₹)",
     "bedrooms": "Bedrooms",
     "bathrooms": "Bathrooms",

@@ -9,9 +9,7 @@ import {
   Image,
   LayoutAnimation,
 } from "react-native";
-import {
-  SafeAreaView,
-} from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -38,6 +36,7 @@ export default function HomeScreen() {
 
   const filterType = useFilterStore((s) => s.type);
   const filterDistrict = useFilterStore((s) => s.district);
+  const filterLocality = useFilterStore((s) => s.locality);
   const filterTransactionType = useFilterStore((s) => s.transactionType);
   const filterSort = useFilterStore((s) => s.sort);
   const filterMinPrice = useFilterStore((s) => s.minPrice);
@@ -51,7 +50,7 @@ export default function HomeScreen() {
   const filterBuildingSubtype = useFilterStore((s) => s.buildingSubtype);
   const filterRoomType = useFilterStore((s) => s.roomType);
 
-  const {user} = useAuthStore();
+  const { user } = useAuthStore();
 
   const activeFilters = useActiveFilters();
   const { resetFilters, setFilter } = useFilterStore();
@@ -66,7 +65,13 @@ export default function HomeScreen() {
     isLoading: featuredLoading,
     refetch: refetchFeatured,
     isRefetching: isRefetchingFeatured,
-  } = useFeaturedProperties();
+  } = useFeaturedProperties(
+    filterLocality
+      ? { locality: filterLocality }          // locality selected → scope to locality only
+      : filterDistrict
+        ? { district: filterDistrict }        // district only → scope to district
+        : undefined                           // nothing selected → global featured list
+  );
   const {
     data: feedData,
     isLoading: feedLoading,
@@ -75,6 +80,7 @@ export default function HomeScreen() {
   } = usePropertyFeed({
     type: filterType !== "all" ? filterType : undefined,
     district: filterDistrict,
+    locality: filterLocality,
     transactionType: filterTransactionType,
     sort: filterSort,
     minPrice: filterMinPrice,
@@ -105,132 +111,61 @@ export default function HomeScreen() {
 
   const types: { label: string; value: PropertyType }[] = [
     { label: t("modules.all", "All"), value: "all" },
+    { label: t("modules.hotel", "Hotel,Resort & Lodge"), value: "hotel" },
     { label: t("modules.land", "Land/Plot"), value: "land" },
     { label: t("modules.house", "House"), value: "house" },
     { label: t("modules.building", "Building"), value: "building" },
-    { label: t("modules.hotel", "Hotel/PG"), value: "hotel" },
   ];
+  const featuredTypes: PropertyType[] = ["hotel"];
 
-const renderEmptyState = () => (
-  <View>
-    {activeFilters.length > 0 ? (
-      <View
-        style={{
-          alignItems: "center",
-          justifyContent: "center",
-          padding: 40,
-          marginTop: 40,
-        }}
-      >
-        <Ionicons name="search-outline" size={64} color={Colors.lightMuted} />
-
-        <Text
+  const renderEmptyState = () => (
+    <View>
+      {activeFilters.length > 0 ? (
+        <View
           style={{
-            fontSize: 18,
-            fontWeight: "bold",
-            color: Colors.dark,
-            marginTop: 16,
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 40,
+            marginTop: 40,
           }}
         >
-          {t("search.no_results", "No results in {{area}}", {
-            area: filterDistrict || "this area",
-          })}
-        </Text>
+          <Ionicons name="search-outline" size={64} color={Colors.lightMuted} />
 
-        <Text
-          style={{
-            fontSize: 14,
-            color: Colors.muted,
-            marginTop: 8,
-            textAlign: "center",
-            marginBottom: 20,
-          }}
-        >
-          {t(
-            "search.try_nearby",
-            "Try searching a nearby locality or clearing your filters"
-          )}
-        </Text>
-
-        <TouchableOpacity
-          onPress={() => {
-            LayoutAnimation.configureNext(
-              LayoutAnimation.Presets.easeInEaseOut
-            );
-            resetFilters();
-          }}
-          style={{
-            backgroundColor: Colors.yellow,
-            paddingHorizontal: 20,
-            paddingVertical: 12,
-            borderRadius: 24,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.1,
-            shadowRadius: 2,
-            elevation: 2,
-          }}
-        >
           <Text
             style={{
-              color: Colors.dark,
+              fontSize: 18,
               fontWeight: "bold",
-              fontSize: 14,
+              color: Colors.dark,
+              marginTop: 16,
             }}
           >
-            {t("search.reset_filters", "Reset All Filters")}
+            {t("search.no_results", "No results in {{area}}", {
+              area: filterLocality || filterDistrict || "this area",
+            })}
           </Text>
-        </TouchableOpacity>
-      </View>
-    ) : (
-      <View
-        style={{
-          alignItems: "center",
-          justifyContent: "center",
-          padding: 40,
-          marginTop: 40,
-        }}
-      >
-        <Ionicons
-          name="home-outline"
-          size={64}
-          color={Colors.lightMuted}
-        />
 
-        <Text
-          style={{
-            fontSize: 18,
-            fontWeight: "bold",
-            color: Colors.dark,
-            marginTop: 16,
-          }}
-        >
-          {t("search.no_properties", "No properties found")}
-        </Text>
+          <Text
+            style={{
+              fontSize: 14,
+              color: Colors.muted,
+              marginTop: 8,
+              textAlign: "center",
+              marginBottom: 20,
+            }}
+          >
+            {t(
+              "search.try_nearby",
+              "Try searching a nearby locality or clearing your filters",
+            )}
+          </Text>
 
-        <Text
-          style={{
-            fontSize: 14,
-            color: Colors.muted,
-            marginTop: 8,
-            textAlign: "center",
-            marginBottom: 20,
-          }}
-        >
-          {user?.isAdmin
-            ? t(
-                "home.create_first_property",
-                "There are no properties yet. Create the first listing."
-              )
-            : t(
-                "home.no_properties_available",
-                "There are no properties available at the moment. Please check back later."
-              )}
-        </Text>
-
-        {user?.isAdmin && (
           <TouchableOpacity
-            onPress={() => router.push("/post" as any)}
+            onPress={() => {
+              LayoutAnimation.configureNext(
+                LayoutAnimation.Presets.easeInEaseOut,
+              );
+              resetFilters();
+            }}
             style={{
               backgroundColor: Colors.yellow,
               paddingHorizontal: 20,
@@ -250,14 +185,82 @@ const renderEmptyState = () => (
                 fontSize: 14,
               }}
             >
-              {t("property.create", "Create Property")}
+              {t("search.reset_filters", "Reset All Filters")}
             </Text>
           </TouchableOpacity>
-        )}
-      </View>
-    )}
-  </View>
-);
+        </View>
+      ) : (
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 40,
+            marginTop: 40,
+          }}
+        >
+          <Ionicons name="home-outline" size={64} color={Colors.lightMuted} />
+
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: "bold",
+              color: Colors.dark,
+              marginTop: 16,
+            }}
+          >
+            {t("search.no_properties", "No properties found")}
+          </Text>
+
+          <Text
+            style={{
+              fontSize: 14,
+              color: Colors.muted,
+              marginTop: 8,
+              textAlign: "center",
+              marginBottom: 20,
+            }}
+          >
+            {user?.isAdmin
+              ? t(
+                  "home.create_first_property",
+                  "There are no properties yet. Create the first listing.",
+                )
+              : t(
+                  "home.no_properties_available",
+                  "There are no properties available at the moment. Please check back later.",
+                )}
+          </Text>
+
+          {user?.isAdmin && (
+            <TouchableOpacity
+              onPress={() => router.push("/post" as any)}
+              style={{
+                backgroundColor: Colors.yellow,
+                paddingHorizontal: 20,
+                paddingVertical: 12,
+                borderRadius: 24,
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.1,
+                shadowRadius: 2,
+                elevation: 2,
+              }}
+            >
+              <Text
+                style={{
+                  color: Colors.dark,
+                  fontWeight: "bold",
+                  fontSize: 14,
+                }}
+              >
+                {t("property.create", "Create Property")}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
+    </View>
+  );
 
   return (
     <SafeAreaView
@@ -314,7 +317,9 @@ const renderEmptyState = () => (
               marginRight: 4,
             }}
           >
-            {filterDistrict || t("location.all", "All Locations")}
+            {filterLocality ||
+              filterDistrict ||
+              t("location.all", "All Locations")}
           </Text>
           <Ionicons name="chevron-down" size={14} color={Colors.dark} />
         </TouchableOpacity>
@@ -380,31 +385,60 @@ const renderEmptyState = () => (
             paddingBottom: 16,
           }}
         >
-          {types.map((mod) => {
-            const active = filterType === mod.value;
+          {types.map((mod, idx) => {
+            const isActive = filterType === mod.value;
+            const isFeatured = featuredTypes.includes(mod.value);
             return (
               <TouchableOpacity
-                key={mod.value}
-                onPress={() => setFilter({ type: mod.value })}
-                style={{
-                  backgroundColor: active ? Colors.yellow : Colors.white,
-                  borderWidth: active ? 1.5 : 1,
-                  borderColor: active ? Colors.dark : Colors.border,
-                  paddingHorizontal: 16,
-                  paddingVertical: 8,
-                  borderRadius: 20,
-                }}
-              >
-                <Text
-                  style={{
-                    color: active ? Colors.dark : Colors.muted,
-                    fontWeight: active ? "bold" : "500",
-                    fontSize: 13,
-                  }}
-                >
-                  {mod.label}
-                </Text>
-              </TouchableOpacity>
+  key={mod.value}
+  onPress={() => setFilter({ type: mod.value })}
+  activeOpacity={0.8}
+  style={{
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+
+    backgroundColor: isActive
+      ? Colors.yellow
+      : isFeatured
+      ? "#FFF3E0"
+      : Colors.white,
+
+    borderWidth: isActive ? 1.5 : 1,
+    borderColor: isActive
+      ? Colors.dark
+      : isFeatured
+      ? "#FFD59E"
+      : Colors.border,
+  }}
+>
+  {/* ⭐ Featured icon */}
+  {isFeatured && !isActive && (
+    <Ionicons
+      name="star"
+      size={12}
+      color="#FF9800"
+      style={{ marginRight: 6 }}
+    />
+  )}
+
+  {/* Label */}
+  <Text
+    style={{
+      color: isActive
+        ? Colors.dark
+        : isFeatured
+        ? "#8A5A00"
+        : Colors.muted,
+      fontWeight: isActive ? "bold" : "600",
+      fontSize: 13,
+    }}
+  >
+    {mod.label}
+  </Text>
+</TouchableOpacity>
             );
           })}
         </ScrollView>
@@ -470,9 +504,13 @@ const renderEmptyState = () => (
             <Text
               style={{ fontSize: 18, fontWeight: "bold", color: Colors.dark }}
             >
-              {filterDistrict
-                ? t("home.latest_near_you", "Latest Near You")
-                : t("home.latest_properties", "Latest Properties")}
+              {filterLocality
+                ? t("home.latest_in", "Latest in {{area}}", {
+                    area: filterLocality,
+                  })
+                : filterDistrict
+                  ? t("home.latest_near_you", "Latest Near You")
+                  : t("home.latest_properties", "Latest Properties")}
             </Text>
             {/* <TouchableOpacity onPress={navToSearch}>
               <Text

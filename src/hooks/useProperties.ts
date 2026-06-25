@@ -14,8 +14,8 @@ import { AxiosResponse } from "axios";
 export const QUERY_KEYS = {
   feed: (filters: PropertyFilter, userId?: string | null) =>
     ["properties", "feed", filters, userId ?? "guest"] as const,
-  featured: (userId?: string | null) =>
-    ["properties", "featured", userId ?? "guest"] as const,
+  featured: (userId?: string | null, district?: string, locality?: string) =>
+    ["properties", "featured", userId ?? "guest", district ?? "", locality ?? ""] as const,
   detail: (id: string) => ["properties", id] as const,
   related: (id: string) => ["properties", id, "related"] as const,
   saved: () => ["properties", "saved"] as const,
@@ -131,11 +131,14 @@ export function usePropertyFeed(filters: Omit<PropertyFilter, "page">) {
   });
 }
 
-export function useFeaturedProperties() {
+export function useFeaturedProperties(params?: {
+  district?: string;
+  locality?: string;
+}) {
   const userId = useAuthStore((s) => s.user?.id);
   return useQuery({
-    queryKey: QUERY_KEYS.featured(userId),
-    queryFn: () => propertiesApi.getFeatured(),
+    queryKey: QUERY_KEYS.featured(userId, params?.district, params?.locality),
+    queryFn: () => propertiesApi.getFeatured(params),
   });
 }
 

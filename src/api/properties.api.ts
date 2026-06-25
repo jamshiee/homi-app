@@ -7,6 +7,7 @@ export interface PropertyFilter {
   type?: string;
   transactionType?: TransactionTypeFilter;
   district?: string;
+  locality?: string;
   keyword?: string;
   page?: number;
   limit?: number;
@@ -27,8 +28,8 @@ export const propertiesApi = {
   getFeed: (filters: PropertyFilter) =>
     apiClient.get<ApiResponse<unknown[]>>("/properties", { params: filters }),
 
-  getFeatured: () =>
-    apiClient.get<ApiResponse<unknown[]>>("/properties/featured"),
+  getFeatured: (params?: { district?: string; locality?: string }) =>
+    apiClient.get<ApiResponse<unknown[]>>("/properties/featured", { params }),
 
   getById: (id: string) =>
     apiClient.get<ApiResponse<unknown>>(`/properties/${id}`),
@@ -66,4 +67,9 @@ export const propertiesApi = {
 
   getDistricts: () =>
     apiClient.get<ApiResponse<string[]>>("/properties/locations/districts"),
+
+  getLocalities: (district?: string) =>
+    apiClient.get<ApiResponse<string[]>>("/properties/locations/localities", {
+      params: district ? { district } : {},
+    }),
 };

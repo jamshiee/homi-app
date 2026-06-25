@@ -63,6 +63,7 @@ export default function Step2Location() {
           params: { lat: appLatitude, lon: appLongitude },
         });
         if (res.data?.data) {
+          console.log("homi backend reverse geocode response",JSON.stringify(res.data.data,null,2))
           const { locality: revLoc, district: revDist, displayAddress: revFull } =
             res.data.data;
           setField({

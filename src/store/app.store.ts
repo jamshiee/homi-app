@@ -6,9 +6,10 @@ interface AppState {
   language: 'en' | 'ml';
   latitude:number;
   longitude:number;
-  location?:string;
+  location?:string;   // district
+  locality?:string;   // locality (more granular than district)
   setLanguage: (lang: 'en' | 'ml') => Promise<void>;
-  setLocation: (latitude: number, longitude: number,location?:string) => void;
+  setLocation: (latitude: number, longitude: number, location?: string, locality?: string) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -16,12 +17,13 @@ export const useAppStore = create<AppState>((set) => ({
   latitude: 0,
   longitude: 0,
   location:"",
+  locality:"",
   setLanguage: async (lang) => {
     await changeLanguage(lang);
     set({ language: lang });
   },
-  setLocation: (latitude: number, longitude: number,location?:string) => {
-    set({ latitude, longitude,location });
+  setLocation: (latitude: number, longitude: number, location?: string, locality?: string) => {
+    set({ latitude, longitude, location, locality });
   },
 }));
 

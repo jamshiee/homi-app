@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import * as Location from "expo-location";
 import { useTranslation } from "react-i18next";
 import Toast from "react-native-toast-message";
 import { useFilterStore } from "@store/filter.store";
 import { isDistrictSupported } from "@constants/locations";
 import { useAppStore } from "@/store/app.store";
+import { apiClient } from "@/api/client";
 
 export function useLocation() {
   const { t } = useTranslation();
@@ -15,78 +16,87 @@ export function useLocation() {
     latitude: number;
     longitude: number;
     district: string | undefined;
+    locality: string | undefined;
   } | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const { status } = await Location.requestForegroundPermissionsAsync();
+  const fetchLocation = useCallback(async () => {
+    setLoading(true);
+    setErrorMsg(null);
 
-        if (status !== "granted") {
-          setErrorMsg("Permission to access location was denied");
-          setLocation({ latitude: 0, longitude: 0, district: undefined });
-          setFilter({ district: undefined });
-          setLoading(false);
-          return;
-        }
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
 
-        const currentPosition = await Location.getCurrentPositionAsync({});
-
-        console.log("userCurrentPosition", currentPosition);
-
-        // Reverse geocoding to find district
-        const geocode = await Location.reverseGeocodeAsync({
-          latitude: currentPosition.coords.latitude,
-          longitude: currentPosition.coords.longitude,
-        });
-
-        console.log("userGeocodeLocation", geocode);
-
-        const foundDistrict =
-          geocode[0]?.subregion || geocode[0]?.city || undefined;
-
-        console.log("foundDistrict", foundDistrict);
-
-        // Auto-select logic
-        let autoSelectedDistrict = undefined;
-        if (foundDistrict && isDistrictSupported(foundDistrict)) {
-          autoSelectedDistrict = foundDistrict;
-        }
-
-        setLocation({
-          latitude: currentPosition.coords.latitude,
-          longitude: currentPosition.coords.longitude,
-          district: autoSelectedDistrict,
-        });
-        // set location to global store
-        setAppLocation(
-          currentPosition.coords.latitude,
-          currentPosition.coords.longitude,
-          autoSelectedDistrict,
-        );
-
-        console.log("final userLocation", location);
-
-        // Sync with global filter store
-        setFilter({ district: autoSelectedDistrict });
-      } catch (error) {
-        console.warn("Error fetching location:", error);
-        setErrorMsg("Could not fetch location");
-        setLocation({ latitude: 0, longitude: 0, district: undefined });
-        setFilter({ district: undefined });
-
-        Toast.show({
-          type: "error",
-          text1: t("location.error", "Could not fetch location"),
-          text2: t("location.fallback", "Viewing all locations."),
-        });
-      } finally {
-        setLoading(false);
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
+        setLocation({ latitude: 0, longitude: 0, district: undefined, locality: undefined });
+        setFilter({ district: undefined, locality: undefined });
+        return;
       }
-    })();
-  }, [t, setFilter]);
 
-  return { location, loading, errorMsg };
+      const currentPosition = await Location.getCurrentPositionAsync({});
+      console.log("userCurrentPosition", currentPosition);
+
+      // Reverse geocoding via backend (supports Nominatim or Mapbox per env config)
+      const res = await apiClient.get("/geocoding/reverse", {
+        params: {
+          lat: currentPosition.coords.latitude,
+          lon: currentPosition.coords.longitude,
+        },
+      });
+
+      const geocodeData = res?.data?.data;
+      console.log("userGeocodeLocation", geocodeData);
+
+      const foundDistrict: string | undefined = geocodeData?.district;
+      const foundLocality: string | undefined = geocodeData?.locality;
+
+      console.log("foundDistrict", foundDistrict, "foundLocality", foundLocality);
+
+      // Only auto-select district if it's one we support
+      const autoSelectedDistrict =
+        foundDistrict && isDistrictSupported(foundDistrict)
+          ? foundDistrict
+          : undefined;
+
+      setLocation({
+        latitude: currentPosition.coords.latitude,
+        longitude: currentPosition.coords.longitude,
+        district: autoSelectedDistrict,
+        locality: foundLocality,
+      });
+
+      // Persist to global app store (lat/lon + labels for UI display)
+      setAppLocation(
+        currentPosition.coords.latitude,
+        currentPosition.coords.longitude,
+        autoSelectedDistrict,
+        foundLocality,
+      );
+
+      // Sync with filter store so the feed refreshes automatically
+      setFilter({ district: autoSelectedDistrict, locality: foundLocality });
+    } catch (error) {
+      console.warn("Error fetching location:", error);
+      setErrorMsg("Could not fetch location");
+      setLocation({ latitude: 0, longitude: 0, district: undefined, locality: undefined });
+      setFilter({ district: undefined, locality: undefined });
+
+      Toast.show({
+        type: "error",
+        text1: t("location.error", "Could not fetch location"),
+        text2: t("location.fallback", "Viewing all locations."),
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [t, setFilter, setAppLocation]);
+
+  // Auto-fetch on mount — existing callers (index.tsx etc.) are unaffected
+  useEffect(() => {
+    fetchLocation();
+  }, []);
+
+  return { location, loading, errorMsg, refetch: fetchLocation };
 }
