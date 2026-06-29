@@ -69,7 +69,7 @@ export default function HomeScreen() {
     isRefetching: isRefetchingFeatured,
   } = useFeaturedProperties(
     filterLocality
-      ? { locality: filterLocality }          // locality selected → scope to locality only
+      ? { locality: filterLocality, district: filterDistrict }          // locality selected → pass both to enable fallback
       : filterDistrict
         ? { district: filterDistrict }        // district only → scope to district
         : undefined                           // nothing selected → global featured list
@@ -462,7 +462,7 @@ export default function HomeScreen() {
               <Text
                 style={{ fontSize: 18, fontWeight: "bold", color: Colors.dark }}
               >
-                {t("home.featured", "Featured")}
+                {t("home.featured", "Featured Properties")}
               </Text>
               {/* <TouchableOpacity onPress={navToSearch}>
                 <Text
@@ -476,13 +476,13 @@ export default function HomeScreen() {
                 </Text>
               </TouchableOpacity> */}
             </View>
-            <ScrollView
+            {/* <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ paddingHorizontal: 8 }}
               snapToInterval={306} // 290 width + 16 margin
               decelerationRate="fast"
-            >
+            > */}
               {featuredProperties.map((prop) => (
                 <FeaturedPropertyCard
                   key={prop.id}
@@ -490,7 +490,7 @@ export default function HomeScreen() {
                   onPress={navToProperty}
                 />
               ))}
-            </ScrollView>
+            {/* </ScrollView> */}
           </View>
         )}
 
