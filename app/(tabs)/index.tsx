@@ -80,7 +80,7 @@ export default function HomeScreen() {
     refetch: refetchFeed,
     isRefetching: isRefetchingFeed,
   } = usePropertyFeed({
-    type: filterType !== "all" ? filterType : undefined,
+    type: filterType && filterType.length > 0 && !filterType.includes("all" as PropertyType) ? filterType : undefined,
     district: filterDistrict,
     locality: filterLocality,
     transactionType: filterTransactionType,
@@ -266,6 +266,18 @@ export default function HomeScreen() {
     </View>
   );
 
+  const isLocalityAndDistrictSelected = !!(filterLocality && filterDistrict);
+  const localityMatches = isLocalityAndDistrictSelected
+    ? feedProperties.filter((p) =>
+        p.locality?.toLowerCase().includes(filterLocality.toLowerCase())
+      )
+    : [];
+  const districtMatches = isLocalityAndDistrictSelected
+    ? feedProperties.filter((p) =>
+        !p.locality?.toLowerCase().includes(filterLocality.toLowerCase())
+      )
+    : [];
+
   return (
     <SafeAreaView
       style={{ flex: 1, backgroundColor: Colors.surface }}
@@ -390,12 +402,23 @@ export default function HomeScreen() {
           }}
         >
           {types.map((mod, idx) => {
-            const isActive = filterType === mod.value;
+            const isActive = mod.value === 'all' ? (filterType.length === 0 || filterType.includes('all')) : filterType.includes(mod.value);
             const isFeatured = featuredTypes.includes(mod.value);
             return (
               <TouchableOpacity
   key={mod.value}
-  onPress={() => setFilter({ type: mod.value })}
+  onPress={() => {
+    if (mod.value === 'all') {
+      setFilter({ type: [] });
+    } else {
+      const currentTypes = filterType.includes('all') ? [] : filterType;
+      if (currentTypes.includes(mod.value)) {
+        setFilter({ type: currentTypes.filter(t => t !== mod.value) });
+      } else {
+        setFilter({ type: [...currentTypes, mod.value] });
+      }
+    }
+  }}
   activeOpacity={0.8}
   style={{
     flexDirection: "row",
@@ -496,60 +519,123 @@ export default function HomeScreen() {
 
         {/* Latest feed */}
         <View>
-          <View
-            style={{
+          {isLocalityAndDistrictSelected ? (
+            <>
+{(!feedLoading && localityMatches.length === 0 && districtMatches.length > 0) ? (
+  // Merged "no locality match → showing district" block
+  <View style={{ marginTop: -8, marginBottom: 16 }}>
+    {/* Divider with centered label, replaces the old two-line header stack */}
+    <View style={{
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: 16,
+      marginBottom: 18,
+    }}>
+      <View style={{ flex: 1, height: 1, backgroundColor: Colors.border }} />
+      <Text style={{ fontSize: 12, color: Colors.muted, marginHorizontal: 10 }}>
+        {t("home.no_match_divider", "No results in {{locality}}", { locality: filterLocality })}
+      </Text>
+      <View style={{ flex: 1, height: 1, backgroundColor: Colors.border }} />
+    </View>
+
+    <View style={{
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: 16,
+      marginBottom: 12,
+    }}>
+      <Ionicons name="map-outline" size={18} color={Colors.dark} style={{ marginRight: 6 }} />
+      <Text style={{ fontSize: 18, fontWeight: "bold", color: Colors.dark }}>
+        {t("home.nearby_in_district", "Showing nearby in {{district}}", { district: filterDistrict })}
+      </Text>
+    </View>
+
+    {districtMatches.map((prop) => (
+      <PropertyCard key={prop.id} property={prop} onPress={navToProperty} />
+    ))}
+  </View>
+) : (
+      <>
+        {/* Locality Properties Section — unchanged */}
+        <View style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 16, marginBottom: 12 }}>
+          <Ionicons name="location" size={20} color={Colors.yellow} style={{ marginRight: 8 }} />
+          <Text style={{ fontSize: 18, fontWeight: "bold", color: Colors.dark }}>
+            {t("home.properties_in_locality", "Properties in {{locality}}", { locality: filterLocality })}
+          </Text>
+        </View>
+
+        {feedLoading ? (
+          <ActivityIndicator size="large" color={Colors.yellow} style={{ marginTop: 24 }} />
+        ) : (
+          localityMatches.map((prop) => (
+            <PropertyCard key={prop.id} property={prop} onPress={navToProperty} />
+          ))
+        )}
+
+        {/* Other District Properties Section — only shown alongside actual locality results */}
+        {!feedLoading && districtMatches.length > 0 && (
+          <>
+            <View style={{
               flexDirection: "row",
-              justifyContent: "space-between",
               alignItems: "center",
               paddingHorizontal: 16,
+              marginTop: 16,
               marginBottom: 12,
-            }}
-          >
-            <Text
-              style={{ fontSize: 18, fontWeight: "bold", color: Colors.dark }}
-            >
-              {filterLocality
-                ? t("home.latest_in", "Latest in {{area}}", {
-                    area: filterLocality,
-                  })
-                : filterDistrict
-                  ? t("home.latest_near_you", "Latest Near You")
-                  : t("home.latest_properties", "Latest Properties")}
-            </Text>
-            {/* <TouchableOpacity onPress={navToSearch}>
-              <Text
-                style={{ fontSize: 13, color: Colors.muted, fontWeight: "600" }}
-              >
-                {t("home.see_all", "See all →")}
+            }}>
+              <Ionicons name="map" size={20} color={Colors.muted} style={{ marginRight: 8 }} />
+              <Text style={{ fontSize: 18, fontWeight: "bold", color: Colors.dark }}>
+                {t("home.other_properties_in_district", "Other properties in {{district}}", { district: filterDistrict })}
               </Text>
-            </TouchableOpacity> */}
-          </View>
+            </View>
+            {districtMatches.map((prop) => (
+              <PropertyCard key={prop.id} property={prop} onPress={navToProperty} />
+            ))}
+          </>
+        )}
+      </>
+    )}
 
-          {feedLoading ? (
-            <ActivityIndicator
-              size="large"
-              color={Colors.yellow}
-              style={{ marginTop: 24 }}
-            />
-          ) : feedProperties.length > 0 ? (
-            feedProperties.map((prop) => (
-              <PropertyCard
-                key={prop.id}
-                property={prop}
-                onPress={navToProperty}
-              />
-            ))
+              {!feedLoading && localityMatches.length === 0 && districtMatches.length === 0 && renderEmptyState()}
+            </>
           ) : (
-            renderEmptyState()
-            // <View style={{ alignItems: 'center', justifyContent: 'center', padding: 40 }}>
-            //   <Ionicons name="search-outline" size={48} color={Colors.lightMuted} />
-            //   <Text style={{ fontSize: 16, fontWeight: 'bold', color: Colors.dark, marginTop: 12 }}>
-            //     {t('home.empty_feed', 'No properties found in this area.')}
-            //   </Text>
-            //   <Text style={{ fontSize: 13, color: Colors.muted, marginTop: 4, textAlign: 'center', paddingHorizontal: 12 }}>
-            //     {t('home.empty_feed_sub', 'Try selecting a different filter or search in a different area.')}
-            //   </Text>
-            // </View>
+            <>
+              {/* Default Feed Layout */}
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  paddingHorizontal: 16,
+                  marginBottom: 12,
+                }}
+              >
+                <Text
+                  style={{ fontSize: 18, fontWeight: "bold", color: Colors.dark }}
+                >
+                  {filterDistrict
+                    ? t("home.latest_near_you", "Latest Near You")
+                    : t("home.latest_properties", "Latest Properties")}
+                </Text>
+              </View>
+
+              {feedLoading ? (
+                <ActivityIndicator
+                  size="large"
+                  color={Colors.yellow}
+                  style={{ marginTop: 24 }}
+                />
+              ) : feedProperties.length > 0 ? (
+                feedProperties.map((prop) => (
+                  <PropertyCard
+                    key={prop.id}
+                    property={prop}
+                    onPress={navToProperty}
+                  />
+                ))
+              ) : (
+                renderEmptyState()
+              )}
+            </>
           )}
         </View>
       </ScrollView>

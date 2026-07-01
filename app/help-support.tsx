@@ -179,7 +179,7 @@ export default function HelpSupportScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.contactRow, styles.contactRowBorder]}
+            style={styles.contactRow}
             onPress={openInstagram}
           >
             <Ionicons name="logo-instagram" size={20} color={Colors.dark} />
@@ -189,6 +189,20 @@ export default function HelpSupportScreen() {
             </View>
             <Ionicons name="chevron-forward" size={20} color={Colors.muted} />
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.contactRow, styles.contactRowBorder]}
+            onPress={() => Linking.openURL("tel:+918848084905")}
+          >
+            <Ionicons name="call-outline" size={20} color={Colors.dark} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.contactLabel}>{t("help.mobile")}</Text>
+              <Text style={styles.contactValue}>+91 8848084905</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={Colors.muted} />
+          </TouchableOpacity>
+
+          
         </View>
       </ScrollView>
     </SafeAreaView>

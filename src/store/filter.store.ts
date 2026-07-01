@@ -6,7 +6,7 @@ import { create } from 'zustand';
 export type PropertyType = 'land' | 'house' | 'building' | 'hotel' | 'all';
 
 export interface FilterState {
-  type: PropertyType;
+  type: PropertyType[];
   transactionType: TransactionType;
   district?: string;
   locality?: string;
@@ -39,7 +39,7 @@ export interface FilterState {
 }
 
 const defaultState: FilterState = {
-  type: 'all',
+  type: [],
   transactionType: TransactionType.ALL,
   district: undefined,
   locality: undefined,
@@ -80,15 +80,15 @@ export const useFilterStore = create<FilterStore>((set) => ({
   setFilter: (updates) =>
     set((state) => {
       // If module changes, clear type-specific filters
-      if (updates.type && updates.type !== state.type) {
-        const newType = updates.type;
+      if (updates.type && JSON.stringify(updates.type) !== JSON.stringify(state.type)) {
+        const newTypes = updates.type;
         const newState = {
           ...state,
           ...updates,
         };
 
         // Clear hotel-specific filters when switching away from hotel
-        if (state.type === 'hotel' && newType !== 'hotel') {
+        if (state.type.includes('hotel') && !newTypes.includes('hotel')) {
           newState.hotelSubtype = undefined;
           newState.roomType = undefined;
           newState.occupancy = undefined;
@@ -97,20 +97,20 @@ export const useFilterStore = create<FilterStore>((set) => ({
         }
 
         // Clear house-specific filters when switching away from house
-        if (state.type === 'house' && newType !== 'house') {
+        if (state.type.includes('house') && !newTypes.includes('house')) {
           newState.bedrooms = undefined;
           newState.bathrooms = undefined;
           newState.furnishingStatus = undefined;
         }
 
         // Clear building-specific filters when switching away from building
-        if (state.type === 'building' && newType !== 'building') {
+        if (state.type.includes('building') && !newTypes.includes('building')) {
           newState.buildingSubtype = undefined;
           newState.floorNumber = undefined;
         }
 
         // Clear land-specific filters when switching away from land
-        if (state.type === 'land' && newType !== 'land') {
+        if (state.type.includes('land') && !newTypes.includes('land')) {
           newState.minArea = undefined;
           newState.maxArea = undefined;
           newState.areaUnit = undefined;

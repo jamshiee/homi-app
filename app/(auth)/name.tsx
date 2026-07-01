@@ -29,14 +29,14 @@ export default function NameScreen() {
     try {
       await apiClient.patch('/users/me', { name: name.trim() });
       updateUser({ name: name.trim() });
-      router.replace('/(tabs)');
+      router.replace('/property-type-select');
     } catch {
       Toast.show({
         type: 'info',
         text1: t('auth.profile_saved_title'),
         text2: t('auth.profile_saved_body'),
       });
-      router.replace('/(tabs)');
+      router.replace('/property-type-select');
     } finally {
       setLoading(false);
     }

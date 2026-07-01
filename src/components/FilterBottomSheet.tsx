@@ -97,7 +97,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
 
   const renderPill = (
     label: string,
-    isSelected: boolean,
+    isSelected: boolean | undefined,
     onPress: () => void,
     fullWidth = false
   ) => (
@@ -157,29 +157,35 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
                 { label: t('modules.land'), value: 'land' },
                 { label: t('modules.building'), value: 'building' },
               ].map((opt) =>
-                renderPill(opt.label, localState.type === opt.value, () => {
-                  const newType = localState.type === opt.value ? 'all' : (opt.value as PropertyType);
+                renderPill(opt.label, localState.type?.includes(opt.value as PropertyType), () => {
                   setLocalState((s) => {
-                    const newState = { ...s, type: newType };
+                    const currentTypes = s.type || [];
+                    let newTypes;
+                    if (currentTypes.includes(opt.value as PropertyType)) {
+                      newTypes = currentTypes.filter(t => t !== opt.value);
+                    } else {
+                      newTypes = [...currentTypes, opt.value as PropertyType];
+                    }
+                    const newState = { ...s, type: newTypes };
 
                     // Clear type-specific filters when switching types
-                    if (s.type === 'hotel' && newType !== 'hotel') {
+                    if (!newTypes.includes('hotel')) {
                       newState.hotelSubtype = undefined;
                       newState.roomType = undefined;
                       newState.occupancy = undefined;
                       newState.mealsIncluded = undefined;
                       newState.hotelCategory = undefined;
                     }
-                    if (s.type === 'house' && newType !== 'house') {
+                    if (!newTypes.includes('house')) {
                       newState.bedrooms = undefined;
                       newState.bathrooms = undefined;
                       newState.furnishingStatus = undefined;
                     }
-                    if (s.type === 'building' && newType !== 'building') {
+                    if (!newTypes.includes('building')) {
                       newState.buildingSubtype = undefined;
                       newState.floorNumber = undefined;
                     }
-                    if (s.type === 'land' && newType !== 'land') {
+                    if (!newTypes.includes('land')) {
                       newState.minArea = undefined;
                       newState.maxArea = undefined;
                       newState.areaUnit = 'cents';
@@ -192,7 +198,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
             </View>
 
                      {/* DYNAMIC FILTERS: HOUSE */}
-            {localState.type === 'house' && (
+            {localState.type?.includes('house') && (
               <>
                 {renderSectionHeader(t('filter.bedrooms'))}
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
@@ -228,7 +234,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
             )}
 
             {/* DYNAMIC FILTERS: LAND */}
-            {localState.type === 'land' && (
+            {localState.type?.includes('land') && (
               <>
                 {renderSectionHeader(t('filter.area_unit'))}
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
@@ -263,7 +269,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
             )}
 
             {/* DYNAMIC FILTERS: HOTEL */}
-            {localState.type === 'hotel' && (
+            {localState.type?.includes('hotel') && (
               <>
                 {renderSectionHeader(t('filter.hotel_subtype', 'Hotel Subtype'))}
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>

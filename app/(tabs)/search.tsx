@@ -61,7 +61,7 @@ export default function SearchScreen() {
   // Fetch data
   const { data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } =
     usePropertyFeed({
-      type: type !== "all" ? type : undefined,
+      type: type && type.length > 0 && !type.includes("all" as PropertyType) ? type : undefined,
       keyword: searchQuery || undefined,
       district: filterState.district,
       locality: filterState.locality,
@@ -86,6 +86,43 @@ export default function SearchScreen() {
   const properties =
     data?.pages.flatMap((p) => p.data.data as PropertyDto[]) || [];
   const totalCount = data?.pages[0]?.data.meta?.total || 0;
+
+  const isLocalityAndDistrictSelected = !!(filterState.locality && filterState.district);
+
+  const renderData = React.useMemo(() => {
+    if (!isLocalityAndDistrictSelected) {
+      return properties.map(p => ({ type: 'property', data: p, id: p.id }));
+    }
+
+    const localityMatches = properties.filter((p) =>
+      p.locality?.toLowerCase().includes(filterState.locality!.toLowerCase())
+    );
+    const districtMatches = properties.filter((p) =>
+      !p.locality?.toLowerCase().includes(filterState.locality!.toLowerCase())
+    );
+
+    const items: any[] = [];
+
+    if (localityMatches.length > 0) {
+  items.push({ type: 'header', id: 'header-loc', title: t("home.properties_in_locality", "Properties in {{locality}}", { locality: filterState.locality }) });
+  items.push(...localityMatches.map(p => ({ type: 'property', data: p, id: p.id })));
+} else if (properties.length > 0) {
+  items.push({ type: 'divider', id: 'empty-loc-divider', locality: filterState.locality });
+}
+
+if (districtMatches.length > 0) {
+  items.push({
+    type: 'header',
+    id: 'header-dist',
+    title: localityMatches.length > 0
+      ? t("home.other_properties_in_district", "Other properties in {{district}}", { district: filterState.district })
+      : t("home.nearby_in_district", "Showing nearby in {{district}}", { district: filterState.district }),
+  });
+  items.push(...districtMatches.map(p => ({ type: 'property', data: p, id: p.id })));
+}
+
+    return items;
+  }, [properties, isLocalityAndDistrictSelected, filterState.locality, filterState.district, t]);
 
   const modules: { label: string; value: PropertyType }[] = [
     { label: t("modules.all", "All"), value: "all" },
@@ -602,11 +639,41 @@ const renderEmptyState = () => (
           />
         ) : (
           <FlatList
-            data={properties}
+            data={renderData}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <PropertyCard property={item} onPress={navToProperty} />
-            )}
+            renderItem={({ item }) => {
+              if (item.type === 'header') {
+                return (
+                  <View style={{ paddingHorizontal: 16, paddingVertical: 12, marginTop: 8 }}>
+                    <Text style={{ fontSize: 18, fontWeight: "bold", color: Colors.dark }}>
+                      {item.title}
+                    </Text>
+                  </View>
+                );
+              }
+              // if (item.type === 'empty-locality') {
+              //   return (
+              //     <View style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
+              //       <Text style={{ fontSize: 14, color: Colors.muted }}>
+              //         {t("search.no_results", "No results in {{area}}", { area: item.locality })}
+              //         {` Showing properties in ${item.district}.`}
+              //       </Text>
+              //     </View>
+              //   );
+              // }
+              if (item.type === 'divider') {
+  return (
+    <View style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 16, marginTop: 12, marginBottom: 4 }}>
+      <View style={{ flex: 1, height: 1, backgroundColor: Colors.border }} />
+      <Text style={{ fontSize: 12, color: Colors.muted, marginHorizontal: 10 }}>
+        {t("home.no_match_divider", "No results in {{locality}}", { locality: item.locality })}
+      </Text>
+      <View style={{ flex: 1, height: 1, backgroundColor: Colors.border }} />
+    </View>
+  );
+}
+              return <PropertyCard property={item.data} onPress={navToProperty} />;
+            }}
             contentContainerStyle={{ paddingBottom: 24, paddingHorizontal: 4 }}
             ListEmptyComponent={renderEmptyState}
             onEndReached={() => {

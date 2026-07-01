@@ -15,17 +15,20 @@ export function useActiveFilters() {
   const activeFilters: ActiveFilter[] = [];
 
   // Property Type
-  if (filterState.type && filterState.type !== "all") {
+  if (filterState.type && filterState.type.length > 0 && !filterState.type.includes("all")) {
     const typeMap: Record<string, string> = {
       land: "Land/Plot",
       house: "House",
       building: "Building",
       hotel: "Hotel/PG",
     };
+    
+    const label = filterState.type.map(t => typeMap[t] || t).join(', ');
+    
     activeFilters.push({
       id: "type",
-      label: typeMap[filterState.type] || filterState.type,
-      clear: () => setFilter({ type: "all" }),
+      label,
+      clear: () => setFilter({ type: [] }),
     });
   }
 

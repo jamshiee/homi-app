@@ -2,9 +2,10 @@ import { TransactionTypeFilter } from "@/common/enums/transaction-type-filter.en
 import { apiClient } from "./client";
 import { ApiResponse, isSavedDto } from "./types";
 import { SortOptionEnum } from "@/common/enums/sort-option-filter.enum";
+import { PropertyType } from "@/store/filter.store";
 
 export interface PropertyFilter {
-  type?: string;
+  type?: PropertyType[] | undefined;
   transactionType?: TransactionTypeFilter;
   district?: string;
   locality?: string;
@@ -27,8 +28,13 @@ export interface PropertyFilter {
 }
 
 export const propertiesApi = {
-  getFeed: (filters: PropertyFilter) =>
-    apiClient.get<ApiResponse<unknown[]>>("/properties", { params: filters }),
+  getFeed: (filters: PropertyFilter) => {
+    const params = { ...filters };
+    if (params.type && Array.isArray(params.type)) {
+      params.type = params.type.join(",") as any;
+    }
+    return apiClient.get<ApiResponse<unknown[]>>("/properties", { params });
+  },
 
   getFeatured: (params?: { district?: string; locality?: string }) =>
     apiClient.get<ApiResponse<unknown[]>>("/properties/featured", { params }),

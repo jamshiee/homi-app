@@ -129,7 +129,7 @@ export default function OtpScreen() {
 
       await login(data);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      router.replace(data.isNewUser ? "/(auth)/name" : "/(tabs)");
+      router.replace(data.isNewUser ? "/(auth)/name" : "/property-type-select");
     } catch (err: unknown) {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       const ax = err as {

@@ -27,6 +27,15 @@
     "profile_saved_title": "Profile saved",
     "profile_saved_body": "You can update your name later from Profile."
   },
+    "welcome": {
+    "what_are_you_looking_for": "What are you\nlooking for?",
+    "select_property_type": "Choose a category to find the best properties that match your needs.",
+    "hotels_resorts": "Hotels & Resorts",
+    "hotels_subtitle": "Find stays, lodges, and luxury resorts for your next trip.",
+    "house_land_buildings": "House, Land & Buildings",
+    "real_estate_subtitle": "Buy, sell, or rent residential and commercial properties.",
+    "browse_all": "Browse all properties instead"
+  },
   "common": {
     "loading": "Loading...",
     "error_generic": "Something went wrong. Please try again.",
@@ -183,6 +192,7 @@
     "contact_title": "Get in Touch",
     "email": "Email",
     "instagram": "Instagram",
+    "mobile": "Mobile",
     "instagram_error": "Could not open Instagram."
   },
  "about": {
@@ -242,6 +252,9 @@
     "latest_in": "Latest in {{area}}",
     "latest_near_you": "Latest Near You",
     "latest_properties": "Latest Properties",
+    "properties_in_locality": "Properties in {{locality}}",
+    "other_properties_in_district": "Other properties in {{district}}",
+    "empty_locality_suggestion": "We couldn't find any properties directly in {{locality}}. Check out these properties nearby in {{district}}.",
     "create_first_property": "There are no properties yet. Create the first listing.",
     "no_properties_available": "There are no properties available at the moment. Please check back later."
   },
