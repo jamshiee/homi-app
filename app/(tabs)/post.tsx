@@ -110,23 +110,8 @@ export function PostScreen({ mode = "create", propertyId }: PostScreenProps) {
   }, [hydrateForEdit, mode, propertyId]);
 
   if (mode === "create" && !isAdmin) {
-    return (
-      <SafeAreaView style={styles.guardContainer}>
-        <View style={styles.guardCard}>
-          <View style={styles.errorIcon}>
-            <MaterialCommunityIcons
-              name="shield-lock-outline"
-              size={60}
-              color={Colors.error}
-            />
-          </View>
-          <Text style={styles.guardTitle}>{t("post.admin_required")}</Text>
-          <Text style={styles.guardSubtitle}>
-            {t("post.admin_required_sub")}
-          </Text>
-        </View>
-      </SafeAreaView>
-    );
+    // Non-admin users can still create — no guard needed
+    // (left intentionally blank — falls through to the form below)
   }
 
   if (mode === "edit" && isHydrating) {
@@ -176,7 +161,7 @@ export function PostScreen({ mode = "create", propertyId }: PostScreenProps) {
         if (type === "building")
           return !buildingDetail?.totalArea || !buildingDetail?.subType;
         if (type === "hotel")
-          return !hotelDetail?.subType || !hotelDetail?.roomType;
+          return !hotelDetail?.subType || !hotelDetail?.roomType || !hotelDetail?.hotelCategory;
         return true;
       case 4:
         return !title || !transactionType || !price;

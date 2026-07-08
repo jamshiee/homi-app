@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Platform, View, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '@store/auth.store';
 import { Colors } from '@constants/colors';
@@ -33,6 +34,7 @@ export default function TabsLayout() {
   const { t } = useTranslation();
   const { user } = useAuthStore();
   const isAdmin = user?.isAdmin ?? false;
+  const insets = useSafeAreaInsets();
 
   return (
     <Tabs
@@ -42,8 +44,8 @@ export default function TabsLayout() {
           backgroundColor: Colors.white,
           borderTopColor: Colors.border,
           borderTopWidth: 0.5,
-          height: Platform.OS === 'ios' ? 84 : 64,
-          paddingBottom: Platform.OS === 'ios' ? 24 : 8,
+          height: 60 + insets.bottom,
+          paddingBottom: insets.bottom > 0 ? insets.bottom : 8,
           paddingTop: 8,
         },
         tabBarActiveTintColor: Colors.dark,
@@ -81,7 +83,6 @@ export default function TabsLayout() {
         options={{
           title: t('tabs.post'),
           tabBarLabel: '',
-          href: isAdmin ? undefined : null,
           tabBarIcon: () => <PostTabIcon />,
           tabBarItemStyle: { marginTop: -10 },
           tabBarStyle: { display: 'none' },

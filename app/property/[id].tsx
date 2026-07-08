@@ -223,6 +223,7 @@ export default function PropertyDetailScreen() {
           isFeatured={property.isFeatured}
           isNegotiable={property.isNegotiable}
           isVerified={property.isVerified}
+          serialNo={property.serialNo}
         />
 
         <View className="mx-4 h-[1px] bg-gray-200" />

@@ -12,11 +12,13 @@ import { PriceUnitEnum } from "@/common/enums/property-enums/price-unit.enum";
 import { LinearGradient } from "expo-linear-gradient";
 import { useToggleSave } from "@/hooks/useProperties";
 import { useAuthStore } from "@/store/auth.store";
+import { ModerationPanel } from "./common/ModerationPanel";
 
 export interface PropertyCardProps {
   property: PropertyDto;
   onPress?: (id: string) => void;
   showActions?: boolean;
+  showModerationStatus?: boolean;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
 }
@@ -25,6 +27,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   property,
   onPress,
   showActions = false,
+  showModerationStatus = false,
   onEdit,
   onDelete,
 }) => {
@@ -510,6 +513,14 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
           </View>
         )}
 
+                {showModerationStatus &&
+ property.moderationStatus !== "approved" && (
+    <ModerationPanel
+        status={property.moderationStatus}
+        reason={property.rejectionReason}
+    />
+)}
+
         {/* Footer buttons */}
         {showActions && (
           <View style={{ flexDirection: "row", gap: 8 }}>
@@ -542,6 +553,8 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             </TouchableOpacity>
           </View>
         )}
+
+
       </View>
     </TouchableOpacity>
   );

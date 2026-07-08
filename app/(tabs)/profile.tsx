@@ -239,6 +239,22 @@ export default function ProfileScreen() {
           <View style={styles.profileInfo}>
             <Text style={styles.nameText}>{user.name || user.phone}</Text>
             <Text style={styles.phoneText}>{user.phone}</Text>
+                 {user?.isAdmin && (
+            <Text
+             style={{
+              color:Colors.white,
+              backgroundColor:Colors.dark,
+              padding:5,
+              flexShrink: 0,
+              maxWidth:60,
+              textAlign: "center",
+              borderRadius:8,
+              fontSize: 12,
+              fontWeight: "700",
+              textTransform: "uppercase",
+              marginTop: 4,
+            }}>Admin</Text>
+            )}
           </View>
 
           {/* Edit Button */}
@@ -246,6 +262,7 @@ export default function ProfileScreen() {
             style={[styles.editButton, isEditing && styles.editButtonActive]}
             onPress={() => setIsEditing(!isEditing)}
           >
+
             <Ionicons
               name={isEditing ? "close" : "pencil"}
               size={18}
@@ -298,13 +315,14 @@ export default function ProfileScreen() {
           <TouchableOpacity
             onPress={() => handleLanguageToggle()}
             style={styles.sectionHeader}
+            activeOpacity={0.7}
           >
             <View style={styles.sectionTitleContainer}>
               <Ionicons name="globe-outline" size={20} color={Colors.muted} />
               <Text style={styles.sectionTitle}>{t("profile.language")}</Text>
             </View>
             <View style={styles.languagePill}>
-              <TouchableOpacity
+              <View
                 style={[
                   styles.pillButton,
                   user.preferredLanguage === "en" && styles.pillButtonActive,
@@ -318,12 +336,8 @@ export default function ProfileScreen() {
                 >
                   EN
                 </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  setLanguage("ml");
-                  updateUser({ preferredLanguage: "ml" });
-                }}
+              </View>
+              <View
                 style={[
                   styles.pillButton,
                   user.preferredLanguage === "ml" && styles.pillButtonActive,
@@ -337,22 +351,38 @@ export default function ProfileScreen() {
                 >
                   മല
                 </Text>
-              </TouchableOpacity>
+              </View>
             </View>
           </TouchableOpacity>
         </View>
 
         {/* Actions Section */}
         <View style={styles.section}>
+          {/* My Listings — visible to all users */}
+          <TouchableOpacity
+            style={styles.actionRow}
+            onPress={() => router.push("/my-listings")}
+          >
+            <Ionicons name="home-outline" size={20} color={Colors.dark} />
+            <Text style={styles.actionText}>
+              {t("profile.my_listings")}
+            </Text>
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={Colors.muted}
+            />
+          </TouchableOpacity>
+
           {user.isAdmin && (
             <>
               <TouchableOpacity
                 style={styles.actionRow}
-                onPress={() => router.push("/my-listings")}
+                onPress={() => router.push("/(admin)/featured" as any)}
               >
-                <Ionicons name="home-outline" size={20} color={Colors.dark} />
+                <Ionicons name="star-outline" size={20} color={Colors.dark} />
                 <Text style={styles.actionText}>
-                  {t("profile.my_listings")}
+                  {t("profile.featured_properties", "Featured Properties")}
                 </Text>
                 <Ionicons
                   name="chevron-forward"
@@ -363,11 +393,11 @@ export default function ProfileScreen() {
 
               <TouchableOpacity
                 style={styles.actionRow}
-                onPress={() => router.push("/(admin)/featured" as any)}
+                onPress={() => router.push("/(admin)/moderation" as any)}
               >
-                <Ionicons name="star-outline" size={20} color={Colors.dark} />
+                <Ionicons name="shield-checkmark-outline" size={20} color={Colors.dark} />
                 <Text style={styles.actionText}>
-                  {t("profile.featured_properties", "Featured Properties")}
+                  {t("profile.moderation_queue", "Moderation Queue")}
                 </Text>
                 <Ionicons
                   name="chevron-forward"

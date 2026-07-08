@@ -1,5 +1,5 @@
 export enum HotelCategoryEnum {
-  LUXURY = "luxury",
+  CLASSIC = "classic",
   PREMIUM = "premium",
-  CLASSIC = "classic"
+  LUXURY = "luxury"
 }

@@ -26,6 +26,10 @@ export default function AdminLayout() {
           presentation: 'modal',
         }}
       />
+      <Stack.Screen
+        name="moderation/index"
+        options={{ headerShown: false }}
+      />
     </Stack>
   );
 }

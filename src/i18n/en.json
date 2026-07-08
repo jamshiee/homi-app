@@ -132,7 +132,12 @@
     "my_listings": "My Listings",
     "photo_uploaded": "Profile photo updated successfully",
     "empty_my_listings": "No listings yet",
-    "confirm_delete_listing": "Delete this listing?"
+    "confirm_delete_listing": "Delete this listing?",
+    "moderation_queue": "Moderation Queue",
+    "delete_account": "Delete Account",
+    "delete_account_prompt": "Are you sure you want to delete your account? This will permanently remove your profile and all your listings. Type 'DELETE' to confirm.",
+    "account_deleted_title": "Account Deleted",
+    "account_deleted_body": "Your account has been deleted successfully."
   },
     "featured": {
     "title": "Featured Properties",
@@ -418,6 +423,46 @@
     "step7_subtype": "SUBTYPE",
     "step7_status": "STATUS",
     "step7_room_type": "ROOM TYPE",
-    "step7_occupancy": "OCCUPANCY"
+    "step7_occupancy": "OCCUPANCY",
+    "under_review_title": "Your property is under review",
+    "successfully_posted_title": "Your Property Has Been Submitted",
+    "successfully_posted_body": "Thanks for posting your property. Our team will review your listing shortly to ensure everything looks good. Once approved, it will become visible to buyers and tenants.",
+    "under_review_body": "Our team will review your listing and get back to you shortly. You can track the status in My Listings.",
+    "under_review_cta": "View My Listings",
+    "under_review_home": "Back to Home"
+  },
+  "my_listings": {
+    "rejection_reason_label": "Reason",
+    "resubmit_hint": "Edit your listing to resubmit for review."
+  },
+  "moderation": {
+    "title": "Moderation Queue",
+    "search_placeholder": "Search by title, district, locality…",
+    "tab_pending": "Pending",
+    "tab_rejected": "Rejected",
+    "tab_approved": "Approved",
+    "filter_all": "All",
+    "filter_land": "Land",
+    "filter_house": "House",
+    "filter_building": "Building",
+    "filter_hotel": "Hotel",
+    "empty_pending": "No pending properties",
+    "empty_rejected": "No rejected properties",
+    "empty_approved": "No approved properties",
+    "action_view": "View",
+    "action_edit": "Edit",
+    "action_approve": "Approve",
+    "action_reject": "Reject",
+    "action_approve_success": "Property approved",
+    "action_approve_failed": "Failed to approve",
+    "action_reject_success": "Property rejected",
+    "action_reject_failed": "Failed to reject",
+    "fetch_failed": "Failed to load properties",
+    "by_lister": "by {{name}}",
+    "reject_modal_title": "Reject Property",
+    "reject_modal_subtitle": "Provide a reason so the user can fix and resubmit.",
+    "reject_modal_placeholder": "Reason for rejection (optional)",
+    "reject_modal_cancel": "Cancel",
+    "reject_modal_confirm": "Reject"
   }
 }

@@ -20,6 +20,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "../../hooks/useProperties";
 import * as ImageManipulator from "expo-image-manipulator";
 import { useTranslation } from "react-i18next";
+import { useAuthStore } from "../../store/auth.store";
 
 interface AmenityData {
   id: string;
@@ -58,6 +59,8 @@ export default function Step7Review() {
   } = usePostStore();
 
   const { t } = useTranslation();
+  const { user } = useAuthStore();
+  const isAdmin = user?.isAdmin ?? false;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStep, setSubmitStep] = useState("");
   const [amenitiesMap, setAmenitiesMap] = useState<Record<string, AmenityData>>({});
@@ -201,13 +204,6 @@ export default function Step7Review() {
       }
 
       setSubmitStep("Done!");
-      Toast.show({
-        type: "success",
-        text1: isEditMode ? t('post.step7_listing_updated') : t('post.step7_listing_published'),
-        text2: isEditMode
-          ? t('post.step7_update_saved')
-          : t('post.step7_now_active'),
-      });
 
       queryClient.invalidateQueries({ queryKey: ["properties", "feed"] });
       queryClient.invalidateQueries({ queryKey: ["properties", "featured"] });
@@ -216,10 +212,25 @@ export default function Step7Review() {
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.detail(propertyId) });
       }
 
-      await resetForm();
       if (isEditMode && propertyId) {
+        await resetForm();
+        Toast.show({
+          type: "success",
+          text1: t('post.step7_listing_updated'),
+          text2: t('post.step7_update_saved'),
+        });
         router.replace(`/property/${propertyId}` as any);
+      } else if (!isAdmin) {
+        // Navigate to the dedicated under-review screen.
+        // resetForm is called there once the user taps a CTA.
+        router.replace("/post-success" as any);
       } else {
+        await resetForm();
+        Toast.show({
+          type: "success",
+          text1: t('post.step7_listing_published'),
+          text2: t('post.step7_now_active'),
+        });
         router.replace("/(tabs)");
       }
     } catch (err: any) {

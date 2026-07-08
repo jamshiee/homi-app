@@ -97,10 +97,10 @@ export default function Step3Details() {
       hotelDetail: {
         ...(hotelDetail || {
           subType: HotelSubTypeEnum.HOTEL,
-          roomType: RoomTypeEnum.DOUBLE,
+          roomType: RoomTypeEnum.SINGLE,
           occupancy: 1,
           mealsIncluded: false,
-          hotelCategory: undefined,
+          hotelCategory: HotelCategoryEnum.CLASSIC,
         }),
         ...updates,
       },
@@ -319,6 +319,7 @@ export default function Step3Details() {
       roomType: RoomTypeEnum.SINGLE,
       occupancy: 1,
       mealsIncluded: false,
+      hotelCategory: HotelCategoryEnum.CLASSIC
     };
     return (
       <View style={styles.container}>

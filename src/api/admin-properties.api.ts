@@ -8,6 +8,11 @@ export interface FeatureConfigDto {
   featuredUntil?: string; // ISO date string
 }
 
+export interface ModerationActionDto {
+  status: "approved" | "rejected";
+  rejectionReason?: string;
+}
+
 export const adminPropertiesApi = {
   getAdminFeatured: () =>
     apiClient.get<ApiResponse<PropertyDto[]>>("/properties/admin/featured"),
@@ -27,4 +32,10 @@ export const adminPropertiesApi = {
     apiClient.patch<ApiResponse<PropertyDto>>(`/properties/${id}/reorder`, {
       direction,
     }),
+
+  moderateProperty: (id: string, payload: ModerationActionDto) =>
+    apiClient.patch<ApiResponse<PropertyDto>>(
+      `/properties/${id}/moderate`,
+      payload,
+    ),
 };

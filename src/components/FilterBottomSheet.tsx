@@ -68,6 +68,8 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
       setLocalities([]);
       return;
     }
+    // when user changes district, then the locality should be reset.
+    setLocalState((prev) => ({ ...prev, locality: undefined }));
     setLoadingLocalities(true);
     propertiesApi.getLocalities(localState.district)
       .then((res) => { setLocalities(res.data?.data ?? []); })

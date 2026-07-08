@@ -14,6 +14,7 @@ interface PropertyIdentitySectionProps {
   price: string;
   locality?: string;
   district?: string;
+  serialNo?: string | null;
 }
 
 export function PropertyIdentitySection({
@@ -25,11 +26,20 @@ export function PropertyIdentitySection({
   price,
   locality,
   district,
+  serialNo,
 }: PropertyIdentitySectionProps) {
   const { t } = useTranslation();
 
   return (
     <View className="px-4 py-5">
+  {/* Serial number */}
+  {serialNo && (
+    <View className="mb-3 self-start flex-row items-center rounded-md bg-gray-100 px-2.5 py-1">
+      <Text className="text-[11px] font-bold tracking-widest text-gray-500">
+        {serialNo}
+      </Text>
+    </View>
+  )}
   {/* Badges */}
   <View className="mb-4 flex-row flex-wrap items-center gap-2">
     <View className="rounded-lg bg-gray-100 px-2.5 py-1">

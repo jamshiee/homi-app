@@ -1,4 +1,5 @@
 import { HotelCategoryEnum } from "@/common/enums/property-enums/hotel-category.enum";
+import {  ModerationStatusEnum } from "@/common/enums/property-enums/moderation-status.enum";
 import { PriceUnitEnum } from "@/common/enums/property-enums/price-unit.enum";
 import { PropertyTypeEnum } from "@/common/enums/property-enums/property-type.enum";
 import { TransactionTypeFilter } from "@/common/enums/transaction-type-filter.enum";
@@ -68,7 +69,10 @@ export interface PropertyDto {
   featuredOrder?: number;
   featuredUntil?: string;
   status?: string;
-  moderationStatus?: string;
+  moderationStatus?: ModerationStatusEnum;
+  rejectionReason?: string | null;
+  appealCount?: number;
+  serialNo?: string | null;
   contactPhone: string;
   alternatePhone: string | null;
   publishedAt: string | null;

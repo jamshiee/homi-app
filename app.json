@@ -19,6 +19,9 @@
       "bundleIdentifier": "com.jamshiiie.homiholdings",
       "splash": {
         "backgroundColor": "#FFC914"
+      },
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
