@@ -2,12 +2,13 @@ import { Linking } from 'react-native';
 
 export async function openWhatsApp(
   phone: string,
+  listingUrl:string,
   propertyTitle: string,
   serialNo?: string,
 ): Promise<void> {
   const number = phone.replace('+', '');
   const message = encodeURIComponent(
-    `Hi, I'm interested in your property: ${propertyTitle} ${serialNo ? ' (Serial No: ' + serialNo + ')' : ''}`,
+    `Hi, I'm interested in your property: ${propertyTitle} ${serialNo ? ' (Serial No: ' + serialNo + ')' : ''} \n ${listingUrl}`,
   );
   const url = `whatsapp://send?phone=${number}&text=${message}`;
   const canOpen = await Linking.canOpenURL(url);
