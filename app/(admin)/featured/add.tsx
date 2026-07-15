@@ -19,6 +19,7 @@ import { FeatureConfigBottomSheet } from "@/components/admin/FeatureConfigBottom
 import Toast from "react-native-toast-message";
 import { router } from "expo-router";
 import { t } from "i18next";
+import { ModerationStatusEnum } from "@/common/enums/property-enums/moderation-status.enum";
 
 export default function AddFeaturedScreen() {
   const [properties, setProperties] = useState<PropertyDto[]>([]);
@@ -28,13 +29,19 @@ export default function AddFeaturedScreen() {
   const [hasMore, setHasMore] = useState(true);
 
   const [keyword, setKeyword] = useState("");
-  const [filters, setFilters] = useState<PropertyFilter>({ limit: 15 });
+  const [filters, setFilters] = useState<PropertyFilter>({ limit: 15, isFeatured: false });
 
-  const [selectedProperty, setSelectedProperty] = useState<PropertyDto | null>(null);
+  const [selectedProperty, setSelectedProperty] = useState<PropertyDto | null>(
+    null,
+  );
   const [isSheetVisible, setIsSheetVisible] = useState(false);
 
   const fetchProperties = useCallback(
-    async (pageNum: number, currentFilters: PropertyFilter, isRefresh = false) => {
+    async (
+      pageNum: number,
+      currentFilters: PropertyFilter,
+      isRefresh = false,
+    ) => {
       if (isRefresh) {
         setLoading(true);
       } else {
@@ -52,7 +59,7 @@ export default function AddFeaturedScreen() {
         } else {
           setProperties((prev) => [...prev, ...newItems]);
         }
-        
+
         setHasMore(newItems.length >= (currentFilters.limit || 15));
         setPage(pageNum);
       } catch (e) {
@@ -63,7 +70,7 @@ export default function AddFeaturedScreen() {
         setLoadingMore(false);
       }
     },
-    []
+    [],
   );
 
   useEffect(() => {
@@ -90,8 +97,17 @@ export default function AddFeaturedScreen() {
 
     return (
       <TouchableOpacity
-        style={styles.card}
+        style={[styles.card, item.moderationStatus !== ModerationStatusEnum.APPROVED && { opacity: 0.7 }]}
+        activeOpacity={item.moderationStatus === ModerationStatusEnum.APPROVED ? 0.7 : 1}
         onPress={() => {
+          if (item.moderationStatus !== ModerationStatusEnum.APPROVED) {
+            Toast.show({
+              type: "info",
+              text1: "Action required",
+              text2: "Only approved properties can be featured.",
+            });
+            return;
+          }
           setSelectedProperty(item);
           setIsSheetVisible(true);
         }}
@@ -118,9 +134,25 @@ export default function AddFeaturedScreen() {
           {item.isFeatured && (
             <View style={styles.badgeFeatured}>
               <Ionicons name="star" size={12} color={Colors.dark} />
-              <Text style={styles.badgeTextFeatured}>{t("featured.featured")}</Text>
+              <Text style={styles.badgeTextFeatured}>
+                {t("featured.featured")}
+              </Text>
             </View>
           )}
+
+          <View
+            style={{
+              ...styles.badgeFeaturedTop,
+              backgroundColor:
+                item.moderationStatus === ModerationStatusEnum.APPROVED
+                  ? Colors.success
+                  : item.moderationStatus === ModerationStatusEnum.PENDING
+                    ? Colors.warning
+                    : Colors.error,
+            }}
+          >
+            <Text style={styles.badgeTextFeatured}>{item.moderationStatus}</Text>
+          </View>
         </View>
       </TouchableOpacity>
     );
@@ -168,12 +200,17 @@ export default function AddFeaturedScreen() {
           onEndReachedThreshold={0.5}
           ListFooterComponent={
             loadingMore ? (
-              <ActivityIndicator style={{ marginVertical: 16 }} color={Colors.dark} />
+              <ActivityIndicator
+                style={{ marginVertical: 16 }}
+                color={Colors.dark}
+              />
             ) : null
           }
           ListEmptyComponent={
             <View style={styles.emptyBox}>
-              <Text style={styles.emptyText}>{t("featured.no_properties_found")}</Text>
+              <Text style={styles.emptyText}>
+                {t("featured.no_properties_found")}
+              </Text>
             </View>
           }
         />
@@ -187,11 +224,11 @@ export default function AddFeaturedScreen() {
           setSelectedProperty(null);
         }}
         onSuccess={() => {
-          setIsSheetVisible(false)
-          setSelectedProperty(null)
+          setIsSheetVisible(false);
+          setSelectedProperty(null);
           // Refresh the list to reflect updated featured status
           fetchProperties(1, filters, true);
-          router.back()
+          router.back();
         }}
       />
     </View>
@@ -270,6 +307,17 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: Colors.dark,
   },
+  badgeFeaturedTop: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+
+  },
   badgeFeatured: {
     position: "absolute",
     bottom: 0,
@@ -286,6 +334,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: "bold",
     color: Colors.dark,
+    textTransform: "capitalize",
   },
   emptyBox: {
     padding: 24,

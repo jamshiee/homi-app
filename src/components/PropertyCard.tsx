@@ -65,6 +65,21 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     return map[unit] ?? "";
   };
 
+  const getDisplayType = () => {
+    switch (property.type) {
+      case PropertyTypeEnum.HOUSE:
+        return 'House';
+      case PropertyTypeEnum.LAND:
+        return 'Land';
+      case PropertyTypeEnum.BUILDING:
+        return property.buildingDetail?.subType ? property.buildingDetail.subType.replace('_', ' ') : 'Building';
+      case PropertyTypeEnum.HOTEL:
+        return property.hotelDetail?.subType ? property.hotelDetail.subType.replace('_', ' ') : 'Hotel/PG';
+      default:
+        return property.type;
+    }
+  };
+
   const coverImage =
     property.propertyMedia?.find((m) => m.isCover)?.media?.url ??
     property.propertyMedia?.[0]?.media?.url;
@@ -169,14 +184,6 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
           },
         ]
       : []),
-          ...(property.hotelDetail?.subType
-      ? [
-          {
-            icon: 'business-outline' as const,
-            label: property.hotelDetail.subType,
-          },
-        ]
-      : []),
     ...(property.hotelDetail?.roomType
       ? [
           {
@@ -255,30 +262,52 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             }}
           />
 
-          {/* Transaction type badge — top left */}
-          <View
-            style={{
-              position: "absolute",
-              top: 10,
-              left: 10,
-              backgroundColor:
-                property.transactionType === "rent" ? "#0F6E56" : "#1a1a2e",
-              paddingHorizontal: 10,
-              paddingVertical: 4,
-              borderRadius: 20,
-            }}
-          >
-            <Text
+          {/* Top-left badge — merged transaction + type */}
+          <View style={{ position: "absolute", top: 10, left: 10, flexDirection: "row", gap: 6 }}>
+            <View
               style={{
-                fontSize: 10,
-                fontWeight: "700",
-                color: "#fff",
-                letterSpacing: 0.6,
-                textTransform: "uppercase",
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 4,
+                backgroundColor:
+                  property.transactionType === "rent" ? "#0F6E56" : "#1a1a2e",
+                paddingHorizontal: 10,
+                paddingVertical: 4,
+                borderRadius: 20,
               }}
             >
-              For {property.transactionType}
-            </Text>
+              <Text
+                style={{
+                  fontSize: 10,
+                  fontWeight: "700",
+                  color: "#fff",
+                  letterSpacing: 0.6,
+                  textTransform: "uppercase",
+                }}
+              >
+                For {property.transactionType}
+              </Text>
+              <Text
+                style={{
+                  fontSize: 10,
+                  fontWeight: "600",
+                  color: "rgba(255,255,255,0.6)",
+                }}
+              >
+                ·
+              </Text>
+              <Text
+                style={{
+                  fontSize: 10,
+                  fontWeight: "500",
+                  color: "rgba(255,255,255,0.8)",
+                  letterSpacing: 0.6,
+                  textTransform: "uppercase",
+                }}
+              >
+                {getDisplayType()}
+              </Text>
+            </View>
           </View>
 
           {/* Top-right: verified badge OR save toggle */}

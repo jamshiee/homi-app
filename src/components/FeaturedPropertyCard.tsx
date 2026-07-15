@@ -64,6 +64,21 @@ export const FeaturedPropertyCard: React.FC<FeaturedPropertyCardProps> = ({
     return map[unit] ?? "";
   };
 
+  const getDisplayType = () => {
+    switch (property.type) {
+      case PropertyTypeEnum.HOUSE:
+        return 'House';
+      case PropertyTypeEnum.LAND:
+        return 'Land';
+      case PropertyTypeEnum.BUILDING:
+        return property.buildingDetail?.subType ? property.buildingDetail.subType.replace('_', ' ') : 'Building';
+      case PropertyTypeEnum.HOTEL:
+        return property.hotelDetail?.subType ? property.hotelDetail.subType.replace('_', ' ') : 'Hotel/PG';
+      default:
+        return property.type;
+    }
+  };
+
   type Pill = { icon: keyof typeof Ionicons.glyphMap; label: string };
 
   const pills = (): Pill[] => {
@@ -132,14 +147,6 @@ export const FeaturedPropertyCard: React.FC<FeaturedPropertyCardProps> = ({
                 {
                   icon: "bed-outline" as const,
                   label: property.hotelDetail.roomType,
-                },
-              ]
-            : []),
-          ...(property.hotelDetail?.subType
-            ? [
-                {
-                  icon: "business-outline" as const,
-                  label: property.hotelDetail.subType,
                 },
               ]
             : []),
@@ -213,31 +220,31 @@ export const FeaturedPropertyCard: React.FC<FeaturedPropertyCardProps> = ({
           </View>
         )}
 
-        {/* Featured badge — top left */}
-        <View
-          style={{
-            position: "absolute",
-            top: 12,
-            left: 12,
-            backgroundColor: "#F5C249",
-            paddingHorizontal: 10,
-            paddingVertical: 4,
-            borderRadius: 20,
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 4,
-          }}
-        >
-          <Text
+        {/* Top-left badge — Featured only */}
+        <View style={{ position: "absolute", top: 12, left: 12, flexDirection: "row", gap: 6 }}>
+          {/* Featured badge */}
+          <View
             style={{
-              fontSize: 10,
-              fontWeight: "700",
-              color: "#2a1e00",
-              letterSpacing: 0.6,
+              backgroundColor: "#F5C249",
+              paddingHorizontal: 10,
+              paddingVertical: 4,
+              borderRadius: 20,
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 4,
             }}
           >
-            ✦ FEATURED
-          </Text>
+            <Text
+              style={{
+                fontSize: 10,
+                fontWeight: "700",
+                color: "#2a1e00",
+                letterSpacing: 0.6,
+              }}
+            >
+              ✦ FEATURED
+            </Text>
+          </View>
         </View>
 
         {/* Owner pill — top right */}
@@ -282,7 +289,7 @@ export const FeaturedPropertyCard: React.FC<FeaturedPropertyCardProps> = ({
           />
         </TouchableOpacity>
 
-        {/* Price + transaction type — overlaid on gradient */}
+        {/* Price + type/transaction pill — overlaid on gradient */}
         <View
           style={{
             position: "absolute",
@@ -318,6 +325,9 @@ export const FeaturedPropertyCard: React.FC<FeaturedPropertyCardProps> = ({
 
           <View
             style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 4,
               borderWidth: 0.5,
               borderColor: "rgba(255,255,255,0.35)",
               backgroundColor: "rgba(255,255,255,0.15)",
@@ -329,8 +339,28 @@ export const FeaturedPropertyCard: React.FC<FeaturedPropertyCardProps> = ({
             <Text
               style={{
                 fontSize: 10,
-                fontWeight: "600",
+                fontWeight: "700",
                 color: "#fff",
+                letterSpacing: 0.5,
+                textTransform: "uppercase",
+              }}
+            >
+              {getDisplayType()}
+            </Text>
+            <Text
+              style={{
+                fontSize: 10,
+                fontWeight: "600",
+                color: "rgba(255,255,255,0.7)",
+              }}
+            >
+              ·
+            </Text>
+            <Text
+              style={{
+                fontSize: 10,
+                fontWeight: "500",
+                color: "rgba(255,255,255,0.85)",
                 letterSpacing: 0.5,
                 textTransform: "uppercase",
               }}

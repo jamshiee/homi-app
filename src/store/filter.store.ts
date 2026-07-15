@@ -51,7 +51,7 @@ const defaultState: FilterState = {
 
   minArea: undefined,
   maxArea: undefined,
-  areaUnit: 'cents',
+  areaUnit: undefined,
 
   bedrooms: undefined,
   bathrooms: undefined,

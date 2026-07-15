@@ -9,7 +9,9 @@ import { FurnishingStatusEnum } from '@/common/enums/property-enums/furnishing-s
 import { SortOptionEnum } from '@/common/enums/sort-option-filter.enum';
 import { HotelSubTypeEnum } from '@/common/enums/property-enums/hotel-subtype.enum';
 import { HotelCategoryEnum } from '@/common/enums/property-enums/hotel-category.enum';
+import { BuildingSubTypeEnum } from '@/common/enums/property-enums/building-subtype.enum';
 import { propertiesApi } from '@/api/properties.api';
+import { AreaUnitEnum } from '@/common/enums/property-enums/area-unit.enum';
 
 interface FilterBottomSheetProps {
   visible: boolean;
@@ -190,7 +192,7 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
                     if (!newTypes.includes('land')) {
                       newState.minArea = undefined;
                       newState.maxArea = undefined;
-                      newState.areaUnit = 'cents';
+                      newState.areaUnit = undefined;
                     }
 
                     return newState;
@@ -240,12 +242,12 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
               <>
                 {renderSectionHeader(t('filter.area_unit'))}
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                  {['Cents', 'Sqft'].map((unit) =>
-                    renderPill(unit, localState.areaUnit === unit, () => setProp('areaUnit', unit))
+                  {Object.entries(AreaUnitEnum).map(([key, value]) =>
+                    renderPill(key, localState.areaUnit === value, () => setProp('areaUnit', value))
                   )}
                 </View>
 
-                {renderSectionHeader(`${t('filter.area')} (${localState.areaUnit || 'Cents'})`)}
+                {renderSectionHeader(`${t('filter.area')} (${localState.areaUnit || AreaUnitEnum.CENT})`)}
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                   <View style={{ flex: 1, borderWidth: 1, borderColor: Colors.border, borderRadius: 12, paddingHorizontal: 12, height: 44, justifyContent: 'center' }}>
                     <TextInput
@@ -266,6 +268,21 @@ export const FilterBottomSheet: React.FC<FilterBottomSheetProps> = ({ visible, o
                       style={{ fontSize: 14, color: Colors.dark }}
                     />
                   </View>
+                </View>
+              </>
+            )}
+
+            {/* DYNAMIC FILTERS: BUILDING */}
+            {localState.type?.includes('building') && (
+              <>
+                {renderSectionHeader(t('filter.building_subtype', 'Building Subtype'))}
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                  {Object.entries(BuildingSubTypeEnum).map(([key, value]) =>
+                    renderPill(key.charAt(0) + key.slice(1).toLowerCase(), localState.buildingSubtype === value, () => {
+                      const newValue = localState.buildingSubtype === value ? undefined : value;
+                      setProp('buildingSubtype', newValue);
+                    })
+                  )}
                 </View>
               </>
             )}

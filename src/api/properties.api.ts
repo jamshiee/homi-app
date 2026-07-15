@@ -25,6 +25,7 @@ export interface PropertyFilter {
   roomType?: string;
   hotelCategory?: string;
   sort?: SortOptionEnum;
+  isFeatured?: boolean;
 }
 
 export const propertiesApi = {

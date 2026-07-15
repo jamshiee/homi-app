@@ -117,6 +117,7 @@ function patchPropertyIsSaved(
 
 export function usePropertyFeed(filters: Omit<PropertyFilter, "page">) {
   const userId = useAuthStore((s) => s.user?.id);
+  console.log("usePropertyFeed filters", filters);
   return useInfiniteQuery({
     queryKey: QUERY_KEYS.feed(filters, userId),
     queryFn: ({ pageParam = 1 }) =>
@@ -134,6 +135,7 @@ export function usePropertyFeed(filters: Omit<PropertyFilter, "page">) {
 export function useFeaturedProperties(params?: {
   district?: string;
   locality?: string;
+  type?: string;
 }) {
   const userId = useAuthStore((s) => s.user?.id);
   return useQuery({

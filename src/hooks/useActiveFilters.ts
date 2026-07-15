@@ -189,5 +189,19 @@ export function useActiveFilters() {
     });
   }
 
+  // Building Subtype
+  if (filterState.buildingSubtype !== undefined) {
+    const subtypeMap: Record<string, string> = {
+      office: "Office",
+      room: "Room",
+      warehouse: "Warehouse",
+    };
+    activeFilters.push({
+      id: "buildingSubtype",
+      label: subtypeMap[filterState.buildingSubtype] || filterState.buildingSubtype,
+      clear: () => setFilter({ buildingSubtype: undefined }),
+    });
+  }
+
   return activeFilters;
 }

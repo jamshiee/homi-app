@@ -155,7 +155,7 @@ export default function PropertyDetailScreen() {
     if (!property) return;
     await propertiesApi.logEnquiry(property.id, "whatsapp").catch(() => null);
     setContactSheetVisible(false);
-    openWhatsApp(property.contactPhone, property.title ?? property.type);
+    openWhatsApp(property.contactPhone, property.title ?? property.type, property?.serialNo ?? undefined);
   };
 
   const handleViewNumber = async () => {
