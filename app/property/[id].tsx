@@ -35,6 +35,7 @@ import { PropertyOwnerSection } from "@/components/property-detail/PropertyOwner
 import { PropertyQuickFactsSection } from "@/components/property-detail/PropertyQuickFactsSection";
 import { StickyContactBar } from "@/components/property-detail/StickyContactBar";
 import { ConfirmModal } from "@/components/ConfirmModal";
+import { formatPrice } from "@/utils/price";
 
 const LISTING_URL = (id: string) => `https://homiholdings.com/property/${id}`;
 
@@ -140,8 +141,10 @@ export default function PropertyDetailScreen() {
   const handleShare = async () => {
     if (!property) return;
     try {
+      const title = property.title || `${property.type} for ${property.transactionType}`;
+      const priceStr = formatPrice(property.price);
       await Share.share({
-        message: `${property.title ?? "Property"} — ${LISTING_URL(property.id)}`,
+        message: `🏡 ${title}\n\n${priceStr}\n\nView property:\n${LISTING_URL(property.id)}`,
       });
     } catch {
       Toast.show({

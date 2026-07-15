@@ -22,7 +22,10 @@
       },
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "associatedDomains": [
+        "applinks:homiholdings.com"
+      ]
     },
     "android": {
       "adaptiveIcon": {
@@ -37,7 +40,23 @@
         "googleMaps": {
           "apiKey": "AIzaSyA-eJyXIOaAwxHmc6A7mwuKgWSBFi2KVXg"
         }
-      }
+      },
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "https",
+              "host": "homiholdings.com",
+              "pathPrefix": "/property"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
