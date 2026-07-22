@@ -1,19 +1,19 @@
-import React from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  Linking,
-  Image,
-  Alert,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useTranslation } from "react-i18next";
+import { Colors } from "@constants/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { Colors } from "@constants/colors";
+import React from "react";
+import { useTranslation } from "react-i18next";
+import {
+  Alert,
+  Image,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import appJson from "../app.json";
 
 interface Feature {

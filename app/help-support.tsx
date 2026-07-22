@@ -1,20 +1,20 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  Linking,
-  Alert,
-  TextInput,
-  ActivityIndicator,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useTranslation } from "react-i18next";
+import { Colors } from "@constants/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { Colors } from "@constants/colors";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  ActivityIndicator,
+  Alert,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface FAQItem {
   id: string;

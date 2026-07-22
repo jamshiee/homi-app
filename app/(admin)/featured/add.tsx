@@ -1,25 +1,25 @@
-import React, { useState, useEffect, useCallback } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TextInput,
-  TouchableOpacity,
-  ActivityIndicator,
-  Image,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { Colors } from "@constants/colors";
-import { adminPropertiesApi } from "@api/admin-properties.api";
-import { PropertyDto } from "@api/types";
-import { formatPrice } from "@utils/price";
-import { PropertyFilter } from "@api/properties.api";
+import { ModerationStatusEnum } from "@/common/enums/property-enums/moderation-status.enum";
 import { FeatureConfigBottomSheet } from "@/components/admin/FeatureConfigBottomSheet";
-import Toast from "react-native-toast-message";
+import { adminPropertiesApi } from "@api/admin-properties.api";
+import { PropertyFilter } from "@api/properties.api";
+import { PropertyDto } from "@api/types";
+import { Colors } from "@constants/colors";
+import { Ionicons } from "@expo/vector-icons";
+import { formatPrice } from "@utils/price";
 import { router } from "expo-router";
 import { t } from "i18next";
-import { ModerationStatusEnum } from "@/common/enums/property-enums/moderation-status.enum";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Toast from "react-native-toast-message";
 
 export default function AddFeaturedScreen() {
   const [properties, setProperties] = useState<PropertyDto[]>([]);

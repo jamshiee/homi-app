@@ -191,10 +191,96 @@ export default function ProfileScreen() {
 
   if (!user) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.centered}>
-          <ActivityIndicator size="large" color={Colors.yellow} />
-          <Text style={styles.emptyText}>{t("common.loading")}</Text>
+      <SafeAreaView style={{ flex: 1, backgroundColor: Colors.surface }}>
+
+          <View
+                style={{
+                  position: 'absolute',
+                  top: 60,
+                  right: 24,
+                  zIndex: 10,
+                  flexDirection: 'row',
+                  backgroundColor: 'rgba(0,0,0,0.05)',
+                  borderRadius: 20,
+                  padding: 4,
+                }}
+              >
+                <TouchableOpacity
+                  onPress={() => setLanguage('en')}
+                  style={{
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    backgroundColor: language === 'en' ? Colors.white : 'transparent',
+                    borderRadius: 16,
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      fontWeight: '700',
+                      color: language === 'en' ? Colors.dark : Colors.muted,
+                    }}
+                  >
+                    EN
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setLanguage('ml')}
+                  style={{
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    backgroundColor: language === 'ml' ? Colors.white : 'transparent',
+                    borderRadius: 16,
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      fontWeight: '700',
+                      color: language === 'ml' ? Colors.dark : Colors.muted,
+                    }}
+                  >
+                    മല
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              
+        <View
+          style={{
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 32,
+          }}
+        >
+          <Ionicons name="person-outline" size={56} color={Colors.lightMuted} />
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: "bold",
+              color: Colors.dark,
+              marginTop: 16,
+              textAlign: "center",
+            }}
+          >
+            {t("profile.login_required", "Sign in to view your profile")}
+          </Text>
+          <TouchableOpacity
+            onPress={() => router.push("/(auth)/phone")}
+            style={{
+              marginTop: 24,
+              backgroundColor: Colors.yellow,
+              paddingHorizontal: 32,
+              paddingVertical: 14,
+              borderRadius: 30,
+            }}
+          >
+            <Text
+              style={{ fontWeight: "bold", fontSize: 15, color: Colors.dark }}
+            >
+              {t("auth.sign_in", "Sign In")}
+            </Text>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     );

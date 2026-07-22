@@ -1,24 +1,24 @@
-import { useState, useRef, useEffect } from "react";
+import { authApi } from "@api/auth.api";
+import { Colors } from "@constants/colors";
+import { Config } from "@constants/config";
+import { OTPWidget } from "@msg91comm/sendotp-react-native";
+import { useAppStore } from "@store/app.store";
+import { useAuthStore } from "@store/auth.store";
+import * as Haptics from "expo-haptics";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
-  View,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
   Text,
   TextInput,
   TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  ActivityIndicator,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router, useLocalSearchParams } from "expo-router";
-import { useTranslation } from "react-i18next";
-import * as Haptics from "expo-haptics";
 import Toast from "react-native-toast-message";
-import { Colors } from "@constants/colors";
-import { Config } from "@constants/config";
-import { authApi } from "@api/auth.api";
-import { useAuthStore } from "@store/auth.store";
-import { useAppStore } from "@store/app.store";
-import { OTPWidget } from "@msg91comm/sendotp-react-native";
 
 export default function OtpScreen() {
   const { t } = useTranslation();
@@ -129,7 +129,20 @@ export default function OtpScreen() {
 
       await login(data);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      router.replace(data.isNewUser ? "/(auth)/name" : "/property-type-select");
+      
+      const { postLoginAction, setPostLoginAction } = useAuthStore.getState();
+      
+      if (data.isNewUser) {
+        router.replace("/(auth)/name");
+      } else if (postLoginAction) {
+        const action = postLoginAction;
+        setPostLoginAction(null);
+        router.back();
+        router.back();
+        setTimeout(() => action(), 100);
+      } else {
+        router.replace("/property-type-select");
+      }
     } catch (err: unknown) {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       const ax = err as {

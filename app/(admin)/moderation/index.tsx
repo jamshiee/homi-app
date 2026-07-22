@@ -1,27 +1,27 @@
-import React, { useState, useCallback, useRef } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  ActivityIndicator,
-  Image,
-  TextInput,
-  Modal,
-  KeyboardAvoidingView,
-  Platform,
-  RefreshControl,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { Colors } from "@constants/colors";
 import { adminPropertiesApi } from "@api/admin-properties.api";
 import { PropertyDto } from "@api/types";
+import { Colors } from "@constants/colors";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { formatPrice } from "@utils/price";
 import { router, useFocusEffect } from "expo-router";
-import Toast from "react-native-toast-message";
+import React, { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import {
+  ActivityIndicator,
+  FlatList,
+  Image,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type TabKey = "pending" | "rejected" | "approved";

@@ -13,6 +13,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useToggleSave } from "@/hooks/useProperties";
 import { useAuthStore } from "@/store/auth.store";
 import { ModerationPanel } from "./common/ModerationPanel";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 export interface PropertyCardProps {
   property: PropertyDto;
@@ -34,6 +35,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   const { t } = useTranslation();
   const router = useRouter();
   const { user } = useAuthStore();
+  const requireAuth = useRequireAuth();
   const toggleSave = useToggleSave();
 
   const isSaved = property.isSaved ?? false;
@@ -41,15 +43,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     toggleSave.isPending && toggleSave.variables === property.id;
 
   const handleSaveToggle = () => {
-    if (!user) {
-      Toast.show({
-        type: "info",
-        text1: t("saved.login_required", "Sign in to view saved properties"),
-      });
-      router.push("/(auth)/phone");
-      return;
-    }
-    toggleSave.mutate(property.id);
+    requireAuth(() => toggleSave.mutate(property.id));
   };
 
   const formatPriceUnit = (unit: PriceUnitEnum) => {

@@ -1,16 +1,16 @@
+import { Colors } from "@constants/colors";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { usePostStore } from "@store/postStore";
+import { router } from "expo-router";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
-  View,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  StyleSheet,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { useTranslation } from "react-i18next";
-import { Colors } from "@constants/colors";
-import { usePostStore } from "@store/postStore";
 
 export default function PostSuccessScreen() {
   const { t } = useTranslation();

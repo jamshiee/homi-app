@@ -1,24 +1,24 @@
-import React, { useState, useRef, useCallback } from 'react';
+import { aiApi } from '@api/ai.api';
+import { Colors } from '@constants/colors';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import React, { useCallback, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
-  View,
+  ActivityIndicator,
+  FlatList,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  FlatList,
-  KeyboardAvoidingView,
-  Keyboard,
-  Platform,
-  StyleSheet,
-  ActivityIndicator,
+  View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { Colors } from '@constants/colors';
 import Markdown from 'react-native-markdown-display';
-import { aiApi } from '@api/ai.api';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

@@ -1,25 +1,25 @@
-import React, { useEffect, useState, useCallback } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  ActivityIndicator,
-  Image,
-  RefreshControl,
-  Alert,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import { Colors } from "@constants/colors";
+import { FeatureConfigBottomSheet } from "@/components/admin/FeatureConfigBottomSheet";
 import { adminPropertiesApi } from "@api/admin-properties.api";
 import { PropertyDto } from "@api/types";
+import { Colors } from "@constants/colors";
+import { Ionicons } from "@expo/vector-icons";
 import { formatPrice } from "@utils/price";
 import { router, useFocusEffect } from "expo-router";
-import Toast from "react-native-toast-message";
-import { FeatureConfigBottomSheet } from "@/components/admin/FeatureConfigBottomSheet";
 import { t } from "i18next";
+import React, { useCallback, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 
 export default function FeaturedDashboardScreen() {
   const [properties, setProperties] = useState<PropertyDto[]>([]);

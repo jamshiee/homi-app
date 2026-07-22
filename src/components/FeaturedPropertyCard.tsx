@@ -12,6 +12,7 @@ import { PropertyTypeEnum } from "@/common/enums/property-enums/property-type.en
 import { PriceUnitEnum } from "@/common/enums/property-enums/price-unit.enum";
 import { useToggleSave } from "@/hooks/useProperties";
 import { useAuthStore } from "@/store/auth.store";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 
 export interface FeaturedPropertyCardProps {
   property: PropertyDto;
@@ -25,6 +26,7 @@ export const FeaturedPropertyCard: React.FC<FeaturedPropertyCardProps> = ({
   const { t } = useTranslation();
   const router = useRouter();
   const { user } = useAuthStore();
+  const requireAuth = useRequireAuth();
   const toggleSave = useToggleSave();
 
   const isSaved = property.isSaved ?? false;
@@ -32,15 +34,7 @@ export const FeaturedPropertyCard: React.FC<FeaturedPropertyCardProps> = ({
     toggleSave.isPending && toggleSave.variables === property.id;
 
   const handleSaveToggle = () => {
-    if (!user) {
-      Toast.show({
-        type: "info",
-        text1: t("saved.login_required", "Sign in to view saved properties"),
-      });
-      router.push("/(auth)/phone");
-      return;
-    }
-    toggleSave.mutate(property.id);
+    requireAuth(() => toggleSave.mutate(property.id));
   };
 
   const coverImage =

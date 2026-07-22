@@ -1,10 +1,13 @@
-import { Tabs } from 'expo-router';
+import { Tabs, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Platform, View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '@store/auth.store';
 import { Colors } from '@constants/colors';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import { LoginPromptModal } from '@/components/LoginPromptModal';
+import { useState } from 'react';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -35,8 +38,12 @@ export default function TabsLayout() {
   const { user } = useAuthStore();
   const isAdmin = user?.isAdmin ?? false;
   const insets = useSafeAreaInsets();
+  const requireAuth = useRequireAuth();
+  const router = useRouter();
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   return (
+    <>
     <Tabs
       screenOptions={{
         headerShown: false,
@@ -87,6 +94,14 @@ export default function TabsLayout() {
           tabBarItemStyle: { marginTop: -10 },
           tabBarStyle: { display: 'none' },
         }}
+        listeners={{
+          tabPress: (e) => {
+            if (!user) {
+              e.preventDefault();
+              setShowLoginPrompt(true);
+            }
+          },
+        }}
       />
       <Tabs.Screen
         name="saved"
@@ -109,6 +124,18 @@ export default function TabsLayout() {
         }}
       />
     </Tabs>
+
+    <LoginPromptModal
+      visible={showLoginPrompt}
+      title={t('auth.login_required', 'Login Required')}
+      message={t('auth.login_to_post', 'Please log in to post a new property.')}
+      onCancel={() => setShowLoginPrompt(false)}
+      onConfirm={() => {
+        setShowLoginPrompt(false);
+        requireAuth(() => router.push('/(tabs)/post'));
+      }}
+    />
+    </>
   );
 }
 

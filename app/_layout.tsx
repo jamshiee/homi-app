@@ -1,20 +1,19 @@
-import { useEffect } from "react";
-import { Stack } from "expo-router";
-import * as SystemUI from "expo-system-ui";
-import { View } from "react-native";
-
-// Set background color as early as possible
-SystemUI.setBackgroundColorAsync("#FFC914");
-import { StatusBar } from "expo-status-bar";
+import { useAuthStore } from "@store/auth.store";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
+import * as SystemUI from "expo-system-ui";
+import { useEffect, useState } from "react";
+import { View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
-import * as SplashScreen from "expo-splash-screen";
-import { useState } from "react";
-import { useAuthStore } from "@store/auth.store";
-import "../src/i18n";
 import "../global.css";
+import "../src/i18n";
+
+// Set background color as early as possible
+SystemUI.setBackgroundColorAsync("#FFC914");
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();

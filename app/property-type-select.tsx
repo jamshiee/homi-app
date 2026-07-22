@@ -1,21 +1,23 @@
+import { useAppStore } from "@/store/app.store";
+import { Colors } from "@constants/colors";
+import { Ionicons } from "@expo/vector-icons";
+import { useFilterStore } from "@store/filter.store";
+import { router } from "expo-router";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
-  View,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  Platform,
-  StyleSheet,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
-import { useTranslation } from "react-i18next";
-import { Ionicons } from "@expo/vector-icons";
-import { Colors } from "@constants/colors";
-import { useFilterStore } from "@store/filter.store";
 
 export default function PropertyTypeSelectScreen() {
   const { t } = useTranslation();
   const { setFilter } = useFilterStore();
+  const { language, setLanguage } = useAppStore();
+  
 
   const handleSelectHotel = () => {
     setFilter({ type: ["hotel"] });
@@ -34,6 +36,59 @@ export default function PropertyTypeSelectScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.yellow }}>
+
+  <View
+        style={{
+          position: 'absolute',
+          top: 60,
+          right: 24,
+          zIndex: 10,
+          flexDirection: 'row',
+          backgroundColor: 'rgba(0,0,0,0.05)',
+          borderRadius: 20,
+          padding: 4,
+        }}
+      >
+        <TouchableOpacity
+          onPress={() => setLanguage('en')}
+          style={{
+            paddingHorizontal: 12,
+            paddingVertical: 6,
+            backgroundColor: language === 'en' ? Colors.white : 'transparent',
+            borderRadius: 16,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 12,
+              fontWeight: '700',
+              color: language === 'en' ? Colors.dark : Colors.muted,
+            }}
+          >
+            EN
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setLanguage('ml')}
+          style={{
+            paddingHorizontal: 12,
+            paddingVertical: 6,
+            backgroundColor: language === 'ml' ? Colors.white : 'transparent',
+            borderRadius: 16,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 12,
+              fontWeight: '700',
+              color: language === 'ml' ? Colors.dark : Colors.muted,
+            }}
+          >
+            മല
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       <View
         style={{ flex: 1, paddingHorizontal: 24, justifyContent: "center" }}
       >

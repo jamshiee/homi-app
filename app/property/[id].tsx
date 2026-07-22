@@ -1,5 +1,6 @@
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { propertiesApi } from "@api/properties.api";
-import { isSavedDto, PropertyDto } from "@api/types";
+import { PropertyDto } from "@api/types";
 import { Colors } from "@constants/colors";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -16,25 +17,24 @@ import { useTranslation } from "react-i18next";
 import {
   Modal,
   Pressable,
+  RefreshControl,
   ScrollView,
   Share,
   Text,
   TouchableOpacity,
   View,
-  RefreshControl,
 } from "react-native";
 import Toast from "react-native-toast-message";
 
 // Components
+import { ConfirmModal } from "@/components/ConfirmModal";
 import { PropertyAmenitiesSection } from "@/components/property-detail/PropertyAmenitiesSection";
 import { PropertyDescriptionSection } from "@/components/property-detail/PropertyDescriptionSection";
 import { PropertyHeroGallery } from "@/components/property-detail/PropertyHeroGallery";
 import { PropertyIdentitySection } from "@/components/property-detail/PropertyIdentitySection";
 import { PropertyLocationSection } from "@/components/property-detail/PropertyLocationSection";
-import { PropertyOwnerSection } from "@/components/property-detail/PropertyOwnerSection";
 import { PropertyQuickFactsSection } from "@/components/property-detail/PropertyQuickFactsSection";
 import { StickyContactBar } from "@/components/property-detail/StickyContactBar";
-import { ConfirmModal } from "@/components/ConfirmModal";
 import { formatPrice } from "@/utils/price";
 
 const LISTING_URL = (id: string) => `https://homiholdings.com/property/${id}`;
@@ -68,6 +68,7 @@ export default function PropertyDetailScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { user } = useAuthStore();
+  const requireAuth = useRequireAuth();
 
   const {
     data,
@@ -95,13 +96,14 @@ export default function PropertyDetailScreen() {
   useEffect(() => {
     if (id) {
       propertiesApi.logEnquiry(id, "view").catch(() => null);
-
-      propertiesApi.isSaved(id).then((res) => {
-        const savedStatus = (res?.data?.data as isSavedDto).saved;
-        setIsSaved(savedStatus);
-      });
     }
   }, [id]);
+
+  useEffect(() => {
+    if (property?.isSaved !== undefined) {
+      setIsSaved(property.isSaved);
+    }
+  }, [property?.isSaved]);
 
   const images = useMemo(() => {
     return (
@@ -121,20 +123,22 @@ export default function PropertyDetailScreen() {
   const lang = user?.preferredLanguage ?? "en";
 
   const handleToggleSave = () => {
-    if (!property) return;
-    setIsSaved((prev) => !prev);
-    toggleSaveMutation.mutate(property.id, {
-      onError: (err) => {
-        setIsSaved((prev) => !prev);
-        Toast.show({
-          type: "error",
-          text1: t(
-            "error.save_failed",
-            `Could not update saved status: ${err}`,
-          ),
-        });
-        console.log("Error while saving property: ", err);
-      },
+    requireAuth(() => {
+      if (!property) return;
+      setIsSaved((prev) => !prev);
+      toggleSaveMutation.mutate(property.id, {
+        onError: (err) => {
+          setIsSaved((prev) => !prev);
+          Toast.show({
+            type: "error",
+            text1: t(
+              "error.save_failed",
+              `Could not update saved status: ${err}`,
+            ),
+          });
+          console.log("Error while saving property: ", err);
+        },
+      });
     });
   };
 

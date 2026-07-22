@@ -25,7 +25,8 @@
     "terms": "By continuing you agree to our Terms & Privacy Policy",
     "verify_cta": "Verify OTP",
     "profile_saved_title": "Profile saved",
-    "profile_saved_body": "You can update your name later from Profile."
+    "profile_saved_body": "You can update your name later from Profile.",
+    "sign_in":"Sign in"
   },
     "welcome": {
     "what_are_you_looking_for": "What are you\nlooking for?",
@@ -137,7 +138,8 @@
     "delete_account": "Delete Account",
     "delete_account_prompt": "Are you sure you want to delete your account? This will permanently remove your profile and all your listings. Type 'DELETE' to confirm.",
     "account_deleted_title": "Account Deleted",
-    "account_deleted_body": "Your account has been deleted successfully."
+    "account_deleted_body": "Your account has been deleted successfully.",
+    "login_required":"Sign in to view your profile"
   },
     "featured": {
     "title": "Featured Properties",

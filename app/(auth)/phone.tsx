@@ -1,35 +1,31 @@
-import { useState, useEffect } from 'react';
+import { Colors } from '@constants/colors';
+import { COUNTRIES, CountryData } from '@constants/countries';
+import { OTPWidget } from '@msg91comm/sendotp-react-native';
+import { useAuthStore } from '@store/auth.store';
+import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
-  View,
+  ActivityIndicator,
+  FlatList,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
   Text,
   TextInput,
   TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  ActivityIndicator,
-  Modal,
-  FlatList,
-  Pressable,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
-import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
-import * as Localization from 'expo-localization';
-import { Colors } from '@constants/colors';
-import { authApi } from '@api/auth.api';
-import { useAuthStore } from '@store/auth.store';
-import { useAppStore } from '@store/app.store';
-import { COUNTRIES, CountryData } from '@constants/countries';
-import { Config } from '@/constants/config';
-import { OTPWidget } from '@msg91comm/sendotp-react-native';
 
 const WIDGET_ID = process.env.EXPO_PUBLIC_MSG91_WIDGET_ID!;
 const TOKEN_AUTH = process.env.EXPO_PUBLIC_MSG91_TOKEN!
 
 export default function PhoneScreen() {
   const { t } = useTranslation();
-  const { language, setLanguage } = useAppStore();
+  // const { language, setLanguage } = useAppStore();
   const { isLoading, setLoading } = useAuthStore();
   const [phone, setPhone] = useState('');
   const [focused, setFocused] = useState(false);
@@ -92,7 +88,7 @@ export default function PhoneScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Colors.yellow }}>
-      <View
+      {/* <View
         style={{
           position: 'absolute',
           top: 60,
@@ -142,7 +138,7 @@ export default function PhoneScreen() {
             മല
           </Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}

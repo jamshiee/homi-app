@@ -11,7 +11,10 @@ interface AuthState {
   isLoading: boolean;
   isHydrated: boolean;
 
+  postLoginAction: (() => void) | null;
+
   hydrate: () => Promise<void>;
+  setPostLoginAction: (action: (() => void) | null) => void;
   login: (data: VerifyOtpResponse) => Promise<void>;
   updateUser: (updates: Partial<AuthUser>) => void;
   logout: () => Promise<void>;
@@ -23,6 +26,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   accessToken: null,
   isLoading: false,
   isHydrated: false,
+  postLoginAction: null,
+
+  setPostLoginAction: (action) => set({ postLoginAction: action }),
 
   hydrate: async () => {
     try {
@@ -64,7 +70,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     await secureStorage.deleteItem(SECURE_KEYS.ACCESS_TOKEN);
     await secureStorage.deleteItem(SECURE_KEYS.REFRESH_TOKEN);
     set({ user: null, accessToken: null });
-    router.replace('/(auth)/phone');
+    router.replace('/property-type-select');
   },
 
   setLoading: (v) => set({ isLoading: v }),

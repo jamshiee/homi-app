@@ -1,20 +1,20 @@
+import { apiClient } from '@api/client';
+import { Colors } from '@constants/colors';
+import { useAuthStore } from '@store/auth.store';
+import { router } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
-  View,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
   Text,
   TextInput,
   TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  ActivityIndicator,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
-import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
-import { Colors } from '@constants/colors';
-import { apiClient } from '@api/client';
-import { useAuthStore } from '@store/auth.store';
 
 export default function NameScreen() {
   const { t } = useTranslation();
@@ -29,16 +29,24 @@ export default function NameScreen() {
     try {
       await apiClient.patch('/users/me', { name: name.trim() });
       updateUser({ name: name.trim() });
-      router.replace('/property-type-select');
     } catch {
       Toast.show({
         type: 'info',
         text1: t('auth.profile_saved_title'),
         text2: t('auth.profile_saved_body'),
       });
-      router.replace('/property-type-select');
     } finally {
       setLoading(false);
+      const { postLoginAction, setPostLoginAction } = useAuthStore.getState();
+      if (postLoginAction) {
+        const action = postLoginAction;
+        setPostLoginAction(null);
+        router.back();
+        router.back();
+        setTimeout(() => action(), 100);
+      } else {
+        router.replace('/property-type-select');
+      }
     }
   };
 
