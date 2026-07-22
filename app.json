@@ -21,7 +21,10 @@
         "backgroundColor": "#FFC914"
       },
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSLocationWhenInUseUsageDescription": "Homi uses your location to show properties near you and calculate distance to listings. For example, when you open the map, we'll center it on your area and highlight nearby plots and houses first.",
+"NSPhotoLibraryUsageDescription": "Homi needs access to your photo library so you can upload property photos when listing a plot, house, or building for sale or rent.",
+"NSCameraUsageDescription": "Homi needs camera access so you can take photos of your property directly when creating a listing."
       },
       "associatedDomains": [
         "applinks:homiholdings.com"
