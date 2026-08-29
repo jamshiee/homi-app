@@ -47,13 +47,13 @@ export const FeaturedPropertyCard: React.FC<FeaturedPropertyCardProps> = ({
 
   const formatPriceUnit = (unit: PriceUnitEnum) => {
     const map: Record<PriceUnitEnum, string> = {
-      [PriceUnitEnum.PER_MONTH]: "/mo",
-      [PriceUnitEnum.PER_NIGHT]: "/night",
-      [PriceUnitEnum.PER_ACRE]: "/acre",
-      [PriceUnitEnum.PER_CENT]: "/cent",
-      [PriceUnitEnum.PER_SQFT]: "/sqft",
-      [PriceUnitEnum.PER_SQM]: "/sqm",
-      [PriceUnitEnum.TOTAL]: "total",
+      [PriceUnitEnum.PER_MONTH]: "per month",
+      [PriceUnitEnum.PER_NIGHT]: "per night",
+      [PriceUnitEnum.PER_ACRE]: "per acre",
+      [PriceUnitEnum.PER_CENT]: "per cent",
+      [PriceUnitEnum.PER_SQFT]: "per sqft",
+      [PriceUnitEnum.PER_SQM]: "per sqm",
+      [PriceUnitEnum.TOTAL]: "total price",
     };
     return map[unit] ?? "";
   };

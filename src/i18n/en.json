@@ -96,6 +96,15 @@
     "semi_furnished": "Semi Furnished",
     "not_furnished": "Not Furnished"
   },
+  "priceUnit": {
+  "per_month": "per month",
+  "per_night": "per night",
+  "per_acre": "per acre",
+  "per_cent": "per cent",
+  "per_sqft": "per sqft",
+  "per_sqm": "per sqm",
+  "total": "total price"
+},
   "tabs": {
     "home": "Home",
     "search": "Search",

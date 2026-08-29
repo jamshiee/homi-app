@@ -4,7 +4,7 @@
     "slug": "homi-holdings",
     "backgroundColor": "#FFC914",
     "scheme": "homi",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -18,6 +18,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.jamshiiie.homiholdings",
       "splash": {
+        "image": "./assets/splash-icon.png",
+        "resizeMode": "contain",
         "backgroundColor": "#FFC914"
       },
       "infoPlist": {
@@ -67,6 +69,15 @@
     "plugins": [
       "expo-system-ui",
       "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#FFC914"
+        }
+      ],
       "expo-secure-store",
       "expo-localization",
       "@react-native-community/datetimepicker"

@@ -224,6 +224,7 @@ export default function PropertyDetailScreen() {
         <PropertyIdentitySection
           title={property.title}
           price={property.price}
+          priceUnit={property.priceUnit}
           locality={property.locality}
           district={property.district}
           transactionType={property.transactionType}

@@ -4,6 +4,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { Colors } from "@constants/colors";
 import { formatPrice } from "@utils/price";
+import { PriceUnitEnum } from "@/common/enums/property-enums/price-unit.enum";
+import { t } from "i18next";
 
 interface PropertyIdentitySectionProps {
   transactionType: string;
@@ -15,7 +17,21 @@ interface PropertyIdentitySectionProps {
   locality?: string;
   district?: string;
   serialNo?: string | null;
+  priceUnit?: PriceUnitEnum;
 }
+
+  const formatPriceUnit = (unit: PriceUnitEnum) => {
+    const map: Record<PriceUnitEnum, string> = {
+      [PriceUnitEnum.PER_MONTH]: t('priceUnit.per_month'),
+      [PriceUnitEnum.PER_NIGHT]: t('priceUnit.per_night'),
+      [PriceUnitEnum.PER_ACRE]: t('priceUnit.per_acre'),
+      [PriceUnitEnum.PER_CENT]: t('priceUnit.per_cent'),
+      [PriceUnitEnum.PER_SQFT]: t('priceUnit.per_sqft'),
+      [PriceUnitEnum.PER_SQM]: t('priceUnit.per_sqm'),
+      [PriceUnitEnum.TOTAL]: t('priceUnit.total'),
+    };
+    return map[unit] ?? "";
+  };
 
 export function PropertyIdentitySection({
   transactionType,
@@ -24,6 +40,7 @@ export function PropertyIdentitySection({
   isNegotiable,
   title,
   price,
+  priceUnit,
   locality,
   district,
   serialNo,
@@ -77,9 +94,9 @@ export function PropertyIdentitySection({
         {formatPrice(price)}
       </Text>
 
-      {transactionType === "rent" && (
+      {priceUnit && (
         <Text className="ml-2 mb-1 text-[15px] font-medium text-gray-500">
-          {t('property.per_month')}
+          {formatPriceUnit(priceUnit)}
         </Text>
       )}
     </View>

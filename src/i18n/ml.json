@@ -96,6 +96,15 @@
     "semi_furnished": "അർദ്ധ ഫർണിഷ്ഡ്",
     "not_furnished": "ഫർണിഷ്ഡ് അല്ല"
   },
+  "priceUnit": {
+    "per_month": "പ്രതിമാസം",
+    "per_night": "പ്രതി രാത്രി",
+    "per_acre": "പ്രതി ഏക്കർ",
+    "per_cent": "പ്രതി സെന്റ്",
+    "per_sqft": "പ്രതി ചതുരശ്ര അടി",
+    "per_sqm": "പ്രതി ചതുരശ്ര മീറ്റർ",
+    "total": "ആകെ തുക"
+  },
   "tabs": {
     "home": "ഹോം",
     "search": "തിരയൽ",
